@@ -4,7 +4,7 @@ class LiquidGlassCard extends StatelessWidget {
   const LiquidGlassCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(20),
+    this.padding = const EdgeInsets.all(18),
     this.onTap,
     this.gradient,
     this.radius = 28,
@@ -32,30 +32,30 @@ class LiquidGlassCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                isDark ? const Color(0xFF243140) : const Color(0xFFFCFDFF),
-                isDark ? const Color(0xFF1A2430) : const Color(0xFFF1F5FB),
-                scheme.primary.withValues(alpha: isDark ? 0.10 : 0.06),
+                isDark ? const Color(0xFF213040) : const Color(0xFFFDFEFF),
+                isDark ? const Color(0xFF19232E) : const Color(0xFFF2F6FB),
+                scheme.primary.withValues(alpha: isDark ? 0.08 : 0.05),
               ],
             ),
         border: Border.all(
           color: isDark
-              ? Colors.white.withValues(alpha: 0.08)
-              : Colors.white.withValues(alpha: 0.92),
+              ? scheme.outline.withValues(alpha: 0.4)
+              : Colors.white.withValues(alpha: 0.88),
         ),
         boxShadow: [
           BoxShadow(
             color: isDark
-                ? Colors.black.withValues(alpha: 0.24)
-                : const Color(0xFFB9C6D8).withValues(alpha: 0.42),
-            blurRadius: 24,
-            offset: const Offset(10, 12),
+                ? Colors.black.withValues(alpha: 0.22)
+                : const Color(0xFFB8C8D9).withValues(alpha: 0.2),
+            blurRadius: 18,
+            offset: const Offset(8, 10),
           ),
           BoxShadow(
             color: isDark
-                ? Colors.white.withValues(alpha: 0.04)
-                : Colors.white.withValues(alpha: 0.9),
-            blurRadius: 18,
-            offset: const Offset(-8, -8),
+                ? Colors.white.withValues(alpha: 0.03)
+                : Colors.white.withValues(alpha: 0.7),
+            blurRadius: 14,
+            offset: const Offset(-5, -5),
           ),
         ],
       ),
@@ -66,7 +66,7 @@ class LiquidGlassCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Colors.white.withValues(alpha: isDark ? 0.04 : 0.26),
+              Colors.white.withValues(alpha: isDark ? 0.03 : 0.2),
               Colors.transparent,
             ],
           ),

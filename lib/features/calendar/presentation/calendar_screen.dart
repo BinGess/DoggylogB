@@ -10,7 +10,10 @@ import 'package:intl/intl.dart';
 
 const _selectedPawAsset = 'assets/images/calendar/paw_badge_selected.png';
 const _idlePawAsset = 'assets/images/calendar/paw_stamp_idle.png';
-const _timelineDogAsset = 'assets/images/calendar/calendar_dog_timeline.png';
+const calendarTimelineDogGifAsset =
+    'assets/images/calendar/calendar_dog_timeline.gif';
+const calendarTimelineDogFallbackAsset =
+    'assets/images/calendar/calendar_dog_timeline.png';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -63,9 +66,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         'M月d日 EEEE',
                         'zh_CN',
                       ).format(state.selectedDate),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
                   TextButton(
@@ -138,9 +139,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 }
 
 List<CalendarItem> sortAgendaItemsByReminderTime(List<CalendarItem> items) {
-  return [...items]..sort(
-    (a, b) => _reminderTriggerAt(b).compareTo(_reminderTriggerAt(a)),
-  );
+  return [...items]
+    ..sort((a, b) => _reminderTriggerAt(b).compareTo(_reminderTriggerAt(a)));
 }
 
 DateTime _reminderTriggerAt(CalendarItem item) {
@@ -148,7 +148,10 @@ DateTime _reminderTriggerAt(CalendarItem item) {
     return item.startAt;
   }
   return item.reminders
-      .map((reminder) => item.startAt.subtract(Duration(minutes: reminder.offsetMinutes)))
+      .map(
+        (reminder) =>
+            item.startAt.subtract(Duration(minutes: reminder.offsetMinutes)),
+      )
       .reduce((current, next) => current.isBefore(next) ? current : next);
 }
 
@@ -276,7 +279,7 @@ class _CalendarHeader extends StatelessWidget {
                       monthLabel,
                       style: Theme.of(context).textTheme.headlineMedium
                           ?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             letterSpacing: -0.8,
                           ),
                     ),
@@ -318,12 +321,7 @@ class _WeekdayHeader extends StatelessWidget {
       children: labels.map((label) {
         return Expanded(
           child: Center(
-            child: Text(
-              label,
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-            ),
+            child: Text(label, style: Theme.of(context).textTheme.titleSmall),
           ),
         );
       }).toList(),
@@ -418,7 +416,7 @@ class _MonthView extends StatelessWidget {
                       '${date.day}',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: selected || isToday
-                            ? FontWeight.w800
+                            ? FontWeight.w700
                             : FontWeight.w600,
                         color: inMonth
                             ? scheme.onSurface
@@ -647,7 +645,6 @@ class _AgendaItemRow extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
                       decoration: item.isCompleted
                           ? TextDecoration.lineThrough
                           : TextDecoration.none,
@@ -664,7 +661,6 @@ class _AgendaItemRow extends StatelessWidget {
                   DateFormat('HH:mm').format(item.startAt),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: accent.withValues(alpha: 0.85),
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -698,7 +694,9 @@ class _AgendaItemRow extends StatelessWidget {
           if (alignment == Alignment.centerRight) ...[
             Text(
               label,
-              style: TextStyle(color: color, fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(color: color),
             ),
             const SizedBox(width: 8),
             Icon(icon, color: color),
@@ -707,7 +705,9 @@ class _AgendaItemRow extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               label,
-              style: TextStyle(color: color, fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(color: color),
             ),
           ],
         ],
@@ -833,7 +833,7 @@ class _PawBadge extends StatelessWidget {
               '$day',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: Colors.white,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -921,9 +921,14 @@ class _TimelinePetIllustration extends StatelessWidget {
             width: width,
             height: height,
             child: Image.asset(
-              _timelineDogAsset,
+              calendarTimelineDogGifAsset,
               fit: BoxFit.contain,
               filterQuality: FilterQuality.medium,
+              errorBuilder: (context, error, stackTrace) => Image.asset(
+                calendarTimelineDogFallbackAsset,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.medium,
+              ),
             ),
           ),
         ),
@@ -973,23 +978,23 @@ BoxDecoration _softDecoration(
     borderRadius: BorderRadius.circular(radius),
     border: Border.all(
       color: isDark
-          ? Colors.white.withValues(alpha: 0.04)
-          : Colors.white.withValues(alpha: 0.7),
+          ? theme.colorScheme.outline.withValues(alpha: 0.36)
+          : Colors.white.withValues(alpha: 0.78),
     ),
     boxShadow: [
       BoxShadow(
         color: isDark
-            ? Colors.black.withValues(alpha: 0.24)
-            : const Color(0xFFD3D7DD).withValues(alpha: 0.82),
-        blurRadius: 18,
-        offset: const Offset(8, 10),
+            ? Colors.black.withValues(alpha: 0.2)
+            : const Color(0xFFD3D9E2).withValues(alpha: 0.34),
+        blurRadius: 16,
+        offset: const Offset(6, 8),
       ),
       BoxShadow(
         color: isDark
             ? Colors.white.withValues(alpha: 0.03)
-            : Colors.white.withValues(alpha: 0.95),
-        blurRadius: 16,
-        offset: const Offset(-8, -8),
+            : Colors.white.withValues(alpha: 0.7),
+        blurRadius: 12,
+        offset: const Offset(-4, -4),
       ),
     ],
   );

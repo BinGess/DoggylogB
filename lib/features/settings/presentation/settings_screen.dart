@@ -20,8 +20,17 @@ class SettingsScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            TaskReviewSection(stats: state.stats),
+            TaskReviewSummaryCard(
+              stats: state.stats,
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => TaskReviewDetailScreen(stats: state.stats),
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
+            Text('设置', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 12),
             LiquidGlassCard(
               child: Column(
                 children: [
@@ -51,21 +60,42 @@ class SettingsScreen extends ConsumerWidget {
                     value: preferences.faceIdEnabled,
                     onChanged: controller.setFaceIdEnabled,
                   ),
-                  SwitchListTile(
+                  const Divider(height: 24),
+                  ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('提醒调试模式'),
-                    subtitle: const Text('保存带提醒的任务后，立即触发一次 App 内提醒预览'),
-                    value: preferences.debugImmediateReminders,
-                    onChanged: (value) {
-                      controller.updatePreferences(
-                        preferences.copyWith(debugImmediateReminders: value),
-                      );
-                    },
+                    title: const Text('开发调试'),
+                    subtitle: const Text('动画强度、提醒调试与 iOS 增强能力'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const DevelopmentDebugScreen(),
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DevelopmentDebugScreen extends ConsumerWidget {
+  const DevelopmentDebugScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(appStateProvider);
+    final controller = ref.read(appStateProvider.notifier);
+    final preferences = state.preferences;
+    return Scaffold(
+      appBar: AppBar(title: const Text('开发调试')),
+      body: SoftBackdrop(
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
             LiquidGlassCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,6 +133,18 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                       );
                     }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('提醒调试模式'),
+                    subtitle: const Text('保存带提醒的任务后，立即触发一次 App 内提醒预览'),
+                    value: preferences.debugImmediateReminders,
+                    onChanged: (value) {
+                      controller.updatePreferences(
+                        preferences.copyWith(debugImmediateReminders: value),
+                      );
+                    },
                   ),
                 ],
               ),

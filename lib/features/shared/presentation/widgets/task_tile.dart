@@ -108,7 +108,9 @@ class TaskTile extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             label,
-            style: TextStyle(color: color, fontWeight: FontWeight.w600),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: color),
           ),
         ],
       ),
@@ -142,14 +144,14 @@ class _CategoryBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.24),
-            blurRadius: 10,
-            offset: const Offset(-4, -4),
+            color: Colors.white.withValues(alpha: 0.16),
+            blurRadius: 8,
+            offset: const Offset(-3, -3),
           ),
           BoxShadow(
-            color: color.withValues(alpha: 0.18),
-            blurRadius: 14,
-            offset: const Offset(6, 8),
+            color: color.withValues(alpha: 0.12),
+            blurRadius: 10,
+            offset: const Offset(4, 6),
           ),
         ],
       ),

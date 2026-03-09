@@ -253,7 +253,9 @@ class CountdownTile extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             label,
-            style: TextStyle(color: color, fontWeight: FontWeight.w600),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: color),
           ),
         ],
       ),

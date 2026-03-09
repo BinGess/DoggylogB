@@ -26,8 +26,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.person_rounded));
     await tester.pumpAndSettle();
 
-    var navigationBar = tester.widget<NavigationBar>(find.byType(NavigationBar));
-    expect(navigationBar.selectedIndex, 2);
+    expect(find.byKey(const Key('home-tab-settings-selected')), findsOneWidget);
 
     await tester.pumpWidget(
       UncontrolledProviderScope(
@@ -37,7 +36,6 @@ void main() {
     );
     await tester.pump();
 
-    navigationBar = tester.widget<NavigationBar>(find.byType(NavigationBar));
-    expect(navigationBar.selectedIndex, 2);
+    expect(find.byKey(const Key('home-tab-settings-selected')), findsOneWidget);
   });
 }

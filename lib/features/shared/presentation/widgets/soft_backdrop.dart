@@ -17,18 +17,18 @@ class SoftBackdrop extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: isDark
-              ? const [Color(0xFF101721), Color(0xFF121A25), Color(0xFF0B1118)]
-              : const [Color(0xFFF4F7FB), Color(0xFFEAF0F8), Color(0xFFE3EAF4)],
+              ? const [Color(0xFF0E141B), Color(0xFF121922), Color(0xFF0B1016)]
+              : const [Color(0xFFF6F9FC), Color(0xFFF0F5FA), Color(0xFFE8EEF5)],
         ),
       ),
       child: Stack(
         children: [
-          const Positioned(top: -120, left: -70, child: _GlowOrb(size: 260)),
-          const Positioned(top: 130, right: -80, child: _GlowOrb(size: 220)),
-          const Positioned(bottom: -110, left: 28, child: _GlowOrb(size: 240)),
+          const Positioned(top: -110, left: -72, child: _GlowOrb(size: 240)),
+          const Positioned(top: 180, right: -64, child: _GlowOrb(size: 180)),
+          const Positioned(bottom: -96, left: 36, child: _GlowOrb(size: 200)),
           Padding(padding: padding, child: child),
         ],
       ),
@@ -53,8 +53,8 @@ class _GlowOrb extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: RadialGradient(
             colors: isDark
-                ? const [Color(0x26F4A261), Color(0x005EC8C0)]
-                : const [Color(0x40FFD7BA), Color(0x00B4C8FF)],
+                ? const [Color(0x145BD4C4), Color(0x005BD4C4)]
+                : const [Color(0x2A93DDD5), Color(0x0093DDD5)],
           ),
         ),
       ),

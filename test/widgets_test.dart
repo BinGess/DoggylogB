@@ -202,10 +202,10 @@ void main() {
       expect(find.text('复盘'), findsNothing);
       expect(find.text('设置'), findsNothing);
 
-      final navigationBar = tester.widget<NavigationBar>(
-        find.byType(NavigationBar),
+      expect(
+        find.byKey(const Key('home-tab-calendar-selected')),
+        findsOneWidget,
       );
-      expect(navigationBar.selectedIndex, 1);
     },
   );
 
@@ -217,31 +217,72 @@ void main() {
     );
     await tester.pump();
 
-    final navigationBar = tester.widget<NavigationBar>(
-      find.byType(NavigationBar),
-    );
     final padding = tester
         .widgetList<Padding>(find.byType(Padding))
         .firstWhere(
           (widget) =>
-              widget.padding == const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              widget.padding == const EdgeInsets.fromLTRB(16, 0, 16, 10),
         );
+    final barRect = tester.getRect(
+      find.byKey(const Key('home-bottom-tab-bar')),
+    );
+    final labelRect = tester.getRect(find.text('日历'));
 
-    expect(navigationBar.height, 64);
-    expect(padding.padding, const EdgeInsets.fromLTRB(16, 0, 16, 12));
+    expect(barRect.height, 58);
+    expect(barRect.bottom - labelRect.bottom, lessThanOrEqualTo(10));
+    expect(padding.padding, const EdgeInsets.fromLTRB(16, 0, 16, 10));
   });
 
-  testWidgets('SettingsScreen shows task review card at the top', (
-    tester,
-  ) async {
+  testWidgets(
+    'SettingsScreen shows tappable task review card and settings section',
+    (tester) async {
+      await tester.pumpWidget(
+        const ProviderScope(child: MaterialApp(home: SettingsScreen())),
+      );
+      await tester.pump();
+
+      expect(find.text('我的'), findsOneWidget);
+      expect(find.text('任务复盘'), findsOneWidget);
+      expect(find.text('完成率'), findsOneWidget);
+      expect(find.text('设置'), findsOneWidget);
+      expect(find.text('开发调试'), findsOneWidget);
+      expect(find.text('连续打卡'), findsNothing);
+      expect(find.text('忠诚度总分'), findsNothing);
+      expect(find.text('分类分布'), findsNothing);
+      expect(find.text('动画强度'), findsNothing);
+      expect(find.text('iOS 增强能力'), findsNothing);
+    },
+  );
+
+  testWidgets('SettingsScreen opens task review detail page', (tester) async {
     await tester.pumpWidget(
       const ProviderScope(child: MaterialApp(home: SettingsScreen())),
     );
     await tester.pump();
 
-    expect(find.text('我的'), findsOneWidget);
-    expect(find.text('任务复盘'), findsOneWidget);
-    expect(find.text('完成率'), findsOneWidget);
+    await tester.tap(find.text('任务复盘'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('任务复盘'), findsWidgets);
+    expect(find.text('连续打卡'), findsOneWidget);
+    expect(find.text('忠诚度总分'), findsOneWidget);
     expect(find.text('分类分布'), findsOneWidget);
   });
+
+  testWidgets(
+    'SettingsScreen opens development debug page from settings footer',
+    (tester) async {
+      await tester.pumpWidget(
+        const ProviderScope(child: MaterialApp(home: SettingsScreen())),
+      );
+      await tester.pump();
+
+      await tester.tap(find.text('开发调试'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('开发调试'), findsWidgets);
+      expect(find.text('动画强度'), findsOneWidget);
+      expect(find.text('iOS 增强能力'), findsOneWidget);
+    },
+  );
 }
