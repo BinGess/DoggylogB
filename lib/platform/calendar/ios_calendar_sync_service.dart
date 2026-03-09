@@ -16,7 +16,7 @@ class IosCalendarSyncService {
       _platform.syncCalendarDelta(updatedAfter: updatedAfter);
 
   Future<String?> upsertItem(CalendarItem item) =>
-      _platform.upsertCalendarItem(item);
+      _platform.upsertCalendarItem(item.copyWith(reminders: const []));
 
   Future<bool> deleteItem(CalendarItem item) =>
       _platform.deleteCalendarItem(item);

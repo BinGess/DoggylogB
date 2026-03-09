@@ -1,39 +1,32 @@
 import 'package:doggylog/features/calendar/presentation/calendar_screen.dart';
 import 'package:doggylog/features/countdown/presentation/countdown_screen.dart';
 import 'package:doggylog/features/settings/presentation/settings_screen.dart';
-import 'package:doggylog/features/stats/presentation/stats_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomeShell extends StatefulWidget {
+final homeShellTabIndexProvider = StateProvider<int>((ref) => 1);
+
+class HomeShell extends ConsumerWidget {
   const HomeShell({super.key});
 
-  @override
-  State<HomeShell> createState() => _HomeShellState();
-}
-
-class _HomeShellState extends State<HomeShell> {
-  int _index = 0;
-
-  static const _pages = [
-    CalendarScreen(),
-    CountdownScreen(),
-    StatsScreen(),
-    SettingsScreen(),
-  ];
+  static const _pages = [CountdownScreen(), CalendarScreen(), SettingsScreen()];
+  static const _navRadius = 24.0;
+  static const _navHeight = 64.0;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final index = ref.watch(homeShellTabIndexProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final scheme = theme.colorScheme;
     return Scaffold(
       extendBody: true,
-      body: IndexedStack(index: _index, children: _pages),
+      body: IndexedStack(index: index, children: _pages),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(_navRadius),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -65,27 +58,26 @@ class _HomeShellState extends State<HomeShell> {
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(_navRadius),
             child: NavigationBar(
-              selectedIndex: _index,
-              onDestinationSelected: (value) => setState(() => _index = value),
+              height: _navHeight,
+              selectedIndex: index,
+              onDestinationSelected: (value) {
+                ref.read(homeShellTabIndexProvider.notifier).state = value;
+              },
               indicatorColor: scheme.primary.withValues(alpha: 0.18),
               destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.calendar_month_rounded),
-                  label: '日历',
-                ),
                 NavigationDestination(
                   icon: Icon(Icons.timelapse_rounded),
                   label: '倒计时',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.insights_rounded),
-                  label: '复盘',
+                  icon: Icon(Icons.calendar_month_rounded),
+                  label: '日历',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.settings_rounded),
-                  label: '设置',
+                  icon: Icon(Icons.person_rounded),
+                  label: '我的',
                 ),
               ],
             ),

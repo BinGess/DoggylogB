@@ -4,6 +4,16 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+bool shouldFireDebugReminderPreview({
+  required bool debugImmediateReminders,
+  required CalendarItem item,
+}) {
+  return debugImmediateReminders &&
+      item.reminders.isNotEmpty &&
+      !item.isDeleted &&
+      !item.isCompleted;
+}
+
 class DoggylogNotificationService {
   DoggylogNotificationService(this._plugin);
 
@@ -55,10 +65,45 @@ class DoggylogNotificationService {
     }
   }
 
-  Future<void> scheduleTask(CalendarItem item) async {
+  Future<void> scheduleTask(
+    CalendarItem item, {
+    bool fireNowForDebug = false,
+  }) async {
     await cancelTask(item.id);
     if (item.isDeleted || item.isCompleted) {
       return;
+    }
+    if (
+      shouldFireDebugReminderPreview(
+        debugImmediateReminders: fireNowForDebug,
+        item: item,
+      )
+    ) {
+      for (final reminder in item.reminders) {
+        await _plugin.show(
+          _debugPreviewNotificationId(item.id, reminder.offsetMinutes),
+          '${item.title} · 调试提醒',
+          item.description.isEmpty
+              ? '立即预览，原提醒设定为 ${reminder.offsetMinutes} 分钟前。'
+              : '${item.description}\n调试预览：${reminder.offsetMinutes} 分钟前',
+          NotificationDetails(
+            iOS: const DarwinNotificationDetails(
+              interruptionLevel: InterruptionLevel.timeSensitive,
+              presentAlert: true,
+              presentSound: true,
+            ),
+            android: AndroidNotificationDetails(
+              'doggylog_tasks',
+              'DoggyLog Tasks',
+              channelDescription:
+                  'Task reminders for DoggyLog calendar entries.',
+              importance: Importance.max,
+              priority: Priority.high,
+            ),
+          ),
+          payload: 'task-preview:${item.id}:${reminder.offsetMinutes}',
+        );
+      }
     }
     final now = DateTime.now();
     for (final reminder in item.reminders) {
@@ -118,6 +163,10 @@ class DoggylogNotificationService {
     }
     hash = 37 * hash + offsetMinutes;
     return hash.abs() % 2147483646;
+  }
+
+  int _debugPreviewNotificationId(String taskId, int offsetMinutes) {
+    return _notificationId(taskId, -(offsetMinutes + 1));
   }
 
   Future<void> _configureTimezone() async {

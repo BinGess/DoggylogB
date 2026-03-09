@@ -163,6 +163,7 @@ class AppRepository {
         orElse: () => CalendarViewMode.month,
       ),
       faceIdEnabled: values['faceIdEnabled'] == 'true',
+      debugImmediateReminders: values['debugImmediateReminders'] == 'true',
     );
   }
 
@@ -176,6 +177,7 @@ class AppRepository {
       'performanceTier': preference.performanceTier.name,
       'selectedCalendarView': preference.selectedCalendarView.name,
       'faceIdEnabled': preference.faceIdEnabled.toString(),
+      'debugImmediateReminders': preference.debugImmediateReminders.toString(),
     };
     await _database.batch((batch) {
       for (final entry in values.entries) {
@@ -328,6 +330,22 @@ class AppRepository {
     await _database
         .into(_database.countdownItemsTable)
         .insertOnConflictUpdate(item.toCompanion());
+  }
+
+  Future<void> toggleCountdownCelebrated(String id, bool value) async {
+    final row = await (_database.select(
+      _database.countdownItemsTable,
+    )..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
+    if (row == null) {
+      return;
+    }
+    await upsertCountdown(row.toDomain().copyWith(hasCelebrated: value));
+  }
+
+  Future<void> deleteCountdown(String id) async {
+    await (_database.delete(
+      _database.countdownItemsTable,
+    )..where((tbl) => tbl.id.equals(id))).go();
   }
 
   Future<void> completeOnboarding(PetBreed breed, String petName) async {

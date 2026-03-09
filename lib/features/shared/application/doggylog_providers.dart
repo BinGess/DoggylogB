@@ -354,7 +354,10 @@ class AppStateController extends StateNotifier<AppState> {
     await repository.upsertCalendarItem(updated);
     final notificationGranted = await notificationService.requestPermissions();
     state = state.copyWith(notificationPermissionGranted: notificationGranted);
-    await notificationService.scheduleTask(updated);
+    await notificationService.scheduleTask(
+      updated,
+      fireNowForDebug: state.preferences.debugImmediateReminders,
+    );
     final systemEntryId = await _ref
         .read(iosCalendarSyncServiceProvider)
         .upsertItem(updated);
@@ -469,6 +472,16 @@ class AppStateController extends StateNotifier<AppState> {
   Future<void> saveCountdown(CountdownItem countdown) async {
     final repository = await _ref.read(repositoryProvider.future);
     await repository.upsertCountdown(countdown);
+  }
+
+  Future<void> toggleCountdownCelebrated(String id, bool value) async {
+    final repository = await _ref.read(repositoryProvider.future);
+    await repository.toggleCountdownCelebrated(id, value);
+  }
+
+  Future<void> deleteCountdown(String id) async {
+    final repository = await _ref.read(repositoryProvider.future);
+    await repository.deleteCountdown(id);
   }
 
   Future<void> selectPet(String petId) async {

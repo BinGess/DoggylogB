@@ -5,7 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final appState = ref.watch(appStateProvider);
+  final hasOnboarded = ref.watch(
+    appStateProvider.select(
+      (state) => state.preferences.hasCompletedOnboarding,
+    ),
+  );
   return GoRouter(
     initialLocation: '/onboarding',
     routes: [
@@ -16,7 +20,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (context, state) => const HomeShell()),
     ],
     redirect: (context, state) {
-      final hasOnboarded = appState.preferences.hasCompletedOnboarding;
       final onboarding = state.matchedLocation == '/onboarding';
       if (!hasOnboarded && !onboarding) {
         return '/onboarding';

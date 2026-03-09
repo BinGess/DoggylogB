@@ -26,8 +26,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(appStateProvider);
     final controller = ref.read(appStateProvider.notifier);
-    final selectedItems = _selectedItems(state)
-      ..sort((a, b) => a.startAt.compareTo(b.startAt));
+    final selectedItems = sortAgendaItemsByReminderTime(_selectedItems(state));
 
     return Scaffold(
       body: SoftBackdrop(
@@ -136,6 +135,21 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   void _toggleCalendarExpanded() {
     setState(() => _calendarExpanded = !_calendarExpanded);
   }
+}
+
+List<CalendarItem> sortAgendaItemsByReminderTime(List<CalendarItem> items) {
+  return [...items]..sort(
+    (a, b) => _reminderTriggerAt(b).compareTo(_reminderTriggerAt(a)),
+  );
+}
+
+DateTime _reminderTriggerAt(CalendarItem item) {
+  if (item.reminders.isEmpty) {
+    return item.startAt;
+  }
+  return item.reminders
+      .map((reminder) => item.startAt.subtract(Duration(minutes: reminder.offsetMinutes)))
+      .reduce((current, next) => current.isBefore(next) ? current : next);
 }
 
 class _CalendarDeck extends StatelessWidget {

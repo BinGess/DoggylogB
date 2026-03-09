@@ -2,6 +2,7 @@ import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop.dart';
+import 'package:doggylog/features/stats/presentation/stats_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,11 +15,13 @@ class SettingsScreen extends ConsumerWidget {
     final controller = ref.read(appStateProvider.notifier);
     final preferences = state.preferences;
     return Scaffold(
-      appBar: AppBar(title: const Text('设置')),
+      appBar: AppBar(title: const Text('我的')),
       body: SoftBackdrop(
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
+            TaskReviewSection(stats: state.stats),
+            const SizedBox(height: 16),
             LiquidGlassCard(
               child: Column(
                 children: [
@@ -47,6 +50,17 @@ class SettingsScreen extends ConsumerWidget {
                     title: const Text('Face ID / Touch ID'),
                     value: preferences.faceIdEnabled,
                     onChanged: controller.setFaceIdEnabled,
+                  ),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('提醒调试模式'),
+                    subtitle: const Text('保存带提醒的任务后，立即触发一次 App 内提醒预览'),
+                    value: preferences.debugImmediateReminders,
+                    onChanged: (value) {
+                      controller.updatePreferences(
+                        preferences.copyWith(debugImmediateReminders: value),
+                      );
+                    },
                   ),
                 ],
               ),

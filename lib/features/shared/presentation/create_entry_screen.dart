@@ -1,10 +1,10 @@
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
+import 'package:doggylog/features/shared/presentation/widgets/compact_date_time_field.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 enum CreateEntryTab { schedule, countdown }
@@ -40,7 +40,6 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   late final TextEditingController _titleController;
-  late bool _allDay;
   late DateTime _startAt;
   late DateTime _endAt;
   late DateTime _countdownAt;
@@ -68,7 +67,6 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
           }
         });
     _titleController = TextEditingController();
-    _allDay = false;
     _startAt = base;
     _endAt = base.add(const Duration(hours: 1));
     _countdownAt = base;
@@ -157,63 +155,25 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
           title: null,
           child: Column(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      '全天事项',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  Switch(
-                    value: _allDay,
-                    onChanged: (value) => setState(() => _allDay = value),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              _DateTimeTile(
+              CompactDateTimeField(
                 label: '开始时间',
-                dateText: _formatDate(_startAt),
-                timeText: _formatTime(_startAt),
-                allDay: _allDay,
-                onDateTap: () => _pickDate(
-                  initial: _startAt,
-                  onSelected: (value) => setState(() {
-                    _startAt = _mergeDate(_startAt, value);
-                    if (_endAt.isBefore(_startAt)) {
-                      _endAt = _startAt.add(const Duration(hours: 1));
-                    }
-                  }),
-                ),
-                onTimeTap: () => _pickTime(
-                  initial: _startAt,
-                  onSelected: (value) => setState(() {
-                    _startAt = _mergeTime(_startAt, value);
-                    if (_endAt.isBefore(_startAt)) {
-                      _endAt = _startAt.add(const Duration(hours: 1));
-                    }
-                  }),
-                ),
+                value: _startAt,
+                showIcons: false,
+                onChanged: (value) => setState(() {
+                  _startAt = value;
+                  if (_endAt.isBefore(_startAt)) {
+                    _endAt = _startAt.add(const Duration(hours: 1));
+                  }
+                }),
               ),
               const SizedBox(height: 12),
-              _DateTimeTile(
+              CompactDateTimeField(
                 label: '结束时间',
-                dateText: _formatDate(_endAt),
-                timeText: _formatTime(_endAt),
-                allDay: _allDay,
-                onDateTap: () => _pickDate(
-                  initial: _endAt,
-                  onSelected: (value) => setState(() {
-                    _endAt = _mergeDate(_endAt, value);
-                  }),
-                ),
-                onTimeTap: () => _pickTime(
-                  initial: _endAt,
-                  onSelected: (value) => setState(() {
-                    _endAt = _mergeTime(_endAt, value);
-                  }),
-                ),
+                value: _endAt,
+                showIcons: false,
+                onChanged: (value) => setState(() {
+                  _endAt = value;
+                }),
               ),
             ],
           ),
@@ -296,33 +256,13 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
         const SizedBox(height: 16),
         _FormSection(
           title: null,
-          child: Row(
-            children: [
-              Expanded(
-                child: _DateChip(
-                  label: _formatDate(_countdownAt),
-                  onTap: () => _pickDate(
-                    initial: _countdownAt,
-                    onSelected: (value) => setState(() {
-                      _countdownAt = _mergeDate(_countdownAt, value);
-                    }),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              SizedBox(
-                width: 108,
-                child: _DateChip(
-                  label: _formatTime(_countdownAt),
-                  onTap: () => _pickTime(
-                    initial: _countdownAt,
-                    onSelected: (value) => setState(() {
-                      _countdownAt = _mergeTime(_countdownAt, value);
-                    }),
-                  ),
-                ),
-              ),
-            ],
+          child: CompactDateTimeField(
+            label: '倒计时目标时间',
+            value: _countdownAt,
+            showIcons: false,
+            onChanged: (value) => setState(() {
+              _countdownAt = value;
+            }),
           ),
         ),
         const SizedBox(height: 16),
@@ -384,13 +324,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
     }
 
     if (_activeTab == CreateEntryTab.schedule) {
-      final startAt = _allDay
-          ? DateTime(_startAt.year, _startAt.month, _startAt.day)
-          : _startAt;
-      final endAt = _allDay
-          ? DateTime(_endAt.year, _endAt.month, _endAt.day, 23, 59)
-          : _endAt;
-      if (!endAt.isAfter(startAt)) {
+      if (!_endAt.isAfter(_startAt)) {
         _showMessage('结束时间需要晚于开始时间');
         return;
       }
@@ -402,8 +336,8 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
           .saveTask(
             title: title,
             description: '',
-            startAt: startAt,
-            endAt: endAt,
+            startAt: _startAt,
+            endAt: _endAt,
             category: _calendar.category,
             petId: ref.read(appStateProvider).selectedPet?.id,
             reminders: reminders,
@@ -427,34 +361,6 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
       return;
     }
     Navigator.of(context).pop();
-  }
-
-  Future<void> _pickDate({
-    required DateTime initial,
-    required ValueChanged<DateTime> onSelected,
-  }) async {
-    final picked = await showDatePicker(
-      context: context,
-      firstDate: DateTime.now().subtract(const Duration(days: 365 * 2)),
-      lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
-      initialDate: initial,
-    );
-    if (picked != null) {
-      onSelected(picked);
-    }
-  }
-
-  Future<void> _pickTime({
-    required DateTime initial,
-    required ValueChanged<TimeOfDay> onSelected,
-  }) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(initial),
-    );
-    if (picked != null) {
-      onSelected(picked);
-    }
   }
 
   Future<void> _selectOption<T>({
@@ -511,34 +417,6 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  String _formatDate(DateTime value) {
-    return DateFormat('yyyy 年 MM 月 dd 日').format(value);
-  }
-
-  String _formatTime(DateTime value) {
-    return DateFormat('HH:mm').format(value);
-  }
-
-  DateTime _mergeDate(DateTime source, DateTime picked) {
-    return DateTime(
-      picked.year,
-      picked.month,
-      picked.day,
-      source.hour,
-      source.minute,
-    );
-  }
-
-  DateTime _mergeTime(DateTime source, TimeOfDay picked) {
-    return DateTime(
-      source.year,
-      source.month,
-      source.day,
-      picked.hour,
-      picked.minute,
-    );
   }
 }
 
@@ -616,12 +494,10 @@ class _SegmentedTabBar extends StatelessWidget {
 class _FormSection extends StatelessWidget {
   const _FormSection({
     required this.title,
-    this.subtitle,
     required this.child,
   });
 
   final String? title;
-  final String? subtitle;
   final Widget child;
 
   @override
@@ -634,105 +510,9 @@ class _FormSection extends StatelessWidget {
           if (title != null) ...[
             Text(title!, style: Theme.of(context).textTheme.titleLarge),
           ],
-          if (subtitle != null) ...[
-            const SizedBox(height: 6),
-            Text(
-              subtitle!,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-            ),
-          ],
-          if (title != null || subtitle != null) const SizedBox(height: 14),
+          if (title != null) const SizedBox(height: 14),
           child,
         ],
-      ),
-    );
-  }
-}
-
-class _DateTimeTile extends StatelessWidget {
-  const _DateTimeTile({
-    required this.label,
-    required this.dateText,
-    required this.timeText,
-    required this.allDay,
-    required this.onDateTap,
-    required this.onTimeTap,
-  });
-
-  final String label;
-  final String dateText;
-  final String timeText;
-  final bool allDay;
-  final VoidCallback onDateTap;
-  final VoidCallback onTimeTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.34),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: Theme.of(context).textTheme.titleSmall),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _DateChip(label: dateText, onTap: onDateTap),
-              ),
-              if (!allDay) ...[
-                const SizedBox(width: 10),
-                SizedBox(
-                  width: 96,
-                  child: _DateChip(label: timeText, onTap: onTimeTap),
-                ),
-              ],
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DateChip extends StatelessWidget {
-  const _DateChip({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            color: Theme.of(context).colorScheme.surface,
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.outline.withValues(alpha: 0.18),
-            ),
-          ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-        ),
       ),
     );
   }

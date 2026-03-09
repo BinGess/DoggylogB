@@ -1,9 +1,10 @@
+import 'package:collection/collection.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
+import 'package:doggylog/features/shared/presentation/widgets/compact_date_time_field.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 Future<void> showTaskEditorSheet(
   BuildContext context,
@@ -29,13 +30,13 @@ class TaskEditorSheet extends ConsumerStatefulWidget {
 }
 
 class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
+  static const _reminderOptions = [5, 15, 30, 60];
+
   late final TextEditingController _titleController;
-  late final TextEditingController _descriptionController;
   late DateTime _startAt;
   late DateTime _endAt;
   late CalendarCategory _category;
-  late String? _petId;
-  final List<int> _offsets = [15];
+  late int _selectedOffset;
 
   @override
   void initState() {
@@ -45,30 +46,20 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
     _titleController = TextEditingController(
       text: item?.title ?? draft?.title ?? '',
     );
-    _descriptionController = TextEditingController(
-      text: item?.description ?? '',
-    );
     _startAt = item?.startAt ?? draft?.startAt ?? DateTime.now();
     _endAt =
         item?.endAt ??
         draft?.endAt ??
         DateTime.now().add(const Duration(minutes: 30));
     _category = item?.category ?? draft?.category ?? CalendarCategory.pet;
-    _petId = item?.petId ?? draft?.petId;
     final itemOffsets = item?.reminders.map(
       (reminder) => reminder.offsetMinutes,
     );
-    if (itemOffsets != null && itemOffsets.isNotEmpty) {
-      _offsets
-        ..clear()
-        ..addAll(itemOffsets);
-    }
+    _selectedOffset = itemOffsets?.firstOrNull ?? 15;
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(appStateProvider);
-    final pets = state.pets;
     return Padding(
       padding: EdgeInsets.only(
         left: 24,
@@ -92,47 +83,12 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: '标题'),
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _descriptionController,
-                minLines: 2,
-                maxLines: 3,
-                decoration: const InputDecoration(labelText: '备注'),
-              ),
               const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: CalendarCategory.values.map((category) {
-                  return ChoiceChip(
-                    label: Text(category.label),
-                    selected: category == _category,
-                    onSelected: (_) => setState(() => _category = category),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String?>(
-                initialValue: _petId,
-                decoration: const InputDecoration(labelText: '关联宠物'),
-                items: [
-                  const DropdownMenuItem<String?>(
-                    value: null,
-                    child: Text('不关联'),
-                  ),
-                  ...pets.map(
-                    (pet) => DropdownMenuItem<String?>(
-                      value: pet.id,
-                      child: Text(pet.name),
-                    ),
-                  ),
-                ],
-                onChanged: (value) => setState(() => _petId = value),
-              ),
-              const SizedBox(height: 16),
-              _DateTile(
+              CompactDateTimeField(
                 label: '开始时间',
                 value: _startAt,
+                datePattern: 'yyyy/MM/dd',
+                showIcons: false,
                 onChanged: (value) => setState(() {
                   _startAt = value;
                   if (_endAt.isBefore(_startAt)) {
@@ -141,105 +97,76 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
                 }),
               ),
               const SizedBox(height: 12),
-              _DateTile(
+              CompactDateTimeField(
                 label: '结束时间',
                 value: _endAt,
+                datePattern: 'yyyy/MM/dd',
                 onChanged: (value) => setState(() => _endAt = value),
               ),
               const SizedBox(height: 16),
               Text('提醒时间', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [5, 15, 30, 60].map((offset) {
-                  final selected = _offsets.contains(offset);
-                  return FilterChip(
-                    label: Text('$offset 分钟前'),
-                    selected: selected,
-                    onSelected: (value) {
-                      setState(() {
-                        if (value) {
-                          _offsets.add(offset);
-                        } else {
-                          _offsets.remove(offset);
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
+              DropdownButtonFormField<int>(
+                initialValue: _selectedOffset,
+                items: _reminderOptions
+                    .map(
+                      (offset) => DropdownMenuItem<int>(
+                        value: offset,
+                        child: Text('$offset 分钟前'),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+                  setState(() => _selectedOffset = value);
+                },
               ),
               const SizedBox(height: 20),
-              FilledButton(
-                onPressed: () async {
-                  final reminders = _offsets
-                      .map((offset) => ReminderPolicy(offsetMinutes: offset))
-                      .toList();
-                  await ref
-                      .read(appStateProvider.notifier)
-                      .saveTask(
-                        id: widget.item?.id,
-                        title: _titleController.text.trim(),
-                        description: _descriptionController.text.trim(),
-                        startAt: _startAt,
-                        endAt: _endAt,
-                        category: _category,
-                        petId: _petId,
-                        reminders: reminders,
-                      );
-                  if (!context.mounted) return;
-                  Navigator.of(context).pop();
-                },
-                child: const Text('保存日程'),
+              Row(
+                children: [
+                  if (widget.item != null) ...[
+                    OutlinedButton(
+                      onPressed: () async {
+                        await ref
+                            .read(appStateProvider.notifier)
+                            .deleteTask(widget.item!.id);
+                        if (!context.mounted) return;
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('删除'),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () async {
+                        final reminders = [
+                          ReminderPolicy(offsetMinutes: _selectedOffset),
+                        ];
+                        await ref
+                            .read(appStateProvider.notifier)
+                            .saveTask(
+                              id: widget.item?.id,
+                              title: _titleController.text.trim(),
+                              description: '',
+                              startAt: _startAt,
+                              endAt: _endAt,
+                              category: _category,
+                              petId: null,
+                              reminders: reminders,
+                            );
+                        if (!context.mounted) return;
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('保存日程'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class _DateTile extends StatelessWidget {
-  const _DateTile({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String label;
-  final DateTime value;
-  final ValueChanged<DateTime> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      tileColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      title: Text(label),
-      subtitle: Text(DateFormat('yyyy/MM/dd HH:mm').format(value)),
-      trailing: const Icon(Icons.edit_calendar_rounded),
-      onTap: () async {
-        final date = await showDatePicker(
-          context: context,
-          firstDate: DateTime.now().subtract(const Duration(days: 365)),
-          lastDate: DateTime.now().add(const Duration(days: 365 * 3)),
-          initialDate: value,
-        );
-        if (date == null || !context.mounted) {
-          return;
-        }
-        final time = await showTimePicker(
-          context: context,
-          initialTime: TimeOfDay.fromDateTime(value),
-        );
-        if (time == null) {
-          return;
-        }
-        onChanged(
-          DateTime(date.year, date.month, date.day, time.hour, time.minute),
-        );
-      },
     );
   }
 }

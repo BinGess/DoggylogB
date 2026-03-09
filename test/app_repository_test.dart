@@ -186,4 +186,53 @@ void main() {
       expect(row.isDeleted, isTrue);
     },
   );
+
+  test('savePreferences persists debug immediate reminder switch', () async {
+    const preference = UserPreference(
+      hasCompletedOnboarding: false,
+      weekStartsOnMonday: true,
+      fontScale: 1,
+      hapticsEnabled: true,
+      animationSpeed: 1,
+      performanceTier: PerformanceTier.balanced,
+      selectedCalendarView: CalendarViewMode.month,
+      faceIdEnabled: false,
+      debugImmediateReminders: true,
+    );
+
+    await repository.savePreferences(preference);
+    final loaded = await repository.loadPreferences();
+
+    expect(loaded.debugImmediateReminders, isTrue);
+  });
+
+  test(
+    'toggleCountdownCelebrated and deleteCountdown mutate stored item',
+    () async {
+      final now = DateTime(2026, 3, 9, 12);
+      await repository.upsertCountdown(
+        CountdownItem(
+          id: 'countdown-1',
+          title: '疫苗提醒',
+          dueAt: now.add(const Duration(days: 2)),
+          createdAt: now.subtract(const Duration(days: 3)),
+          petId: 'pet-1',
+        ),
+      );
+
+      await repository.toggleCountdownCelebrated('countdown-1', true);
+
+      final celebratedRow = await (database.select(
+        database.countdownItemsTable,
+      )..where((tbl) => tbl.id.equals('countdown-1'))).getSingle();
+      expect(celebratedRow.hasCelebrated, isTrue);
+
+      await repository.deleteCountdown('countdown-1');
+
+      final remaining = await (database.select(
+        database.countdownItemsTable,
+      )..where((tbl) => tbl.id.equals('countdown-1'))).get();
+      expect(remaining, isEmpty);
+    },
+  );
 }

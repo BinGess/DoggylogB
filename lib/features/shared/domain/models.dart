@@ -280,6 +280,26 @@ class CountdownItem {
   final bool isPinned;
   final bool hasCelebrated;
 
+  CountdownItem copyWith({
+    String? id,
+    String? title,
+    DateTime? dueAt,
+    DateTime? createdAt,
+    String? petId,
+    bool? isPinned,
+    bool? hasCelebrated,
+  }) {
+    return CountdownItem(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      dueAt: dueAt ?? this.dueAt,
+      createdAt: createdAt ?? this.createdAt,
+      petId: petId ?? this.petId,
+      isPinned: isPinned ?? this.isPinned,
+      hasCelebrated: hasCelebrated ?? this.hasCelebrated,
+    );
+  }
+
   double progress(DateTime now) {
     final total = dueAt.difference(createdAt).inSeconds.abs();
     if (total == 0) {
@@ -332,6 +352,7 @@ class UserPreference {
     required this.performanceTier,
     required this.selectedCalendarView,
     required this.faceIdEnabled,
+    required this.debugImmediateReminders,
   });
 
   const UserPreference.defaults()
@@ -342,7 +363,8 @@ class UserPreference {
       animationSpeed = 1,
       performanceTier = PerformanceTier.balanced,
       selectedCalendarView = CalendarViewMode.month,
-      faceIdEnabled = false;
+      faceIdEnabled = false,
+      debugImmediateReminders = false;
 
   final bool hasCompletedOnboarding;
   final bool weekStartsOnMonday;
@@ -352,6 +374,7 @@ class UserPreference {
   final PerformanceTier performanceTier;
   final CalendarViewMode selectedCalendarView;
   final bool faceIdEnabled;
+  final bool debugImmediateReminders;
 
   UserPreference copyWith({
     bool? hasCompletedOnboarding,
@@ -362,6 +385,7 @@ class UserPreference {
     PerformanceTier? performanceTier,
     CalendarViewMode? selectedCalendarView,
     bool? faceIdEnabled,
+    bool? debugImmediateReminders,
   }) {
     return UserPreference(
       hasCompletedOnboarding:
@@ -373,6 +397,8 @@ class UserPreference {
       performanceTier: performanceTier ?? this.performanceTier,
       selectedCalendarView: selectedCalendarView ?? this.selectedCalendarView,
       faceIdEnabled: faceIdEnabled ?? this.faceIdEnabled,
+      debugImmediateReminders:
+          debugImmediateReminders ?? this.debugImmediateReminders,
     );
   }
 }
