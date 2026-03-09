@@ -518,16 +518,6 @@ class _CompactWeekView extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     SizedBox(
-                      height: 22,
-                      child: selected
-                          ? const SizedBox.shrink()
-                          : _PawStamp(
-                              size: 18,
-                              color: scheme.onSurface.withValues(alpha: 0.06),
-                            ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
                       height: 52,
                       child: selected && selectedPet != null
                           ? Align(
@@ -538,7 +528,18 @@ class _CompactWeekView extends StatelessWidget {
                                 height: 46,
                               ),
                             )
-                          : const SizedBox.shrink(),
+                          : Align(
+                              alignment: Alignment.topCenter,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 12),
+                                child: _PawStamp(
+                                  size: 18,
+                                  color: scheme.onSurface.withValues(
+                                    alpha: 0.06,
+                                  ),
+                                ),
+                              ),
+                            ),
                     ),
                   ],
                 ),

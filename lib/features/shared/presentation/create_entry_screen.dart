@@ -40,7 +40,6 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   late final TextEditingController _titleController;
-  late final TextEditingController _noteController;
   late bool _allDay;
   late DateTime _startAt;
   late DateTime _endAt;
@@ -69,7 +68,6 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
           }
         });
     _titleController = TextEditingController();
-    _noteController = TextEditingController();
     _allDay = false;
     _startAt = base;
     _endAt = base.add(const Duration(hours: 1));
@@ -80,13 +78,11 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
   void dispose() {
     _tabController.dispose();
     _titleController.dispose();
-    _noteController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       body: SoftBackdrop(
         child: SafeArea(
@@ -113,20 +109,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
                   children: [
-                    Text(
-                      _activeTab == CreateEntryTab.schedule ? '添加日程' : '添加倒计时',
-                      style: theme.textTheme.headlineLarge,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      _activeTab == CreateEntryTab.schedule
-                          ? '把时间、提醒和分类整理成清晰的卡片，避免录入时信息层级混乱。'
-                          : '为即将到来的重要时刻建立一个更有仪式感的提醒入口。',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 4),
                     _SegmentedTabBar(
                       controller: _tabController,
                       onChanged: (index) {
@@ -155,8 +138,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
       key: const ValueKey('schedule-form'),
       children: [
         _FormSection(
-          title: '基本信息',
-          subtitle: '先把标题和备注写清楚，后面的提醒和分类会更顺手。',
+          title: null,
           child: Column(
             children: [
               TextField(
@@ -167,23 +149,12 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
                   hintText: '例如：带 Mochi 晚间遛弯',
                 ),
               ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: _noteController,
-                minLines: 2,
-                maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: '备注',
-                  hintText: '补充地点、要带的东西或注意事项',
-                ),
-              ),
             ],
           ),
         ),
         const SizedBox(height: 16),
         _FormSection(
-          title: '时间安排',
-          subtitle: '时间卡片统一使用同一层级，避免之前那种字号和块间距乱跳。',
+          title: null,
           child: Column(
             children: [
               Row(
@@ -249,8 +220,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
         ),
         const SizedBox(height: 16),
         _FormSection(
-          title: '规则与分类',
-          subtitle: '提醒、重复和日历分类收敛到同一块里，减少界面噪声。',
+          title: null,
           child: Column(
             children: [
               _SelectionRow<_RepeatOption>(
@@ -309,8 +279,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
       key: const ValueKey('countdown-form'),
       children: [
         _FormSection(
-          title: '倒计时标题',
-          subtitle: '建议用一个具体的事件名称，避免以后列表里一堆“重要日子”。',
+          title: null,
           child: Column(
             children: [
               TextField(
@@ -321,23 +290,12 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
                   hintText: '例如：Mochi 生日 / 年度体检 / 疫苗到期',
                 ),
               ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: _noteController,
-                minLines: 2,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: '备注',
-                  hintText: '可选：补充地点、准备事项或需要提醒的人',
-                ),
-              ),
             ],
           ),
         ),
         const SizedBox(height: 16),
         _FormSection(
-          title: '目标时间',
-          subtitle: '保留大号时间按钮，但统一字体和圆角，不再像临时拼出来的卡片。',
+          title: null,
           child: Row(
             children: [
               Expanded(
@@ -369,8 +327,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
         ),
         const SizedBox(height: 16),
         _FormSection(
-          title: '提醒与风格',
-          subtitle: '把提醒方式和展示贴纸收在一起，让这个页面更像一个完整编辑器。',
+          title: null,
           child: Column(
             children: [
               _SelectionRow<_ReminderOption>(
@@ -421,7 +378,6 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
 
   Future<void> _submit() async {
     final title = _titleController.text.trim();
-    final note = _noteController.text.trim();
     if (title.isEmpty) {
       _showMessage('请输入标题');
       return;
@@ -445,7 +401,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
           .read(appStateProvider.notifier)
           .saveTask(
             title: title,
-            description: note,
+            description: '',
             startAt: startAt,
             endAt: endAt,
             category: _calendar.category,
@@ -660,12 +616,12 @@ class _SegmentedTabBar extends StatelessWidget {
 class _FormSection extends StatelessWidget {
   const _FormSection({
     required this.title,
-    required this.subtitle,
+    this.subtitle,
     required this.child,
   });
 
-  final String title;
-  final String subtitle;
+  final String? title;
+  final String? subtitle;
   final Widget child;
 
   @override
@@ -675,10 +631,19 @@ class _FormSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 6),
-          Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 18),
+          if (title != null) ...[
+            Text(title!, style: Theme.of(context).textTheme.titleLarge),
+          ],
+          if (subtitle != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              subtitle!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+          if (title != null || subtitle != null) const SizedBox(height: 14),
           child,
         ],
       ),
