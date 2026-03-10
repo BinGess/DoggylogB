@@ -9,7 +9,7 @@ class AppTheme {
   static const _darkBackground = Color(0xFF0E141B);
   static const _darkSurface = Color(0xFF18212B);
 
-  static ThemeData light() {
+  static ThemeData light({double fontScale = 1}) {
     final scheme =
         ColorScheme.fromSeed(
           seedColor: _primary,
@@ -22,10 +22,10 @@ class AppTheme {
           onSurfaceVariant: const Color(0xFF617081),
           outline: const Color(0xFFD8E0EA),
         );
-    return _buildTheme(scheme, Brightness.light);
+    return _buildTheme(scheme, Brightness.light, fontScale);
   }
 
-  static ThemeData dark() {
+  static ThemeData dark({double fontScale = 1}) {
     final scheme =
         ColorScheme.fromSeed(
           seedColor: _primary,
@@ -38,14 +38,19 @@ class AppTheme {
           onSurfaceVariant: const Color(0xFF9AA8B8),
           outline: const Color(0xFF334254),
         );
-    return _buildTheme(scheme, Brightness.dark);
+    return _buildTheme(scheme, Brightness.dark, fontScale);
   }
 
-  static ThemeData _buildTheme(ColorScheme scheme, Brightness brightness) {
+  static ThemeData _buildTheme(
+    ColorScheme scheme,
+    Brightness brightness,
+    double fontScale,
+  ) {
     final isDark = brightness == Brightness.dark;
     final textTheme = _textTheme(
       isDark ? Typography.whiteMountainView : Typography.blackMountainView,
       scheme,
+      fontScale,
     );
 
     return ThemeData(
@@ -226,19 +231,24 @@ class AppTheme {
     );
   }
 
-  static TextTheme _textTheme(TextTheme base, ColorScheme scheme) {
+  static TextTheme _textTheme(
+    TextTheme base,
+    ColorScheme scheme,
+    double fontScale,
+  ) {
+    final scale = fontScale.clamp(1.0, 1.2);
     final zcoolBase = GoogleFonts.zcoolKuaiLeTextTheme(base);
     return zcoolBase.copyWith(
       // Display — 大标题：移除负向字距，中文不需要紧缩字距
       displayLarge: zcoolBase.displayLarge?.copyWith(
-        fontSize: 38,
+        fontSize: 38 * scale,
         height: 1.28,
         letterSpacing: 0,
         fontWeight: FontWeight.w400,
         color: scheme.onSurface,
       ),
       displayMedium: zcoolBase.displayMedium?.copyWith(
-        fontSize: 30,
+        fontSize: 30 * scale,
         height: 1.28,
         letterSpacing: 0,
         fontWeight: FontWeight.w400,
@@ -246,21 +256,21 @@ class AppTheme {
       ),
       // Headline — 页面标题
       headlineLarge: zcoolBase.headlineLarge?.copyWith(
-        fontSize: 26,
+        fontSize: 26 * scale,
         height: 1.32,
         letterSpacing: 0,
         fontWeight: FontWeight.w400,
         color: scheme.onSurface,
       ),
       headlineMedium: zcoolBase.headlineMedium?.copyWith(
-        fontSize: 22,
+        fontSize: 22 * scale,
         height: 1.32,
         letterSpacing: 0,
         fontWeight: FontWeight.w400,
         color: scheme.onSurface,
       ),
       headlineSmall: zcoolBase.headlineSmall?.copyWith(
-        fontSize: 19,
+        fontSize: 19 * scale,
         height: 1.38,
         letterSpacing: 0,
         fontWeight: FontWeight.w400,
@@ -268,21 +278,21 @@ class AppTheme {
       ),
       // Title — 卡片/列表标题
       titleLarge: zcoolBase.titleLarge?.copyWith(
-        fontSize: 17,
+        fontSize: 17 * scale,
         height: 1.42,
         letterSpacing: 0,
         fontWeight: FontWeight.w400,
         color: scheme.onSurface,
       ),
       titleMedium: zcoolBase.titleMedium?.copyWith(
-        fontSize: 15,
+        fontSize: 15 * scale,
         height: 1.45,
         letterSpacing: 0,
         fontWeight: FontWeight.w400,
         color: scheme.onSurface,
       ),
       titleSmall: zcoolBase.titleSmall?.copyWith(
-        fontSize: 13,
+        fontSize: 13 * scale,
         height: 1.45,
         letterSpacing: 0,
         fontWeight: FontWeight.w400,
@@ -290,40 +300,40 @@ class AppTheme {
       ),
       // Body — 正文：中文需要充裕的行高才舒适
       bodyLarge: zcoolBase.bodyLarge?.copyWith(
-        fontSize: 16,
+        fontSize: 16 * scale,
         height: 1.7,
         letterSpacing: 0.2,
         color: scheme.onSurface,
       ),
       bodyMedium: zcoolBase.bodyMedium?.copyWith(
-        fontSize: 14,
+        fontSize: 14 * scale,
         height: 1.7,
         letterSpacing: 0.2,
         color: scheme.onSurface,
       ),
       bodySmall: zcoolBase.bodySmall?.copyWith(
-        fontSize: 12,
+        fontSize: 12 * scale,
         height: 1.6,
         letterSpacing: 0.3,
         color: scheme.onSurfaceVariant,
       ),
       // Label — 标签/按钮/底部导航：保留微弱字距提升小字可读性
       labelLarge: zcoolBase.labelLarge?.copyWith(
-        fontSize: 13,
+        fontSize: 13 * scale,
         height: 1.35,
         letterSpacing: 0.3,
         fontWeight: FontWeight.w400,
         color: scheme.onSurface,
       ),
       labelMedium: zcoolBase.labelMedium?.copyWith(
-        fontSize: 11,
+        fontSize: 11 * scale,
         height: 1.35,
         letterSpacing: 0.3,
         fontWeight: FontWeight.w400,
         color: scheme.onSurfaceVariant,
       ),
       labelSmall: zcoolBase.labelSmall?.copyWith(
-        fontSize: 10,
+        fontSize: 10 * scale,
         height: 1.35,
         letterSpacing: 0.4,
         fontWeight: FontWeight.w400,

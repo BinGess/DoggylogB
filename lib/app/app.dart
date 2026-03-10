@@ -76,8 +76,8 @@ class _DoggyLogAppState extends ConsumerState<DoggyLogApp>
       title: 'DoggyLog',
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.system,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
+      theme: AppTheme.light(fontScale: state.preferences.fontScale),
+      darkTheme: AppTheme.dark(fontScale: state.preferences.fontScale),
       routerConfig: router,
       builder: (context, child) {
         return Stack(

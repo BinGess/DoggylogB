@@ -6,27 +6,77 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final homeShellTabIndexProvider = StateProvider<int>((ref) => 1);
 
-class HomeShell extends ConsumerWidget {
-  const HomeShell({super.key});
+int? homeShellTabIndexForId(String? tabId) {
+  switch (tabId) {
+    case 'countdown':
+      return 0;
+    case 'calendar':
+      return 1;
+    case 'settings':
+      return 2;
+    default:
+      return null;
+  }
+}
 
-  static const _pages = [CountdownScreen(), CalendarScreen(), SettingsScreen()];
-  static const _navRadius = 26.0;
-  static const _navHeight = 64.0;
+class HomeShell extends ConsumerStatefulWidget {
+  const HomeShell({super.key, this.initialTabId});
+
+  final String? initialTabId;
+  static const pages = [
+    CountdownScreen(),
+    CalendarScreen(),
+    SettingsScreen(),
+  ];
+  static const navRadius = 26.0;
+  static const navHeight = 64.0;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeShell> createState() => _HomeShellState();
+}
+
+class _HomeShellState extends ConsumerState<HomeShell> {
+  @override
+  void initState() {
+    super.initState();
+    _syncInitialTab();
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialTabId != widget.initialTabId) {
+      _syncInitialTab();
+    }
+  }
+
+  void _syncInitialTab() {
+    final targetIndex = homeShellTabIndexForId(widget.initialTabId);
+    if (targetIndex == null) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      ref.read(homeShellTabIndexProvider.notifier).state = targetIndex;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final index = ref.watch(homeShellTabIndexProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final scheme = theme.colorScheme;
     return Scaffold(
       extendBody: true,
-      body: IndexedStack(index: index, children: _pages),
+      body: IndexedStack(index: index, children: HomeShell.pages),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(_navRadius),
+            borderRadius: BorderRadius.circular(HomeShell.navRadius),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -60,7 +110,7 @@ class HomeShell extends ConsumerWidget {
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(_navRadius),
+            borderRadius: BorderRadius.circular(HomeShell.navRadius),
             child: _HomeBottomTabBar(
               selectedIndex: index,
               onSelected: (value) {
@@ -109,7 +159,7 @@ class _HomeBottomTabBar extends StatelessWidget {
 
     return SizedBox(
       key: const Key('home-bottom-tab-bar'),
-      height: HomeShell._navHeight,
+      height: HomeShell.navHeight,
       child: Row(
         children: [
           for (var i = 0; i < _items.length; i++)

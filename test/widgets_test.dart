@@ -1,8 +1,10 @@
 import 'package:doggylog/features/shared/domain/models.dart';
+import 'package:doggylog/features/calendar/presentation/calendar_screen.dart';
 import 'package:doggylog/features/home/presentation/home_shell.dart';
 import 'package:doggylog/features/countdown/presentation/countdown_detail_sheet.dart';
 import 'package:doggylog/features/shared/presentation/create_entry_screen.dart';
 import 'package:doggylog/features/shared/presentation/widgets/compact_date_time_field.dart';
+import 'package:doggylog/features/shared/presentation/widgets/soft_circle_icon_button.dart';
 import 'package:doggylog/features/countdown/presentation/countdown_screen.dart';
 import 'package:doggylog/features/settings/presentation/settings_screen.dart';
 import 'package:doggylog/features/shared/presentation/widgets/task_tile.dart';
@@ -48,6 +50,28 @@ void main() {
 
     expect(find.text('晨间遛弯'), findsOneWidget);
     expect(find.text('宠物相关'), findsOneWidget);
+  });
+
+  testWidgets('CalendarScreen empty agenda shows dog image and new copy', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: CalendarScreen())),
+    );
+
+    expect(find.text('今天还没安排哦，点击右上角创建'), findsOneWidget);
+
+    final image = tester.widget<Image>(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Image &&
+            widget.image is AssetImage &&
+            (widget.image as AssetImage).assetName ==
+                calendarTimelineDogFallbackAsset,
+      ),
+    );
+
+    expect(image.fit, BoxFit.cover);
   });
 
   testWidgets('CreateEntryScreen uses lightweight date and time sheets', (
@@ -113,6 +137,47 @@ void main() {
 
     expect(find.byIcon(Icons.calendar_today_rounded), findsNothing);
     expect(find.byIcon(Icons.schedule_rounded), findsNothing);
+  });
+
+  testWidgets('SoftCircleIconButton keeps calendar add button size and fill', (
+    tester,
+  ) async {
+    var tapped = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(useMaterial3: true),
+        home: Scaffold(
+          body: Center(
+            child: SoftCircleIconButton(
+              onTap: () => tapped = true,
+              icon: Icons.add_rounded,
+              tooltip: '添加',
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final container = tester.widget<Container>(
+      find.descendant(
+        of: find.byType(SoftCircleIconButton),
+        matching: find.byType(Container),
+      ),
+    );
+    final decoration = container.decoration! as BoxDecoration;
+
+    expect(container.constraints?.maxWidth, 58);
+    expect(container.constraints?.maxHeight, 58);
+    expect(
+      decoration.color,
+      ThemeData(useMaterial3: true).colorScheme.surface.withValues(alpha: 0.86),
+    );
+
+    await tester.tap(find.byType(SoftCircleIconButton));
+    await tester.pumpAndSettle();
+
+    expect(tapped, isTrue);
   });
 
   testWidgets('CountdownTile supports swipe actions and tap details', (
@@ -209,6 +274,22 @@ void main() {
     },
   );
 
+  testWidgets('HomeShell can start on countdown tab from deep link target', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(home: HomeShell(initialTabId: 'countdown')),
+      ),
+    );
+    await tester.pump();
+
+    expect(
+      find.byKey(const Key('home-tab-countdown-selected')),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('HomeShell uses compact bottom navigation height', (
     tester,
   ) async {
@@ -245,6 +326,10 @@ void main() {
       expect(find.text('任务复盘'), findsOneWidget);
       expect(find.text('完成率'), findsOneWidget);
       expect(find.text('设置'), findsOneWidget);
+      expect(find.text('字号'), findsOneWidget);
+      expect(find.text('小'), findsOneWidget);
+      expect(find.text('中'), findsOneWidget);
+      expect(find.text('大'), findsOneWidget);
       expect(find.text('开发调试'), findsOneWidget);
       expect(find.text('连续打卡'), findsNothing);
       expect(find.text('忠诚度总分'), findsNothing);

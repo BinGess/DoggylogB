@@ -187,6 +187,54 @@ void main() {
     },
   );
 
+  test(
+    'mergeImportedCalendarItems deduplicates identical iOS events with new system ids',
+    () async {
+      final now = DateTime(2026, 3, 10, 9);
+      await repository.upsertCalendarItem(
+        CalendarItem(
+          id: 'local-1',
+          title: '晨间遛弯',
+          description: '带 Mochi 出门',
+          startAt: now,
+          endAt: now.add(const Duration(minutes: 30)),
+          category: CalendarCategory.pet,
+          petId: null,
+          reminders: const [],
+          source: SyncSource.iosCalendar,
+          createdAt: now,
+          updatedAt: now,
+          systemEntryId: 'ek-old',
+        ),
+      );
+
+      await repository.mergeImportedCalendarItems([
+        CalendarItem(
+          id: 'imported-1',
+          title: '晨间遛弯',
+          description: '带 Mochi 出门',
+          startAt: now,
+          endAt: now.add(const Duration(minutes: 30)),
+          category: CalendarCategory.pet,
+          petId: null,
+          reminders: const [],
+          source: SyncSource.iosCalendar,
+          createdAt: now.add(const Duration(minutes: 1)),
+          updatedAt: now.add(const Duration(minutes: 1)),
+          systemEntryId: 'ek-new',
+        ),
+      ]);
+
+      final rows = await (database.select(database.calendarEntriesTable)
+            ..where((tbl) => tbl.title.equals('晨间遛弯')))
+          .get();
+
+      expect(rows, hasLength(1));
+      expect(rows.single.id, 'local-1');
+      expect(rows.single.systemEntryId, 'ek-new');
+    },
+  );
+
   test('savePreferences persists debug immediate reminder switch', () async {
     const preference = UserPreference(
       hasCompletedOnboarding: false,

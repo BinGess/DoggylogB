@@ -232,14 +232,24 @@ class AppRepository {
   Future<void> mergeImportedCalendarItems(List<CalendarItem> items) async {
     final existing = await (_database.select(
       _database.calendarEntriesTable,
-    )..where((tbl) => tbl.systemEntryId.isNotNull())).get();
+    )..where(
+      (tbl) =>
+          tbl.systemEntryId.isNotNull() |
+          tbl.source.equals(SyncSource.iosCalendar.name),
+    )).get();
     final bySystemId = {
       for (final row in existing)
         if (row.systemEntryId != null) row.systemEntryId!: row.toDomain(),
     };
+    final byContentSignature = {
+      for (final row in existing)
+        _calendarImportSignature(row.toDomain()): row.toDomain(),
+    };
 
     for (final item in items) {
-      final local = bySystemId[item.systemEntryId];
+      final local =
+          bySystemId[item.systemEntryId] ??
+          byContentSignature[_calendarImportSignature(item)];
       final merged =
           local?.copyWith(
             title: item.title,
@@ -250,6 +260,7 @@ class AppRepository {
             reminders: item.reminders,
             source: local.source,
             updatedAt: item.updatedAt,
+            systemEntryId: item.systemEntryId,
             isDeleted: false,
           ) ??
           item.copyWith(
@@ -259,6 +270,10 @@ class AppRepository {
             updatedAt: item.updatedAt,
           );
       await upsertCalendarItem(merged);
+      if (merged.systemEntryId != null) {
+        bySystemId[merged.systemEntryId!] = merged;
+      }
+      byContentSignature[_calendarImportSignature(merged)] = merged;
     }
   }
 
@@ -516,6 +531,15 @@ class AppRepository {
       return PetMood.calm;
     }
     return PetMood.lazy;
+  }
+
+  String _calendarImportSignature(CalendarItem item) {
+    return [
+      item.title.trim(),
+      item.description.trim(),
+      item.startAt.millisecondsSinceEpoch,
+      item.endAt.millisecondsSinceEpoch,
+    ].join('|');
   }
 
   SceneMode inferScene(List<GeofencePlace> places) {

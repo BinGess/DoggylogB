@@ -6,6 +6,12 @@ import 'package:doggylog/features/stats/presentation/stats_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+const _fontScaleOptions = <({String label, double value})>[
+  (label: '小', value: 1.0),
+  (label: '中', value: 1.1),
+  (label: '大', value: 1.2),
+];
+
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -59,6 +65,28 @@ class SettingsScreen extends ConsumerWidget {
                     title: const Text('Face ID / Touch ID'),
                     value: preferences.faceIdEnabled,
                     onChanged: controller.setFaceIdEnabled,
+                  ),
+                  const Divider(height: 24),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('字号'),
+                    subtitle: const Text('切换小、中、大三档全局字体大小'),
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _fontScaleOptions.map((option) {
+                        return ChoiceChip(
+                          label: Text(option.label),
+                          selected: preferences.fontScale == option.value,
+                          onSelected: (_) => controller.updatePreferences(
+                            preferences.copyWith(fontScale: option.value),
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                   const Divider(height: 24),
                   ListTile(

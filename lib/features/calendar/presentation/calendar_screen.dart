@@ -3,6 +3,7 @@ import 'package:doggylog/features/pets/presentation/pets_screen.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/create_entry_screen.dart';
+import 'package:doggylog/features/shared/presentation/widgets/soft_circle_icon_button.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +15,7 @@ const calendarTimelineDogGifAsset =
     'assets/images/calendar/calendar_dog_timeline.gif';
 const calendarTimelineDogFallbackAsset =
     'assets/images/calendar/calendar_dog_timeline.png';
+const _emptyAgendaCopy = '今天还没安排哦，点击右上角创建';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -288,14 +290,15 @@ class _CalendarHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        _SoftCircleButton(
+        SoftCircleButton(
           onTap: onPetTap,
           child: _PetGlyph(breed: pet?.breed),
         ),
         const SizedBox(width: 12),
-        _SoftCircleButton(
+        SoftCircleIconButton(
           onTap: onAddTap,
-          child: const Icon(Icons.add_rounded, size: 28),
+          icon: Icons.add_rounded,
+          tooltip: '添加',
         ),
       ],
     );
@@ -383,38 +386,32 @@ class _MonthView extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: selected
-                          ? scheme.primary.withValues(alpha: 0.16)
-                          : Colors.transparent,
-                      boxShadow: selected
-                          ? [
-                              BoxShadow(
-                                color: Colors.white.withValues(alpha: 0.6),
-                                blurRadius: 12,
-                                offset: const Offset(-4, -4),
-                              ),
-                              BoxShadow(
-                                color: scheme.primary.withValues(alpha: 0.16),
-                                blurRadius: 16,
-                                offset: const Offset(4, 8),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '${date.day}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: inMonth
-                            ? scheme.onSurface
-                            : scheme.onSurface.withValues(alpha: 0.22),
-                      ),
+                  SizedBox(
+                    width: 54,
+                    height: 54,
+                    child: Center(
+                      child: selected
+                          ? _PawBadge(
+                              day: date.day,
+                              size: 64,
+                              dayTop: 24,
+                              dayStyle: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            )
+                          : Text(
+                              '${date.day}',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    color: inMonth
+                                        ? scheme.onSurface
+                                        : scheme.onSurface.withValues(
+                                            alpha: 0.22,
+                                          ),
+                                  ),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -435,13 +432,7 @@ class _MonthView extends StatelessWidget {
                     ),
                 ],
               ),
-              if (selected && selectedPet != null)
-                Positioned(
-                  left: -2,
-                  top: 16,
-                  child: _CalendarPetMarker(breed: selectedPet!.breed),
-                )
-              else if (hasPetTask)
+              if (hasPetTask && !selected)
                 Positioned(
                   right: 8,
                   bottom: 22,
@@ -501,7 +492,7 @@ class _CompactWeekView extends StatelessWidget {
                 child: Column(
                   children: [
                     SizedBox(
-                      height: 58,
+                      height: 64,
                       child: selected
                           ? _PawBadge(day: date.day)
                           : Center(
@@ -713,65 +704,65 @@ class _EmptyAgenda extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-      decoration: _softDecoration(context, radius: 24),
+      padding: const EdgeInsets.fromLTRB(0, 16, 18, 16),
+      decoration: _softDecoration(context, radius: 28).copyWith(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            scheme.surface.withValues(alpha: 0.96),
+            const Color(0xFFFFF2E4),
+          ],
+        ),
+        border: Border.all(
+          color: scheme.primary.withValues(alpha: 0.08),
+          width: 1.2,
+        ),
+      ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.12),
-            ),
-            child: Icon(
-              Icons.pets_rounded,
-              size: 16,
-              color: Theme.of(context).colorScheme.primary,
+          SizedBox(
+            width: 116,
+            height: 112,
+            child: ClipRect(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                widthFactor: 0.5,
+                child: Transform.translate(
+                  offset: const Offset(-14, 0),
+                  child: Image.asset(
+                    calendarTimelineDogFallbackAsset,
+                    fit: BoxFit.cover,
+                    filterQuality: FilterQuality.medium,
+                    semanticLabel: '空日程狗狗插画',
+                    width: 180,
+                    height: 112,
+                  ),
+                ),
+              ),
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 6),
           Expanded(
-            child: Text(
-              '今天还没有安排，点右上角加号创建第一件事。',
-              style: Theme.of(context).textTheme.titleMedium,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.58),
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: Text(
+                _emptyAgendaCopy,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  height: 1.45,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SoftCircleButton extends StatelessWidget {
-  const _SoftCircleButton({required this.onTap, required this.child});
-
-  final VoidCallback onTap;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(999),
-        onTap: onTap,
-        child: Container(
-          width: 58,
-          height: 58,
-          decoration: _softDecoration(
-            context,
-            radius: 999,
-            fillColor: Theme.of(
-              context,
-            ).colorScheme.surface.withValues(alpha: 0.86),
-          ),
-          alignment: Alignment.center,
-          child: child,
-        ),
       ),
     );
   }
@@ -800,33 +791,43 @@ class _PetGlyph extends StatelessWidget {
 }
 
 class _PawBadge extends StatelessWidget {
-  const _PawBadge({required this.day});
+  const _PawBadge({
+    required this.day,
+    this.size = 66,
+    this.dayTop = 26,
+    this.dayStyle,
+  });
 
   final int day;
+  final double size;
+  final double dayTop;
+  final TextStyle? dayStyle;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 50,
-      height: 50,
+      width: size,
+      height: size,
       child: Stack(
         alignment: Alignment.center,
         children: [
           Image.asset(
             _selectedPawAsset,
-            width: 50,
-            height: 50,
+            width: size,
+            height: size,
             fit: BoxFit.contain,
             filterQuality: FilterQuality.medium,
           ),
           Positioned(
-            top: 20,
+            top: dayTop,
             child: Text(
               '$day',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
+              style:
+                  dayStyle ??
+                  Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
           ),
         ],

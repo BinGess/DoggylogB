@@ -11,17 +11,15 @@ struct DoggyLogCountdownWidget: Widget {
       DoggyLogCountdownWidgetView(entry: entry)
     }
     .configurationDisplayName("倒计时")
-    .description("大字显示最近一个倒计时的剩余天数。")
+    .description("用更醒目的节奏卡片显示最近一个倒计时。")
     .supportedFamilies([.systemSmall, .systemMedium])
   }
 }
 
-// MARK: - Countdown Entry View (dispatches by family)
-
 struct DoggyLogCountdownWidgetView: View {
   let entry: DoggyLogEntry
 
-  @Environment(\.widgetFamily) var family
+  @Environment(\.widgetFamily) private var family
 
   var body: some View {
     switch family {
@@ -33,202 +31,222 @@ struct DoggyLogCountdownWidgetView: View {
   }
 }
 
-// MARK: - Small View
-
 struct DoggyLogCountdownSmallView: View {
   let entry: DoggyLogEntry
 
   var body: some View {
-    let countdown = entry.snapshot?.countdown
-    let petName = entry.snapshot?.pet.name ?? "DoggyLog"
+    let snapshot = entry.snapshot
+    let countdown = snapshot?.countdown
+    let petName = snapshot?.pet.name ?? "DoggyLog"
 
-    ZStack {
-      // 背景渐变
-      LinearGradient(
-        colors: [
-          Color(red: 0.184, green: 0.561, blue: 0.541),
-          Color(red: 0.447, green: 0.788, blue: 0.757),
-        ],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-      )
+    VStack(alignment: .leading, spacing: 0) {
+      Text("Countdown")
+        .font(.system(size: 11, weight: .medium, design: .rounded))
+        .foregroundColor(.doggyWarmTint.opacity(0.96))
 
-      VStack(alignment: .leading, spacing: 0) {
-        // 宠物名行
-          HStack(spacing: 3) {
-            Text(petName)
-              .font(.system(size: 11, weight: .regular))
-              .foregroundColor(.white.opacity(0.80))
-            Text("🐾")
-              .font(.system(size: 11))
-          }
+      Text(petName)
+        .font(.system(size: 16, weight: .semibold, design: .rounded))
+        .foregroundColor(.doggyInk)
+        .lineLimit(1)
+        .padding(.top, 4)
 
-        Spacer()
+      Spacer(minLength: 8)
 
-        // 核心：剩余天数
-        if let countdown {
-          VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .lastTextBaseline, spacing: 4) {
-              Text("\(max(0, countdown.daysRemaining))")
-                .font(.system(size: 46, weight: .thin, design: .rounded))
-                .foregroundColor(.white)
-              Text("天")
-                .font(.system(size: 14, weight: .light))
-                .foregroundColor(.white.opacity(0.88))
-            }
-            Text(countdown.title)
-              .font(.system(size: 12, weight: .regular))
-              .foregroundColor(.white)
-              .lineLimit(1)
-            Text(_dueDateLabel(ms: countdown.dueAt))
-              .font(.system(size: 10, weight: .regular))
-              .foregroundColor(.white.opacity(0.68))
-              .padding(.top, 2)
-          }
-        } else {
-          Text("暂无倒计时")
-            .font(.system(size: 13, weight: .regular))
-            .foregroundColor(.white.opacity(0.75))
+      if let countdown {
+        HStack(alignment: .firstTextBaseline, spacing: 3) {
+          Text("\(max(0, countdown.daysRemaining))")
+            .font(.system(size: 46, weight: .medium, design: .rounded))
+            .foregroundColor(.doggyInk)
+
+          Text("天")
+            .font(.system(size: 14, weight: .medium, design: .rounded))
+            .foregroundColor(.doggyInk.opacity(0.58))
         }
+
+        Text(countdown.title)
+          .font(.system(size: 12, weight: .medium, design: .rounded))
+          .foregroundColor(.doggyInk.opacity(0.86))
+          .lineLimit(1)
+
+        Text(_countdownDueDateLabel(ms: countdown.dueAt))
+          .font(.system(size: 10, weight: .medium, design: .rounded))
+          .foregroundColor(.doggyWarmTint.opacity(0.92))
+          .padding(.top, 3)
+      } else {
+        Text("暂无倒计时")
+          .font(.system(size: 15, weight: .semibold, design: .rounded))
+          .foregroundColor(.doggyInk)
+
+        Text("打开 App 添加一个目标吧")
+          .font(.system(size: 11, weight: .medium, design: .rounded))
+          .foregroundColor(.doggyInk.opacity(0.5))
+          .padding(.top, 4)
       }
-      .padding(14)
-      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+
+      Spacer(minLength: 10)
+
+      HStack(alignment: .bottom, spacing: 0) {
+        _PawRhythmStrip(activeIndex: 1, count: 4, iconSize: 12, spacing: 8)
+        Spacer(minLength: 8)
+        _DogCompanionView()
+          .frame(width: 76, height: 56)
+      }
     }
+    .padding(.horizontal, 14)
+    .padding(.vertical, 14)
     .doggyWidgetBackground {
-      LinearGradient(
-        colors: [
-          Color(red: 0.184, green: 0.561, blue: 0.541),
-          Color(red: 0.447, green: 0.788, blue: 0.757),
-        ],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-      )
+      RoundedRectangle(cornerRadius: 28, style: .continuous)
+        .fill(Color.doggyWarmCard)
     }
     .widgetURL(URL(string: "doggylog://tab/countdown"))
   }
 }
-
-// MARK: - Medium View
 
 struct DoggyLogCountdownMediumView: View {
   let entry: DoggyLogEntry
 
   var body: some View {
-    let countdown = entry.snapshot?.countdown
-    let petName = entry.snapshot?.pet.name ?? "DoggyLog"
+    let snapshot = entry.snapshot
+    let countdown = snapshot?.countdown
+    let petName = snapshot?.pet.name ?? "DoggyLog"
 
-    ZStack {
-      LinearGradient(
-        colors: [
-          Color(red: 0.184, green: 0.561, blue: 0.541),
-          Color(red: 0.447, green: 0.788, blue: 0.757),
-        ],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-      )
-
-      HStack(alignment: .center, spacing: 0) {
-        // ── 左列：宠物 + 天数大字 ───────────────────────
+    VStack(alignment: .leading, spacing: 0) {
+      HStack(alignment: .top) {
         VStack(alignment: .leading, spacing: 4) {
-          HStack(spacing: 3) {
-            Text(petName)
-              .font(.system(size: 12, weight: .regular))
-              .foregroundColor(.white.opacity(0.80))
-            Text("🐾")
-              .font(.system(size: 12))
-          }
+          Text("Countdown")
+            .font(.system(size: 12, weight: .medium, design: .rounded))
+            .foregroundColor(.doggyWarmTint.opacity(0.96))
 
-          Spacer()
-
-          HStack(alignment: .lastTextBaseline, spacing: 4) {
-            Text("\(max(0, countdown?.daysRemaining ?? 0))")
-              .font(.system(size: 50, weight: .thin, design: .rounded))
-              .foregroundColor(.white)
-            Text("天")
-              .font(.system(size: 15, weight: .light))
-              .foregroundColor(.white.opacity(0.88))
-          }
+          Text(petName)
+            .font(.system(size: 24, weight: .semibold, design: .rounded))
+            .foregroundColor(.doggyInk)
+            .lineLimit(1)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
 
-        // 分隔线
-        Rectangle()
-          .fill(.white.opacity(0.25))
-          .frame(width: 0.8)
-          .padding(.vertical, 10)
-          .padding(.horizontal, 12)
+        Spacer()
 
-        // ── 右列：标题 + 截止日期 + 进度 ──────────────────
-        VStack(alignment: .leading, spacing: 6) {
-          if let countdown {
-            Text(countdown.title)
-              .font(.system(size: 14, weight: .regular))
-              .foregroundColor(.white)
-              .lineLimit(2)
-
-            Text(_dueDateLabel(ms: countdown.dueAt))
-              .font(.system(size: 11, weight: .regular))
-              .foregroundColor(.white.opacity(0.72))
-
-            Spacer(minLength: 4)
-
-            // 进度条
-            let progress = _progress(countdown: countdown)
-            VStack(alignment: .trailing, spacing: 3) {
-              GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                  Capsule()
-                    .fill(.white.opacity(0.25))
-                    .frame(height: 4)
-                  Capsule()
-                    .fill(.white.opacity(0.9))
-                    .frame(width: geo.size.width * progress, height: 4)
-                }
-              }
-              .frame(height: 4)
-
-              Text("\(Int(progress * 100))%")
-                .font(.system(size: 10, weight: .regular))
-                .foregroundColor(.white.opacity(0.68))
-            }
-          } else {
-            Spacer()
-            Text("暂无倒计时\n前往 App 添加吧")
-              .font(.system(size: 12, weight: .regular))
-              .foregroundColor(.white.opacity(0.80))
-              .multilineTextAlignment(.leading)
-            Spacer()
-          }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        Text("陪你守住目标")
+          .font(.system(size: 11, weight: .medium, design: .rounded))
+          .foregroundColor(.doggyInk.opacity(0.44))
       }
-      .padding(.horizontal, 16)
-      .padding(.vertical, 14)
+
+      Spacer(minLength: 12)
+
+      HStack(alignment: .bottom, spacing: 12) {
+        if let countdown {
+          VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+              Text("\(max(0, countdown.daysRemaining))")
+                .font(.system(size: 58, weight: .medium, design: .rounded))
+                .foregroundColor(.doggyInk)
+
+              Text("天")
+                .font(.system(size: 15, weight: .medium, design: .rounded))
+                .foregroundColor(.doggyInk.opacity(0.56))
+            }
+
+            Text(countdown.title)
+              .font(.system(size: 14, weight: .semibold, design: .rounded))
+              .foregroundColor(.doggyInk.opacity(0.88))
+              .lineLimit(2)
+              .padding(.top, 2)
+
+            Text(_countdownDueDateLabel(ms: countdown.dueAt))
+              .font(.system(size: 11, weight: .medium, design: .rounded))
+              .foregroundColor(.doggyWarmTint.opacity(0.96))
+              .padding(.top, 3)
+
+            _CountdownProgressBar(progress: _progress(countdown: countdown))
+              .padding(.top, 12)
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+          VStack(alignment: .leading, spacing: 6) {
+            Text("暂无倒计时")
+              .font(.system(size: 18, weight: .semibold, design: .rounded))
+              .foregroundColor(.doggyInk)
+            Text("前往 App 新建一个小目标，狗狗就会来提醒你。")
+              .font(.system(size: 12, weight: .medium, design: .rounded))
+              .foregroundColor(.doggyInk.opacity(0.52))
+              .lineLimit(2)
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
+        }
+
+        _DogCompanionView()
+          .frame(width: 98, height: 74)
+      }
+
+      Spacer(minLength: 10)
+
+      HStack(alignment: .center) {
+        _PawRhythmStrip(activeIndex: 2, count: 6, iconSize: 15, spacing: 10)
+        Spacer()
+        if let countdown {
+          Text("\(Int(_progress(countdown: countdown) * 100))%")
+            .font(.system(size: 10, weight: .medium, design: .rounded))
+            .foregroundColor(.doggyInk.opacity(0.45))
+        }
+      }
     }
+    .padding(.horizontal, 18)
+    .padding(.vertical, 16)
     .doggyWidgetBackground {
-      LinearGradient(
-        colors: [
-          Color(red: 0.184, green: 0.561, blue: 0.541),
-          Color(red: 0.447, green: 0.788, blue: 0.757),
-        ],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-      )
+      RoundedRectangle(cornerRadius: 30, style: .continuous)
+        .fill(Color.doggyWarmCard)
     }
     .widgetURL(URL(string: "doggylog://tab/countdown"))
   }
 }
 
-// MARK: - Helpers
+private struct _CountdownProgressBar: View {
+  let progress: Double
 
-private func _dueDateLabel(ms: Int) -> String {
+  var body: some View {
+    GeometryReader { geo in
+      ZStack(alignment: .leading) {
+        Capsule()
+          .fill(Color.doggyInk.opacity(0.08))
+          .frame(height: 7)
+
+        Capsule()
+          .fill(Color.doggyWarmTint.opacity(0.85))
+          .frame(width: max(18, geo.size.width * progress), height: 7)
+      }
+    }
+    .frame(height: 7)
+  }
+}
+
+private struct _PawRhythmStrip: View {
+  let activeIndex: Int
+  let count: Int
+  let iconSize: CGFloat
+  let spacing: CGFloat
+
+  var body: some View {
+    HStack(spacing: spacing) {
+      ForEach(0..<count, id: \.self) { index in
+        Image(systemName: "pawprint.fill")
+          .font(.system(size: iconSize, weight: .regular))
+          .foregroundColor(
+            index == activeIndex
+              ? .doggyWarmTint.opacity(0.34)
+              : .doggyInk.opacity(0.08)
+          )
+      }
+    }
+  }
+}
+
+private func _countdownDueDateLabel(ms: Int) -> String {
   let date = Date(timeIntervalSince1970: Double(ms) / 1000.0)
   let cal = Calendar.current
   let month = cal.component(.month, from: date)
   let day = cal.component(.day, from: date)
   let year = cal.component(.year, from: date)
   let nowYear = cal.component(.year, from: Date())
-  return year == nowYear ? "\(month)月\(day)日" : "\(year)年\(month)月\(day)日"
+  return year == nowYear ? "\(month)月\(day)日截止" : "\(year)年\(month)月\(day)日截止"
 }
 
 private func _progress(countdown: SnapshotCountdown) -> Double {

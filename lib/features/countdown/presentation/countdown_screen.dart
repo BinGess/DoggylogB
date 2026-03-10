@@ -3,6 +3,7 @@ import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/create_entry_screen.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
+import 'package:doggylog/features/shared/presentation/widgets/soft_circle_icon_button.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,14 +26,19 @@ class CountdownScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('陪伴式倒计时'),
         actions: [
-          IconButton(
-            onPressed: () => showCreateEntryScreen(
-              context,
-              initialTab: CreateEntryTab.countdown,
-              initialDate: state.selectedDate,
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Center(
+              child: SoftCircleIconButton(
+                onTap: () => showCreateEntryScreen(
+                  context,
+                  initialTab: CreateEntryTab.countdown,
+                  initialDate: state.selectedDate,
+                ),
+                icon: Icons.add_rounded,
+                tooltip: '添加',
+              ),
             ),
-            icon: const Icon(Icons.add_rounded),
-            tooltip: '添加',
           ),
         ],
       ),
@@ -48,9 +54,7 @@ class CountdownScreen extends ConsumerWidget {
                   ? scheme.surface
                   : const Color(0xFFFBFCFE);
               return LiquidGlassCard(
-                gradient: LinearGradient(
-                  colors: [surfaceColor, surfaceColor],
-                ),
+                gradient: LinearGradient(colors: [surfaceColor, surfaceColor]),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -156,9 +160,7 @@ class CountdownTile extends StatelessWidget {
       },
       child: LiquidGlassCard(
         onTap: onTap,
-        gradient: LinearGradient(
-          colors: [surfaceColor, surfaceColor],
-        ),
+        gradient: LinearGradient(colors: [surfaceColor, surfaceColor]),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
