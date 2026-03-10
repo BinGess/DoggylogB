@@ -28,9 +28,16 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            Text('设置', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 12),
+            const SizedBox(height: 24),
+            Text(
+              '设置',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                letterSpacing: 1.2,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 10),
             LiquidGlassCard(
               child: Column(
                 children: [
@@ -260,8 +267,8 @@ class _CapabilityRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title),
-                const SizedBox(height: 2),
+                Text(title, style: Theme.of(context).textTheme.titleSmall),
+                const SizedBox(height: 3),
                 Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
               ],
             ),

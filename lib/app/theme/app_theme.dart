@@ -172,7 +172,7 @@ class AppTheme {
                 : scheme.onSurfaceVariant,
             fontWeight: states.contains(WidgetState.selected)
                 ? FontWeight.w600
-                : FontWeight.w600,
+                : FontWeight.w500,
           );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
@@ -272,46 +272,54 @@ class AppTheme {
       titleMedium: base.titleMedium?.copyWith(
         fontSize: 16,
         height: 1.3,
+        letterSpacing: -0.1,
         fontWeight: FontWeight.w600,
         color: scheme.onSurface,
       ),
       titleSmall: base.titleSmall?.copyWith(
         fontSize: 14,
         height: 1.3,
+        letterSpacing: -0.05,
         fontWeight: FontWeight.w600,
         color: scheme.onSurface,
       ),
       bodyLarge: base.bodyLarge?.copyWith(
         fontSize: 16,
         height: 1.55,
+        letterSpacing: -0.1,
         color: scheme.onSurface,
       ),
       bodyMedium: base.bodyMedium?.copyWith(
         fontSize: 14,
         height: 1.58,
+        letterSpacing: -0.08,
         color: scheme.onSurface,
       ),
       bodySmall: base.bodySmall?.copyWith(
-        fontSize: 13,
+        fontSize: 12,
         height: 1.5,
+        letterSpacing: 0.1,
         color: scheme.onSurfaceVariant,
       ),
       labelLarge: base.labelLarge?.copyWith(
         fontSize: 14,
         height: 1.2,
+        letterSpacing: 0.0,
         fontWeight: FontWeight.w600,
         color: scheme.onSurface,
       ),
       labelMedium: base.labelMedium?.copyWith(
         fontSize: 12,
         height: 1.2,
-        fontWeight: FontWeight.w600,
+        letterSpacing: 0.2,
+        fontWeight: FontWeight.w500,
         color: scheme.onSurfaceVariant,
       ),
       labelSmall: base.labelSmall?.copyWith(
         fontSize: 11,
         height: 1.2,
-        fontWeight: FontWeight.w600,
+        letterSpacing: 0.3,
+        fontWeight: FontWeight.w500,
         color: scheme.onSurfaceVariant,
       ),
     );

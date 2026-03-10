@@ -187,7 +187,10 @@ class CountdownTile extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Text('截止 ${DateFormat('yyyy/MM/dd HH:mm').format(item.dueAt)}'),
+            Text(
+              '截止 ${DateFormat('yyyy/MM/dd HH:mm').format(item.dueAt)}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             const SizedBox(height: 16),
             ClipRRect(
               borderRadius: BorderRadius.circular(999),
@@ -199,12 +202,21 @@ class CountdownTile extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                Text(_remainingLabel(item, now)),
+                Text(
+                  _remainingLabel(item, now),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
                 const Spacer(),
                 Text(
                   item.hasCelebrated
                       ? '100%'
                       : '${(progress * 100).toStringAsFixed(0)}%',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: item.hasCelebrated
+                        ? const Color(0xFF2B9348)
+                        : Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -280,7 +292,10 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -305,9 +320,9 @@ class _SummaryStat extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
+          Text(label, style: Theme.of(context).textTheme.labelSmall),
           const SizedBox(height: 4),
-          Text(value, style: Theme.of(context).textTheme.titleMedium),
+          Text(value, style: Theme.of(context).textTheme.headlineSmall),
         ],
       ),
     );

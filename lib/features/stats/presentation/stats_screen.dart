@@ -70,22 +70,33 @@ class TaskReviewSummaryCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text('完成率', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
             '查看连续打卡、忠诚度总分和分类分布。',
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
-            child: LinearProgressIndicator(value: rate, minHeight: 14),
+            child: LinearProgressIndicator(value: rate, minHeight: 10),
           ),
-          const SizedBox(height: 12),
-          Text(
-            '${(rate * 100).toStringAsFixed(0)}%',
-            style: Theme.of(context).textTheme.headlineSmall,
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                '${(rate * 100).toStringAsFixed(0)}%',
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '完成率',
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
+            ],
           ),
         ],
       ),
@@ -145,16 +156,27 @@ class TaskReviewDetailSection extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Expanded(child: Text(category.label)),
-                          Text('$count'),
+                          Expanded(
+                            child: Text(
+                              category.label,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                          ),
+                          Text(
+                            '$count',
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(999),
                         child: LinearProgressIndicator(
                           value: count / max,
-                          minHeight: 10,
+                          minHeight: 8,
                         ),
                       ),
                     ],
@@ -198,9 +220,9 @@ class _MetricCard extends StatelessWidget {
             child: Icon(icon, size: 18),
           ),
           const SizedBox(height: 14),
-          Text(title),
-          const SizedBox(height: 12),
-          Text(value, style: Theme.of(context).textTheme.headlineSmall),
+          Text(title, style: Theme.of(context).textTheme.labelMedium),
+          const SizedBox(height: 6),
+          Text(value, style: Theme.of(context).textTheme.headlineMedium),
         ],
       ),
     );

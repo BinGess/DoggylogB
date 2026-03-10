@@ -66,7 +66,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         'M月d日 EEEE',
                         'zh_CN',
                       ).format(state.selectedDate),
-                      style: Theme.of(context).textTheme.titleLarge,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                   TextButton(
@@ -234,10 +236,10 @@ class _CalendarDeck extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             expanded ? '上滑收起月历' : '下拉展开月历',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: Theme.of(
                 context,
-              ).colorScheme.onSurface.withValues(alpha: 0.34),
+              ).colorScheme.onSurface.withValues(alpha: 0.46),
             ),
           ),
         ],
@@ -321,7 +323,13 @@ class _WeekdayHeader extends StatelessWidget {
       children: labels.map((label) {
         return Expanded(
           child: Center(
-            child: Text(label, style: Theme.of(context).textTheme.titleSmall),
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
         );
       }).toList(),
@@ -414,13 +422,15 @@ class _MonthView extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Text(
                       '${date.day}',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: selected || isToday
                             ? FontWeight.w700
-                            : FontWeight.w600,
-                        color: inMonth
-                            ? scheme.onSurface
-                            : scheme.onSurface.withValues(alpha: 0.22),
+                            : FontWeight.w500,
+                        color: selected
+                            ? scheme.primary
+                            : inMonth
+                                ? scheme.onSurface
+                                : scheme.onSurface.withValues(alpha: 0.22),
                       ),
                     ),
                   ),
@@ -514,12 +524,12 @@ class _CompactWeekView extends StatelessWidget {
                           : Center(
                               child: Text(
                                 '${date.day}',
-                                style: Theme.of(context).textTheme.headlineSmall
+                                style: Theme.of(context).textTheme.titleLarge
                                     ?.copyWith(
                                       fontWeight: FontWeight.w500,
                                       color: inMonth
                                           ? scheme.onSurface.withValues(
-                                              alpha: 0.72,
+                                              alpha: 0.68,
                                             )
                                           : scheme.onSurface.withValues(
                                               alpha: 0.22,
@@ -659,8 +669,9 @@ class _AgendaItemRow extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(
                   DateFormat('HH:mm').format(item.startAt),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: accent.withValues(alpha: 0.85),
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: accent,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],

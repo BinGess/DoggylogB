@@ -76,9 +76,9 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
             children: [
               Text(
                 widget.item == null ? '新建日程' : '编辑日程',
-                style: Theme.of(context).textTheme.titleLarge,
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 20),
               TextField(
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: '标题'),
@@ -105,7 +105,14 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
                 onChanged: (value) => setState(() => _endAt = value),
               ),
               const SizedBox(height: 16),
-              Text('提醒时间', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                '提醒时间',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  letterSpacing: 0.8,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
               const SizedBox(height: 10),
               DropdownButtonFormField<int>(
                 initialValue: _selectedOffset,

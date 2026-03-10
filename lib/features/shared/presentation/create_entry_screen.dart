@@ -288,7 +288,11 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
                   Expanded(
                     child: Text(
                       '倒计时贴纸',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        letterSpacing: 0.8,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                   Text(

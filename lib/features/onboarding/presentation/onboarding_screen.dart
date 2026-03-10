@@ -28,21 +28,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Spacer(),
-                Text('汪汪日历', style: theme.textTheme.displayMedium),
-                const SizedBox(height: 12),
+                Text('汪汪日历', style: theme.textTheme.displayLarge),
+                const SizedBox(height: 10),
                 Text(
-                  '把日程、倒计时和宠物陪伴整合进一个更柔和、更有呼吸感的日历产品。',
-                  style: theme.textTheme.bodyLarge,
+                  '把日程、倒计时和宠物陪伴\n整合进一个更有呼吸感的日历。',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 32),
                 LiquidGlassCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('选择你的初始陪伴宠物', style: theme.textTheme.titleLarge),
-                      const SizedBox(height: 10),
+                      Text('选择陪伴宠物', style: theme.textTheme.headlineSmall),
+                      const SizedBox(height: 6),
                       Text(
-                        'Soft UI 风格会贯穿后续首页、倒计时和复盘页。',
+                        '选择后可以随时在「我的」页面更换',
                         style: theme.textTheme.bodySmall,
                       ),
                       const SizedBox(height: 18),
@@ -67,17 +69,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           hintText: '例如 Mochi / Cocoa / Lucky',
                         ),
                       ),
-                      const SizedBox(height: 18),
-                      FilledButton(
-                        onPressed: () async {
-                          await ref
-                              .read(appStateProvider.notifier)
-                              .completeOnboarding(
-                                _selected,
-                                _controller.text.trim(),
-                              );
-                        },
-                        child: const Text('进入 DoggyLog'),
+                      const SizedBox(height: 22),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: () async {
+                            await ref
+                                .read(appStateProvider.notifier)
+                                .completeOnboarding(
+                                  _selected,
+                                  _controller.text.trim(),
+                                );
+                          },
+                          child: const Text('进入 DoggyLog'),
+                        ),
                       ),
                     ],
                   ),
