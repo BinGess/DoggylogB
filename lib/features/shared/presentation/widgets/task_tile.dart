@@ -70,11 +70,12 @@ class TaskTile extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   if (item.description.isNotEmpty) ...[
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
                       item.description,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
                 ],

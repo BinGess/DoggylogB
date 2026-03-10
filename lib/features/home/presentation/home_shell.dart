@@ -10,8 +10,8 @@ class HomeShell extends ConsumerWidget {
   const HomeShell({super.key});
 
   static const _pages = [CountdownScreen(), CalendarScreen(), SettingsScreen()];
-  static const _navRadius = 22.0;
-  static const _navHeight = 58.0;
+  static const _navRadius = 26.0;
+  static const _navHeight = 64.0;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,7 +23,7 @@ class HomeShell extends ConsumerWidget {
       extendBody: true,
       body: IndexedStack(index: index, children: _pages),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(_navRadius),
@@ -100,13 +100,11 @@ class _HomeBottomTabBar extends StatelessWidget {
     final theme = Theme.of(context);
     final selectedColor = scheme.primary;
     final unselectedColor = scheme.onSurfaceVariant;
-    final selectedTextStyle = theme.textTheme.labelSmall?.copyWith(
+    final selectedTextStyle = theme.textTheme.labelMedium?.copyWith(
       color: scheme.onSurface,
-      fontWeight: FontWeight.w600,
     );
-    final unselectedTextStyle = theme.textTheme.labelSmall?.copyWith(
+    final unselectedTextStyle = theme.textTheme.labelMedium?.copyWith(
       color: unselectedColor,
-      fontWeight: FontWeight.w600,
     );
 
     return SizedBox(
@@ -187,10 +185,10 @@ class _HomeTabItem extends StatelessWidget {
                 children: [
                   Icon(
                     icon,
-                    size: 20,
+                    size: 22,
                     color: selected ? selectedColor : unselectedColor,
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 3),
                   Text(
                     label,
                     style: selected ? selectedTextStyle : unselectedTextStyle,

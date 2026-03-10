@@ -38,9 +38,9 @@ class CountdownScreen extends ConsumerWidget {
       ),
       body: SoftBackdrop(
         child: ListView.separated(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
           itemCount: countdowns.length + 1,
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          separatorBuilder: (context, index) => const SizedBox(height: 14),
           itemBuilder: (context, index) {
             if (index == 0) {
               final scheme = Theme.of(context).colorScheme;
@@ -186,25 +186,34 @@ class CountdownTile extends StatelessWidget {
                 _StatusBadge(item: item),
               ],
             ),
-            const SizedBox(height: 8),
-            Text('截止 ${DateFormat('yyyy/MM/dd HH:mm').format(item.dueAt)}'),
+            const SizedBox(height: 6),
+            Text(
+              '截止 ${DateFormat('yyyy/MM/dd HH:mm').format(item.dueAt)}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             const SizedBox(height: 16),
             ClipRRect(
               borderRadius: BorderRadius.circular(999),
               child: LinearProgressIndicator(
                 value: item.hasCelebrated ? 1 : progress,
-                minHeight: 12,
+                minHeight: 8,
               ),
             ),
             const SizedBox(height: 10),
             Row(
               children: [
-                Text(_remainingLabel(item, now)),
+                Text(
+                  _remainingLabel(item, now),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
                 const Spacer(),
                 Text(
                   item.hasCelebrated
                       ? '100%'
                       : '${(progress * 100).toStringAsFixed(0)}%',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ],
             ),

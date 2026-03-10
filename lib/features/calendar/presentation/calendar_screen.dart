@@ -277,11 +277,7 @@ class _CalendarHeader extends StatelessWidget {
                   Flexible(
                     child: Text(
                       monthLabel,
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.8,
-                          ),
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -414,10 +410,7 @@ class _MonthView extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Text(
                       '${date.day}',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: selected || isToday
-                            ? FontWeight.w700
-                            : FontWeight.w600,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: inMonth
                             ? scheme.onSurface
                             : scheme.onSurface.withValues(alpha: 0.22),
@@ -514,9 +507,8 @@ class _CompactWeekView extends StatelessWidget {
                           : Center(
                               child: Text(
                                 '${date.day}',
-                                style: Theme.of(context).textTheme.headlineSmall
+                                style: Theme.of(context).textTheme.titleLarge
                                     ?.copyWith(
-                                      fontWeight: FontWeight.w500,
                                       color: inMonth
                                           ? scheme.onSurface.withValues(
                                               alpha: 0.72,
@@ -644,7 +636,7 @@ class _AgendaItemRow extends StatelessWidget {
                     item.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       decoration: item.isCompleted
                           ? TextDecoration.lineThrough
                           : TextDecoration.none,
@@ -659,7 +651,7 @@ class _AgendaItemRow extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(
                   DateFormat('HH:mm').format(item.startAt),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: accent.withValues(alpha: 0.85),
                   ),
                 ),

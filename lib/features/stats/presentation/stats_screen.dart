@@ -71,7 +71,7 @@ class TaskReviewSummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text('完成率', style: Theme.of(context).textTheme.titleLarge),
+          Text('完成率', style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 8),
           Text(
             '查看连续打卡、忠诚度总分和分类分布。',
@@ -145,8 +145,16 @@ class TaskReviewDetailSection extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Expanded(child: Text(category.label)),
-                          Text('$count'),
+                          Expanded(
+                            child: Text(
+                              category.label,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ),
+                          Text(
+                            '$count',
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 6),
@@ -198,8 +206,8 @@ class _MetricCard extends StatelessWidget {
             child: Icon(icon, size: 18),
           ),
           const SizedBox(height: 14),
-          Text(title),
-          const SizedBox(height: 12),
+          Text(title, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 8),
           Text(value, style: Theme.of(context).textTheme.headlineSmall),
         ],
       ),
