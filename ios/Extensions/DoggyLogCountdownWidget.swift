@@ -55,13 +55,13 @@ struct DoggyLogCountdownSmallView: View {
 
       VStack(alignment: .leading, spacing: 0) {
         // 宠物名行
-        HStack(spacing: 3) {
-          Text(petName)
-            .font(.system(size: 11, weight: .regular))
-            .foregroundStyle(.white.opacity(0.80))
-          Text("🐾")
-            .font(.system(size: 11))
-        }
+          HStack(spacing: 3) {
+            Text(petName)
+              .font(.system(size: 11, weight: .regular))
+              .foregroundColor(.white.opacity(0.80))
+            Text("🐾")
+              .font(.system(size: 11))
+          }
 
         Spacer()
 
@@ -71,30 +71,30 @@ struct DoggyLogCountdownSmallView: View {
             HStack(alignment: .lastTextBaseline, spacing: 4) {
               Text("\(max(0, countdown.daysRemaining))")
                 .font(.system(size: 46, weight: .thin, design: .rounded))
-                .foregroundStyle(.white)
+                .foregroundColor(.white)
               Text("天")
                 .font(.system(size: 14, weight: .light))
-                .foregroundStyle(.white.opacity(0.88))
+                .foregroundColor(.white.opacity(0.88))
             }
             Text(countdown.title)
               .font(.system(size: 12, weight: .regular))
-              .foregroundStyle(.white)
+              .foregroundColor(.white)
               .lineLimit(1)
             Text(_dueDateLabel(ms: countdown.dueAt))
               .font(.system(size: 10, weight: .regular))
-              .foregroundStyle(.white.opacity(0.68))
+              .foregroundColor(.white.opacity(0.68))
               .padding(.top, 2)
           }
         } else {
           Text("暂无倒计时")
             .font(.system(size: 13, weight: .regular))
-            .foregroundStyle(.white.opacity(0.75))
+            .foregroundColor(.white.opacity(0.75))
         }
       }
       .padding(14)
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
-    .containerBackground(for: .widget) {
+    .doggyWidgetBackground {
       LinearGradient(
         colors: [
           Color(red: 0.184, green: 0.561, blue: 0.541),
@@ -133,7 +133,7 @@ struct DoggyLogCountdownMediumView: View {
           HStack(spacing: 3) {
             Text(petName)
               .font(.system(size: 12, weight: .regular))
-              .foregroundStyle(.white.opacity(0.80))
+              .foregroundColor(.white.opacity(0.80))
             Text("🐾")
               .font(.system(size: 12))
           }
@@ -143,10 +143,10 @@ struct DoggyLogCountdownMediumView: View {
           HStack(alignment: .lastTextBaseline, spacing: 4) {
             Text("\(max(0, countdown?.daysRemaining ?? 0))")
               .font(.system(size: 50, weight: .thin, design: .rounded))
-              .foregroundStyle(.white)
+              .foregroundColor(.white)
             Text("天")
               .font(.system(size: 15, weight: .light))
-              .foregroundStyle(.white.opacity(0.88))
+              .foregroundColor(.white.opacity(0.88))
           }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -163,12 +163,12 @@ struct DoggyLogCountdownMediumView: View {
           if let countdown {
             Text(countdown.title)
               .font(.system(size: 14, weight: .regular))
-              .foregroundStyle(.white)
+              .foregroundColor(.white)
               .lineLimit(2)
 
             Text(_dueDateLabel(ms: countdown.dueAt))
               .font(.system(size: 11, weight: .regular))
-              .foregroundStyle(.white.opacity(0.72))
+              .foregroundColor(.white.opacity(0.72))
 
             Spacer(minLength: 4)
 
@@ -189,13 +189,13 @@ struct DoggyLogCountdownMediumView: View {
 
               Text("\(Int(progress * 100))%")
                 .font(.system(size: 10, weight: .regular))
-                .foregroundStyle(.white.opacity(0.68))
+                .foregroundColor(.white.opacity(0.68))
             }
           } else {
             Spacer()
             Text("暂无倒计时\n前往 App 添加吧")
               .font(.system(size: 12, weight: .regular))
-              .foregroundStyle(.white.opacity(0.80))
+              .foregroundColor(.white.opacity(0.80))
               .multilineTextAlignment(.leading)
             Spacer()
           }
@@ -205,7 +205,7 @@ struct DoggyLogCountdownMediumView: View {
       .padding(.horizontal, 16)
       .padding(.vertical, 14)
     }
-    .containerBackground(for: .widget) {
+    .doggyWidgetBackground {
       LinearGradient(
         colors: [
           Color(red: 0.184, green: 0.561, blue: 0.541),

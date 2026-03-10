@@ -13,9 +13,9 @@ PROJECT_PATH     = File.expand_path('../ios/Runner.xcodeproj', __dir__)
 IOS_DIR          = File.expand_path('../ios', __dir__)
 WIDGET_EXT_NAME  = 'DoggyLogWidgets'
 TEAM_ID          = '742UUCBN9G'
-MAIN_BUNDLE_ID   = 'com.example.doggylog'
+MAIN_BUNDLE_ID   = 'com.timmy.doggylog'
 WIDGET_BUNDLE_ID = "#{MAIN_BUNDLE_ID}.#{WIDGET_EXT_NAME}"
-APP_GROUP        = 'group.com.example.doggylog'
+APP_GROUP        = 'group.com.timmy.doggylog'
 DEPLOY_TARGET    = '14.0'
 
 project = Xcodeproj::Project.open(PROJECT_PATH)

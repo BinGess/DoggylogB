@@ -41,7 +41,11 @@ struct DoggyLogSummaryWidgetView: View {
   var body: some View {
     ZStack {
       LinearGradient(
-        colors: [Color.orange.opacity(0.9), Color.cyan.opacity(0.55), Color.black.opacity(0.92)],
+        colors: [
+          Color.orange.opacity(0.9),
+          Color(red: 0.38, green: 0.82, blue: 0.93).opacity(0.55),
+          Color.black.opacity(0.92),
+        ],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
       )
@@ -51,18 +55,18 @@ struct DoggyLogSummaryWidgetView: View {
           .font(.headline)
         Text("待办 \(entry.snapshot?.today.pendingCount ?? 0) · 已完成 \(entry.snapshot?.today.completedCount ?? 0)")
           .font(.subheadline)
-          .foregroundStyle(.white.opacity(0.78))
+          .foregroundColor(.white.opacity(0.78))
         Text(entry.snapshot?.today.nextTaskTitle ?? "今天还没有下一项任务")
           .font(.body.weight(.semibold))
           .lineLimit(2)
         if let countdown = entry.snapshot?.countdown {
           Text("\(countdown.title) · 还有 \(countdown.daysRemaining) 天")
             .font(.footnote)
-            .foregroundStyle(.white.opacity(0.72))
+            .foregroundColor(.white.opacity(0.72))
         }
         Spacer()
       }
-      .foregroundStyle(.white)
+      .foregroundColor(.white)
       .padding()
     }
   }

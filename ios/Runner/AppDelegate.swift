@@ -100,7 +100,7 @@ import ActivityKit
 }
 
 final class DoggylogSnapshotStore {
-  private let appGroupIdentifier = "group.com.example.doggylog"
+  private let appGroupIdentifier = "group.com.timmy.doggylog"
   private let snapshotFileName = "doggylog_widget_snapshot.json"
 
   func publish(payloadJson: String) -> Bool {
@@ -390,7 +390,7 @@ final class DoggylogMotionService {
     guard manager.isDeviceMotionAvailable else {
       return false
     }
-    queue.name = "com.example.doggylog.motion"
+    queue.name = "com.timmy.doggylog.motion"
     queue.qualityOfService = .userInteractive
     manager.deviceMotionUpdateInterval = 1.0 / 30.0
     manager.startDeviceMotionUpdates(to: queue) { motion, _ in

@@ -47,7 +47,7 @@ struct SnapshotCalendarDay: Decodable {
 }
 
 enum DoggyLogSharedSnapshotStore {
-  static let appGroupIdentifier = "group.com.example.doggylog"
+  static let appGroupIdentifier = "group.com.timmy.doggylog"
   static let snapshotKey = "doggylog.widget.snapshot"
   static let snapshotFileName = "doggylog_widget_snapshot.json"
 

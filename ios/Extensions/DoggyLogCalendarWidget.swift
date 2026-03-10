@@ -9,6 +9,21 @@ private extension Color {
   static let doggyBg         = Color(red: 0.965, green: 0.976, blue: 0.988) // #F6F9FC
 }
 
+extension View {
+  @ViewBuilder
+  func doggyWidgetBackground<Background: View>(
+    @ViewBuilder _ backgroundView: () -> Background
+  ) -> some View {
+    if #available(iOSApplicationExtension 17.0, *) {
+      containerBackground(for: .widget) {
+        backgroundView()
+      }
+    } else {
+      background(backgroundView())
+    }
+  }
+}
+
 // MARK: - Shared timeline provider (reads the same shared snapshot)
 
 struct DoggyLogCalendarProvider: TimelineProvider {
@@ -80,11 +95,11 @@ struct DoggyLogLargeCalendarView: View {
       HStack(alignment: .firstTextBaseline) {
         Text(monthLabel)
           .font(.system(size: 18, weight: .semibold, design: .rounded))
-          .foregroundStyle(Color.primary)
+          .foregroundColor(Color.primary)
         Spacer()
         Text(petName)
           .font(.system(size: 12, weight: .regular))
-          .foregroundStyle(Color.secondary)
+          .foregroundColor(Color.secondary)
         Text("🐾")
           .font(.system(size: 12))
       }
@@ -97,7 +112,7 @@ struct DoggyLogLargeCalendarView: View {
         ForEach(weekdayLabels, id: \.self) { label in
           Text(label)
             .font(.system(size: 10, weight: .medium))
-            .foregroundStyle(Color.secondary)
+            .foregroundColor(Color.secondary)
             .frame(maxWidth: .infinity)
         }
       }
@@ -119,7 +134,9 @@ struct DoggyLogLargeCalendarView: View {
 
       Spacer(minLength: 0)
     }
-    .containerBackground(Color.doggyBg, for: .widget)
+    .doggyWidgetBackground {
+      Color.doggyBg
+    }
     .widgetURL(URL(string: "doggylog://tab/calendar"))
   }
 }
@@ -142,7 +159,7 @@ struct DoggyLogMediumCalendarView: View {
       HStack {
         Text(monthLabel)
           .font(.system(size: 15, weight: .semibold, design: .rounded))
-          .foregroundStyle(Color.primary)
+          .foregroundColor(Color.primary)
         Spacer()
       }
       .padding(.horizontal, 16)
@@ -154,7 +171,7 @@ struct DoggyLogMediumCalendarView: View {
         ForEach(weekdayLabels, id: \.self) { label in
           Text(label)
             .font(.system(size: 10, weight: .medium))
-            .foregroundStyle(Color.secondary)
+            .foregroundColor(Color.secondary)
             .frame(maxWidth: .infinity)
         }
       }
@@ -171,7 +188,9 @@ struct DoggyLogMediumCalendarView: View {
       .padding(.horizontal, 14)
       .padding(.bottom, 12)
     }
-    .containerBackground(Color.doggyBg, for: .widget)
+    .doggyWidgetBackground {
+      Color.doggyBg
+    }
     .widgetURL(URL(string: "doggylog://tab/calendar"))
   }
 }
@@ -194,7 +213,7 @@ private struct _DayCell: View {
         // 日期数字
         Text(day.isInMonth ? "\(day.day)" : "")
           .font(.system(size: 12, weight: .regular))
-          .foregroundStyle(
+          .foregroundColor(
             day.isToday
               ? Color.white
               : day.isInMonth
@@ -203,14 +222,16 @@ private struct _DayCell: View {
           )
       }
       .frame(width: 26, height: 26)
-      .overlay(alignment: .top) {
-        // 宠物爪印浮在今日格子上方
-        if day.isToday && showPetOnToday {
-          Text("🐾")
-            .font(.system(size: 10))
-            .offset(y: -14)
-        }
-      }
+      .overlay(
+        Group {
+          if day.isToday && showPetOnToday {
+            Text("🐾")
+              .font(.system(size: 10))
+              .offset(y: -14)
+          }
+        },
+        alignment: .top
+      )
 
       // 任务小圆点（非今日 & 有任务）
       Circle()
@@ -237,7 +258,7 @@ private struct _WeekDayCell: View {
         }
         Text(day.isInMonth ? "\(day.day)" : "")
           .font(.system(size: 13, weight: .regular))
-          .foregroundStyle(
+          .foregroundColor(
             day.isToday
               ? Color.white
               : day.isInMonth
@@ -256,7 +277,7 @@ private struct _WeekDayCell: View {
         } else {
           Image(systemName: day.taskCount > 0 ? "pawprint.fill" : "pawprint")
             .font(.system(size: 11))
-            .foregroundStyle(
+            .foregroundColor(
               day.taskCount > 0
                 ? Color.doggyTeal
                 : Color.secondary.opacity(0.28)

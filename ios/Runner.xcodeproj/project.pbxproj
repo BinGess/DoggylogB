@@ -16,6 +16,7 @@
 		4BA82707F71E432861CC1C36 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4727C81EF0A5657F46BBFBF0 /* Pods_RunnerTests.framework */; };
 		651BDEC24BE982AD096724B1 /* DoggyLogCalendarWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27ABAA5CA40B546C7186CA34 /* DoggyLogCalendarWidget.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
+		7530233B5D4F93926EBDB347 /* Pods_DoggyLogWidgets.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7D6FBF7E95AD422071E77FE /* Pods_DoggyLogWidgets.framework */; };
 		755BE295D06BA44085B0920E /* DoggyLogWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 51E43C6066B960CA8A0CA7D9 /* DoggyLogWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		75BF8DF82CC7FDFF2D960B0B /* DoggyLogSharedSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FF445A009F6F5AE4F187F6 /* DoggyLogSharedSnapshotStore.swift */; };
 		961B36A6CB447916571A7C4E /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 691287E3C59D3D68442B2681 /* Pods_Runner.framework */; };
@@ -70,6 +71,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		01D4ECF6A0A2C230391BF6E0 /* Pods-DoggyLogWidgets.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DoggyLogWidgets.profile.xcconfig"; path = "Target Support Files/Pods-DoggyLogWidgets/Pods-DoggyLogWidgets.profile.xcconfig"; sourceTree = "<group>"; };
 		118ED9B02A9043C5D00DA91D /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 		756E16D88455C425F8524818 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		89FF445A009F6F5AE4F187F6 /* DoggyLogSharedSnapshotStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DoggyLogSharedSnapshotStore.swift; sourceTree = "<group>"; };
+		8E69E5B443268D7587A25E50 /* Pods-DoggyLogWidgets.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DoggyLogWidgets.release.xcconfig"; path = "Target Support Files/Pods-DoggyLogWidgets/Pods-DoggyLogWidgets.release.xcconfig"; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
 		97C146EE1CF9000F007C117D /* Runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -100,9 +103,11 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9BC9B2E4C685E729D4629D33 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		A7D6FBF7E95AD422071E77FE /* Pods_DoggyLogWidgets.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DoggyLogWidgets.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A94677B6879E31C99B96C828 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
 		B4B33269E822A8D2CFC24B7E /* DoggyLogWidgets.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = DoggyLogWidgets.entitlements; sourceTree = "<group>"; };
 		C7F56E731C6F110FDCD5602D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E14A54270860A752F24D45B1 /* Pods-DoggyLogWidgets.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DoggyLogWidgets.debug.xcconfig"; path = "Target Support Files/Pods-DoggyLogWidgets/Pods-DoggyLogWidgets.debug.xcconfig"; sourceTree = "<group>"; };
 		E5FA6FCFD7482E06256C0699 /* DoggyLogSummaryWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DoggyLogSummaryWidget.swift; sourceTree = "<group>"; };
 		F54288815A69D937C445956E /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -131,6 +136,7 @@
 				D07E13754A51348CBA071C34 /* Foundation.framework in Frameworks */,
 				AFDB5C3020AD947A18E85606 /* WidgetKit.framework in Frameworks */,
 				36BB6C4C7D24FAD77C70473D /* SwiftUI.framework in Frameworks */,
+				7530233B5D4F93926EBDB347 /* Pods_DoggyLogWidgets.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -154,6 +160,9 @@
 				A94677B6879E31C99B96C828 /* Pods-RunnerTests.debug.xcconfig */,
 				24699BD0ED9FC16A94CF6836 /* Pods-RunnerTests.release.xcconfig */,
 				202001C1EDE7A3A98A57FAAA /* Pods-RunnerTests.profile.xcconfig */,
+				8E69E5B443268D7587A25E50 /* Pods-DoggyLogWidgets.release.xcconfig */,
+				E14A54270860A752F24D45B1 /* Pods-DoggyLogWidgets.debug.xcconfig */,
+				01D4ECF6A0A2C230391BF6E0 /* Pods-DoggyLogWidgets.profile.xcconfig */,
 			);
 			name = Pods;
 			path = Pods;
@@ -227,6 +236,7 @@
 				F4150774C315472A93E1F335 /* iOS */,
 				9BC9B2E4C685E729D4629D33 /* WidgetKit.framework */,
 				118ED9B02A9043C5D00DA91D /* SwiftUI.framework */,
+				A7D6FBF7E95AD422071E77FE /* Pods_DoggyLogWidgets.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -285,9 +295,9 @@
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
+				F3324F5372B318809C2645C4 /* Embed App Extensions */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				CC255DAF5FCED9FBFAE89D06 /* [CP] Embed Pods Frameworks */,
-				F3324F5372B318809C2645C4 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
@@ -303,6 +313,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A54F41962AFE01510EE731F2 /* Build configuration list for PBXNativeTarget "DoggyLogWidgets" */;
 			buildPhases = (
+				037F2861FDF5768E034CC3AE /* [CP] Check Pods Manifest.lock */,
 				7CA565E61B4A2BDA4A447088 /* Sources */,
 				CAF5F3F3929DA2F03374B6C3 /* Frameworks */,
 				81B5A0F1AD9EC877C330B0A0 /* Resources */,
@@ -385,6 +396,28 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		037F2861FDF5768E034CC3AE /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-DoggyLogWidgets-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		3B06AD1E1E4923F5004D2608 /* Thin Binary */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -613,7 +646,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.doggylog;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timmy.doggylog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -630,7 +663,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.doggylog.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timmy.doggylog.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -648,7 +681,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.doggylog.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timmy.doggylog.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
@@ -664,7 +697,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.doggylog.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timmy.doggylog.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
@@ -673,12 +706,14 @@
 		};
 		7DA59183876440AD311034AF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E14A54270860A752F24D45B1 /* Pods-DoggyLogWidgets.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = DoggyLogWidgets/DoggyLogWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 742UUCBN9G;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -689,7 +724,8 @@
 					"@executable_path/../../Frameworks",
 				);
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.doggylog.DoggyLogWidgets;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timmy.doggylog.DoggyLogWidgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -701,12 +737,14 @@
 		};
 		907C33FE26AF2168AB940F62 /* Profile */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 01D4ECF6A0A2C230391BF6E0 /* Pods-DoggyLogWidgets.profile.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = DoggyLogWidgets/DoggyLogWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 742UUCBN9G;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -716,7 +754,8 @@
 					"$(inherited)",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.doggylog.DoggyLogWidgets;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timmy.doggylog.DoggyLogWidgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -853,7 +892,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.doggylog;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timmy.doggylog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -877,7 +916,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.doggylog;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timmy.doggylog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -887,12 +926,14 @@
 		};
 		99BEED7861CF95EB79987545 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8E69E5B443268D7587A25E50 /* Pods-DoggyLogWidgets.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = DoggyLogWidgets/DoggyLogWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 742UUCBN9G;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -902,7 +943,8 @@
 					"$(inherited)",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.doggylog.DoggyLogWidgets;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timmy.doggylog.DoggyLogWidgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
