@@ -36,6 +36,11 @@ target 'Runner' do
   end
 end
 
+# Widget Extension — 仅使用 WidgetKit/SwiftUI 系统框架，无 CocoaPods 依赖
+target 'DoggyLogWidgets' do
+  use_frameworks!
+end
+
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
