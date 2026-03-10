@@ -23,60 +23,6 @@ void main() {
     await database.close();
   });
 
-  test('calculateStats aggregates totals and streak', () {
-    final now = DateTime.now();
-    final items = [
-      CalendarItem(
-        id: '1',
-        title: 'walk',
-        description: '',
-        startAt: DateTime(now.year, now.month, now.day, 9),
-        endAt: DateTime(now.year, now.month, now.day, 9, 30),
-        category: CalendarCategory.pet,
-        petId: 'pet-1',
-        reminders: const [],
-        source: SyncSource.localOnly,
-        createdAt: now,
-        updatedAt: now,
-        isCompleted: true,
-      ),
-      CalendarItem(
-        id: '2',
-        title: 'work',
-        description: '',
-        startAt: DateTime(now.year, now.month, now.day - 1, 11),
-        endAt: DateTime(now.year, now.month, now.day - 1, 12),
-        category: CalendarCategory.work,
-        petId: 'pet-1',
-        reminders: const [],
-        source: SyncSource.localOnly,
-        createdAt: now,
-        updatedAt: now,
-        isCompleted: true,
-      ),
-    ];
-    final pets = [
-      PetProfile(
-        id: 'pet-1',
-        name: 'Mochi',
-        breed: PetBreed.shiba,
-        loyaltyPoints: 120,
-        selectedSkinId: 'amber-shiba',
-        unlockedSkinIds: const ['amber-shiba'],
-        createdAt: now,
-        isSelected: true,
-      ),
-    ];
-
-    final stats = repository.calculateStats(items, pets);
-
-    expect(stats.totalTasks, 2);
-    expect(stats.completedTasks, 2);
-    expect(stats.streakDays, 2);
-    expect(stats.loyaltyPoints, 120);
-    expect(stats.categoryCounts[CalendarCategory.pet], 1);
-  });
-
   test('deriveMood becomes sad when overdue incomplete items exist', () {
     final now = DateTime.now();
     final pet = PetProfile(
@@ -165,7 +111,7 @@ void main() {
           category: CalendarCategory.work,
           petId: null,
           reminders: const [],
-          source: SyncSource.localOnly,
+          source: SyncSource.iosCalendar,
           createdAt: now,
           updatedAt: now,
           systemEntryId: 'ek-1',
@@ -225,9 +171,9 @@ void main() {
         ),
       ]);
 
-      final rows = await (database.select(database.calendarEntriesTable)
-            ..where((tbl) => tbl.title.equals('晨间遛弯')))
-          .get();
+      final rows = await (database.select(
+        database.calendarEntriesTable,
+      )..where((tbl) => tbl.title.equals('晨间遛弯'))).get();
 
       expect(rows, hasLength(1));
       expect(rows.single.id, 'local-1');
@@ -246,12 +192,16 @@ void main() {
       selectedCalendarView: CalendarViewMode.month,
       faceIdEnabled: false,
       debugImmediateReminders: true,
+      useSystemCalendarFilter: true,
+      visibleSystemCalendarIds: ['cal-1', 'cal-2'],
     );
 
     await repository.savePreferences(preference);
     final loaded = await repository.loadPreferences();
 
     expect(loaded.debugImmediateReminders, isTrue);
+    expect(loaded.useSystemCalendarFilter, isTrue);
+    expect(loaded.visibleSystemCalendarIds, ['cal-1', 'cal-2']);
   });
 
   test(

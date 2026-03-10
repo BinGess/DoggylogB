@@ -37,13 +37,23 @@ import ActivityKit
             result(granted)
           }
         case "importCalendarItems":
-          self.eventKitService.importCalendarItems { payload in
+          let arguments = call.arguments as? [String: Any]
+          let selectedCalendarIds = arguments?["selectedCalendarIds"] as? [String]
+          self.eventKitService.importCalendarItems(selectedCalendarIds: selectedCalendarIds) { payload in
+            result(payload)
+          }
+        case "getSystemCalendars":
+          self.eventKitService.getSystemCalendars { payload in
             result(payload)
           }
         case "syncCalendarDelta":
           let arguments = call.arguments as? [String: Any]
           let updatedAfter = arguments?["updatedAfter"] as? Int
-          self.eventKitService.syncCalendarDelta(updatedAfterMillis: updatedAfter) { payload in
+          let selectedCalendarIds = arguments?["selectedCalendarIds"] as? [String]
+          self.eventKitService.syncCalendarDelta(
+            updatedAfterMillis: updatedAfter,
+            selectedCalendarIds: selectedCalendarIds
+          ) { payload in
             result(payload)
           }
         case "upsertCalendarItem":
@@ -446,13 +456,39 @@ final class DoggylogEventKitService {
     }
   }
 
-  func importCalendarItems(completion: @escaping (String) -> Void) {
+  func getSystemCalendars(completion: @escaping (String) -> Void) {
     requestAccess { [weak self] granted in
       guard let self, granted else {
         completion("[]")
         return
       }
-      let calendars = self.eventStore.calendars(for: .event)
+      let payload = self.eventStore.calendars(for: .event)
+        .sorted { lhs, rhs in
+          if lhs.source.title == rhs.source.title {
+            return lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
+          }
+          return lhs.source.title.localizedCaseInsensitiveCompare(rhs.source.title) == .orderedAscending
+        }
+        .map { calendar in
+          [
+            "id": calendar.calendarIdentifier,
+            "title": calendar.title,
+            "sourceTitle": calendar.source.title,
+            "colorHex": self.hexString(from: calendar.cgColor),
+            "allowsContentModifications": calendar.allowsContentModifications
+          ]
+        }
+      completion(self.jsonString(from: payload))
+    }
+  }
+
+  func importCalendarItems(selectedCalendarIds: [String]?, completion: @escaping (String) -> Void) {
+    requestAccess { [weak self] granted in
+      guard let self, granted else {
+        completion("[]")
+        return
+      }
+      let calendars = self.filteredCalendars(selectedCalendarIds: selectedCalendarIds)
       let start = Calendar.current.date(byAdding: .month, value: -3, to: Date()) ?? Date()
       let end = Calendar.current.date(byAdding: .year, value: 1, to: Date()) ?? Date()
       let predicate = self.eventStore.predicateForEvents(withStart: start, end: end, calendars: calendars)
@@ -462,13 +498,17 @@ final class DoggylogEventKitService {
     }
   }
 
-  func syncCalendarDelta(updatedAfterMillis: Int?, completion: @escaping (String) -> Void) {
+  func syncCalendarDelta(
+    updatedAfterMillis: Int?,
+    selectedCalendarIds: [String]?,
+    completion: @escaping (String) -> Void
+  ) {
     requestAccess { [weak self] granted in
       guard let self, granted else {
         completion("")
         return
       }
-      let calendars = self.eventStore.calendars(for: .event)
+      let calendars = self.filteredCalendars(selectedCalendarIds: selectedCalendarIds)
       let start = Calendar.current.date(byAdding: .month, value: -3, to: Date()) ?? Date()
       let end = Calendar.current.date(byAdding: .year, value: 1, to: Date()) ?? Date()
       let predicate = self.eventStore.predicateForEvents(withStart: start, end: end, calendars: calendars)
@@ -535,6 +575,18 @@ final class DoggylogEventKitService {
         completion(nil)
       }
     }
+  }
+
+  private func filteredCalendars(selectedCalendarIds: [String]?) -> [EKCalendar] {
+    let calendars = eventStore.calendars(for: .event)
+    guard let selectedCalendarIds else {
+      return calendars
+    }
+    guard !selectedCalendarIds.isEmpty else {
+      return []
+    }
+    let selectedIds = Set(selectedCalendarIds)
+    return calendars.filter { selectedIds.contains($0.calendarIdentifier) }
   }
 
   func deleteCalendarItem(systemEntryId: String?, localId: String?, completion: @escaping (Bool) -> Void) {
@@ -659,6 +711,23 @@ final class DoggylogEventKitService {
       .split(separator: "\n")
       .filter { !$0.hasPrefix(localIdPrefix) }
       .joined(separator: "\n")
+  }
+
+  private func hexString(from color: CGColor) -> String {
+    let converted = UIColor(cgColor: color)
+    var red: CGFloat = 0
+    var green: CGFloat = 0
+    var blue: CGFloat = 0
+    var alpha: CGFloat = 0
+    guard converted.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+      return "#C7CDD8"
+    }
+    return String(
+      format: "#%02X%02X%02X",
+      Int(red * 255),
+      Int(green * 255),
+      Int(blue * 255)
+    )
   }
 
   private func jsonString(from object: Any) -> String {

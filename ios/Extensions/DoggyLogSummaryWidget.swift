@@ -30,7 +30,7 @@ struct DoggyLogSummaryWidget: Widget {
       DoggyLogSummaryWidgetView(entry: entry)
     }
     .configurationDisplayName("DoggyLog")
-    .description("Show today’s pet mood, next task, and countdown.")
+    .description("Show today's pet mood, next task, and countdown.")
     .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
   }
 }
@@ -61,25 +61,25 @@ private struct DoggyLogSummarySmallView: View {
     VStack(alignment: .leading, spacing: 0) {
       _SummaryHeader(snapshot: snapshot, subtitle: "Today")
 
-      Spacer(minLength: 10)
+      Spacer(minLength: 8)
 
       Text(snapshot?.today.nextTaskTitle ?? "今天还没有下一项任务")
-        .font(.system(size: 15, weight: .semibold, design: .rounded))
+        .font(.system(size: 14, weight: .semibold, design: .rounded))
         .foregroundColor(.doggyInk)
         .lineLimit(3)
 
       Text(_summaryMetaLine(snapshot: snapshot))
-        .font(.system(size: 11, weight: .medium, design: .rounded))
-        .foregroundColor(.doggyInk.opacity(0.52))
-        .padding(.top, 6)
+        .font(.system(size: 10, weight: .medium, design: .rounded))
+        .foregroundColor(.doggyInk.opacity(0.50))
+        .padding(.top, 5)
 
-      Spacer(minLength: 10)
+      Spacer(minLength: 8)
 
       HStack(alignment: .bottom, spacing: 0) {
         _SummaryStatPill(value: "\(snapshot?.today.pendingCount ?? 0)", label: "待办")
-        Spacer(minLength: 10)
+        Spacer(minLength: 8)
         _DogCompanionView()
-          .frame(width: 78, height: 58)
+          .frame(width: 64, height: 64)
       }
     }
     .padding(.horizontal, 14)
@@ -102,21 +102,21 @@ private struct DoggyLogSummaryMediumView: View {
       HStack(alignment: .top) {
         _SummaryHeader(snapshot: snapshot, subtitle: "Today")
         Spacer()
-        VStack(alignment: .trailing, spacing: 4) {
+        VStack(alignment: .trailing, spacing: 3) {
           Text(snapshot?.pet.mood ?? "Calm")
-            .font(.system(size: 12, weight: .semibold, design: .rounded))
-            .foregroundColor(.doggyWarmTint.opacity(0.98))
+            .font(.system(size: 11, weight: .semibold, design: .rounded))
+            .foregroundColor(.doggyWarmTint.opacity(0.95))
 
           Text("陪你过好今天")
             .font(.system(size: 10, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyInk.opacity(0.42))
+            .foregroundColor(.doggyInk.opacity(0.40))
         }
       }
 
-      Spacer(minLength: 12)
+      Spacer(minLength: 10)
 
-      HStack(alignment: .top, spacing: 14) {
-        VStack(alignment: .leading, spacing: 10) {
+      HStack(alignment: .top, spacing: 12) {
+        VStack(alignment: .leading, spacing: 8) {
           _SummaryMetricTile(
             title: "待办",
             value: "\(snapshot?.today.pendingCount ?? 0)",
@@ -129,34 +129,34 @@ private struct DoggyLogSummaryMediumView: View {
             accent: .doggyTeal.opacity(0.92)
           )
         }
-        .frame(width: 78)
+        .frame(width: 74)
 
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 7) {
           Text(snapshot?.today.nextTaskTitle ?? "今天还没有下一项任务")
-            .font(.system(size: 16, weight: .semibold, design: .rounded))
+            .font(.system(size: 15, weight: .semibold, design: .rounded))
             .foregroundColor(.doggyInk)
             .lineLimit(2)
 
           if let time = snapshot?.today.nextTaskTime, !time.isEmpty {
             Text("下一项 · \(time)")
-              .font(.system(size: 11, weight: .medium, design: .rounded))
-              .foregroundColor(.doggyWarmTint.opacity(0.96))
+              .font(.system(size: 10, weight: .medium, design: .rounded))
+              .foregroundColor(.doggyWarmTint.opacity(0.92))
           }
 
           if let countdown = snapshot?.countdown {
             Text("\(countdown.title) · 还有 \(max(0, countdown.daysRemaining)) 天")
-              .font(.system(size: 12, weight: .medium, design: .rounded))
-              .foregroundColor(.doggyInk.opacity(0.58))
+              .font(.system(size: 11, weight: .medium, design: .rounded))
+              .foregroundColor(.doggyInk.opacity(0.55))
               .lineLimit(1)
           }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
 
         _DogCompanionView()
-          .frame(width: 86, height: 64)
+          .frame(width: 70, height: 70)
       }
 
-      Spacer(minLength: 10)
+      Spacer(minLength: 8)
 
       HStack {
         _SummaryPawRhythmStrip(activeIndex: 1, count: 5)
@@ -186,20 +186,20 @@ private struct DoggyLogSummaryLargeView: View {
 
         Spacer()
 
-        VStack(alignment: .trailing, spacing: 6) {
+        VStack(alignment: .trailing, spacing: 5) {
           Text(snapshot?.pet.breed ?? "Companion")
-            .font(.system(size: 12, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyInk.opacity(0.44))
+            .font(.system(size: 11, weight: .medium, design: .rounded))
+            .foregroundColor(.doggyInk.opacity(0.42))
 
           Text(snapshot?.pet.mood ?? "Happy")
-            .font(.system(size: 14, weight: .semibold, design: .rounded))
-            .foregroundColor(.doggyWarmTint.opacity(0.98))
+            .font(.system(size: 13, weight: .semibold, design: .rounded))
+            .foregroundColor(.doggyWarmTint.opacity(0.95))
         }
       }
 
-      Spacer(minLength: 14)
+      Spacer(minLength: 12)
 
-      HStack(alignment: .top, spacing: 12) {
+      HStack(alignment: .top, spacing: 10) {
         _SummaryMetricTile(
           title: "待办",
           value: "\(snapshot?.today.pendingCount ?? 0)",
@@ -212,55 +212,55 @@ private struct DoggyLogSummaryLargeView: View {
           accent: .doggyTeal.opacity(0.92)
         )
 
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 7) {
           Text("下一项")
-            .font(.system(size: 11, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyInk.opacity(0.42))
+            .font(.system(size: 10, weight: .medium, design: .rounded))
+            .foregroundColor(.doggyInk.opacity(0.40))
 
           Text(snapshot?.today.nextTaskTitle ?? "今天还没有下一项任务")
-            .font(.system(size: 18, weight: .semibold, design: .rounded))
+            .font(.system(size: 17, weight: .semibold, design: .rounded))
             .foregroundColor(.doggyInk)
             .lineLimit(2)
 
           if let time = snapshot?.today.nextTaskTime, !time.isEmpty {
             Text(time)
-              .font(.system(size: 12, weight: .medium, design: .rounded))
-              .foregroundColor(.doggyWarmTint.opacity(0.98))
+              .font(.system(size: 11, weight: .medium, design: .rounded))
+              .foregroundColor(.doggyWarmTint.opacity(0.95))
           }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
       }
 
-      Spacer(minLength: 14)
+      Spacer(minLength: 12)
 
-      HStack(alignment: .top, spacing: 14) {
+      HStack(alignment: .top, spacing: 12) {
         VStack(alignment: .leading, spacing: 8) {
           Text("今日节奏")
-            .font(.system(size: 11, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyInk.opacity(0.42))
+            .font(.system(size: 10, weight: .medium, design: .rounded))
+            .foregroundColor(.doggyInk.opacity(0.40))
 
           if recentTasks.isEmpty {
             Text("今天还没有记录任务，去 App 里安排一下吧。")
-              .font(.system(size: 13, weight: .medium, design: .rounded))
-              .foregroundColor(.doggyInk.opacity(0.56))
+              .font(.system(size: 12, weight: .medium, design: .rounded))
+              .foregroundColor(.doggyInk.opacity(0.54))
               .lineLimit(2)
           } else {
             ForEach(Array(recentTasks.enumerated()), id: \.offset) { index, task in
-              HStack(spacing: 8) {
+              HStack(spacing: 7) {
                 Circle()
                   .fill(task.completed ? Color.doggyTeal.opacity(0.9) : Color.doggyWarmTint.opacity(0.85))
-                  .frame(width: 7, height: 7)
+                  .frame(width: 6, height: 6)
 
                 Text(task.title)
-                  .font(.system(size: 13, weight: .medium, design: .rounded))
-                  .foregroundColor(.doggyInk.opacity(0.82))
+                  .font(.system(size: 12, weight: .medium, design: .rounded))
+                  .foregroundColor(.doggyInk.opacity(0.80))
                   .lineLimit(1)
 
-                Spacer(minLength: 6)
+                Spacer(minLength: 4)
 
                 Text(task.time)
-                  .font(.system(size: 11, weight: .medium, design: .rounded))
-                  .foregroundColor(.doggyInk.opacity(0.42))
+                  .font(.system(size: 10, weight: .medium, design: .rounded))
+                  .foregroundColor(.doggyInk.opacity(0.40))
               }
               .padding(.vertical, 2)
             }
@@ -268,16 +268,16 @@ private struct DoggyLogSummaryLargeView: View {
 
           if let countdown = snapshot?.countdown {
             Text("\(countdown.title) · 还有 \(max(0, countdown.daysRemaining)) 天")
-              .font(.system(size: 12, weight: .medium, design: .rounded))
-              .foregroundColor(.doggyWarmTint.opacity(0.98))
-              .padding(.top, 4)
+              .font(.system(size: 11, weight: .medium, design: .rounded))
+              .foregroundColor(.doggyWarmTint.opacity(0.95))
+              .padding(.top, 3)
           }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
 
-        VStack(alignment: .trailing, spacing: 12) {
+        VStack(alignment: .trailing, spacing: 10) {
           _DogCompanionView()
-            .frame(width: 104, height: 80)
+            .frame(width: 88, height: 88)
 
           _SummaryPawRhythmStrip(activeIndex: 2, count: 6)
         }
@@ -298,15 +298,15 @@ private struct _SummaryHeader: View {
   let subtitle: String
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 4) {
+    VStack(alignment: .leading, spacing: 3) {
       Text(snapshot?.pet.name ?? "DoggyLog")
-        .font(.system(size: 24, weight: .semibold, design: .rounded))
+        .font(.system(size: 22, weight: .semibold, design: .rounded))
         .foregroundColor(.doggyInk)
         .lineLimit(1)
 
       Text(subtitle)
-        .font(.system(size: 11, weight: .medium, design: .rounded))
-        .foregroundColor(.doggyWarmTint.opacity(0.96))
+        .font(.system(size: 10, weight: .medium, design: .rounded))
+        .foregroundColor(.doggyWarmTint.opacity(0.92))
     }
   }
 }
@@ -317,21 +317,21 @@ private struct _SummaryMetricTile: View {
   let accent: Color
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: 6) {
       Text(title)
-        .font(.system(size: 11, weight: .medium, design: .rounded))
-        .foregroundColor(.doggyInk.opacity(0.46))
+        .font(.system(size: 10, weight: .medium, design: .rounded))
+        .foregroundColor(.doggyInk.opacity(0.44))
 
       Text(value)
-        .font(.system(size: 26, weight: .semibold, design: .rounded))
+        .font(.system(size: 24, weight: .semibold, design: .rounded))
         .foregroundColor(.doggyInk)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(.horizontal, 12)
-    .padding(.vertical, 10)
+    .padding(.horizontal, 10)
+    .padding(.vertical, 9)
     .background(
-      RoundedRectangle(cornerRadius: 16, style: .continuous)
-        .fill(accent.opacity(0.14))
+      RoundedRectangle(cornerRadius: 14, style: .continuous)
+        .fill(accent.opacity(0.13))
     )
   }
 }
@@ -343,17 +343,17 @@ private struct _SummaryStatPill: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 2) {
       Text(value)
-        .font(.system(size: 22, weight: .semibold, design: .rounded))
+        .font(.system(size: 20, weight: .semibold, design: .rounded))
         .foregroundColor(.doggyInk)
       Text(label)
         .font(.system(size: 10, weight: .medium, design: .rounded))
-        .foregroundColor(.doggyInk.opacity(0.45))
+        .foregroundColor(.doggyInk.opacity(0.44))
     }
-    .padding(.horizontal, 12)
-    .padding(.vertical, 8)
+    .padding(.horizontal, 10)
+    .padding(.vertical, 7)
     .background(
       Capsule(style: .continuous)
-        .fill(Color.doggyWarmTint.opacity(0.14))
+        .fill(Color.doggyWarmTint.opacity(0.13))
     )
   }
 }
@@ -363,14 +363,14 @@ private struct _SummaryPawRhythmStrip: View {
   let count: Int
 
   var body: some View {
-    HStack(spacing: 10) {
+    HStack(spacing: 8) {
       ForEach(0..<count, id: \.self) { index in
         Image(systemName: "pawprint.fill")
-          .font(.system(size: 14, weight: .regular))
+          .font(.system(size: 13, weight: .regular))
           .foregroundColor(
             index == activeIndex
-              ? .doggyWarmTint.opacity(0.34)
-              : .doggyInk.opacity(0.08)
+              ? .doggyWarmTint.opacity(0.36)
+              : .doggyInk.opacity(0.07)
           )
       }
     }

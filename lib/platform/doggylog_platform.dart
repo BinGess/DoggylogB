@@ -29,8 +29,17 @@ class DoggylogPlatform {
   }
 
   Future<List<CalendarItem>> importCalendarItems() async {
+    return importCalendarItemsFromCalendars();
+  }
+
+  Future<List<CalendarItem>> importCalendarItemsFromCalendars({
+    List<String>? selectedCalendarIds,
+  }) async {
     try {
-      final json = await _channel.invokeMethod<String>('importCalendarItems');
+      final json = await _channel.invokeMethod<String>(
+        'importCalendarItems',
+        <String, Object?>{'selectedCalendarIds': selectedCalendarIds},
+      );
       if (json == null || json.isEmpty) {
         return const [];
       }
@@ -46,12 +55,36 @@ class DoggylogPlatform {
     }
   }
 
-  Future<CalendarSyncDelta?> syncCalendarDelta({DateTime? updatedAfter}) async {
+  Future<List<SystemCalendar>> getSystemCalendars() async {
     try {
-      final json = await _channel.invokeMethod<String>(
-        'syncCalendarDelta',
-        <String, Object?>{'updatedAfter': updatedAfter?.millisecondsSinceEpoch},
-      );
+      final json = await _channel.invokeMethod<String>('getSystemCalendars');
+      if (json == null || json.isEmpty) {
+        return const [];
+      }
+      final decoded = (jsonDecode(json) as List<dynamic>)
+          .map(
+            (item) => SystemCalendar.fromJson(Map<String, dynamic>.from(item)),
+          )
+          .toList();
+      return decoded;
+    } on MissingPluginException {
+      return const [];
+    } catch (error) {
+      debugPrint('DoggylogPlatform.getSystemCalendars failed: $error');
+      return const [];
+    }
+  }
+
+  Future<CalendarSyncDelta?> syncCalendarDelta({
+    DateTime? updatedAfter,
+    List<String>? selectedCalendarIds,
+  }) async {
+    try {
+      final json = await _channel
+          .invokeMethod<String>('syncCalendarDelta', <String, Object?>{
+            'updatedAfter': updatedAfter?.millisecondsSinceEpoch,
+            'selectedCalendarIds': selectedCalendarIds,
+          });
       if (json == null || json.isEmpty) {
         return null;
       }

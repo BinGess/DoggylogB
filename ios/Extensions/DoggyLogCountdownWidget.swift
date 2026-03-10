@@ -41,55 +41,55 @@ struct DoggyLogCountdownSmallView: View {
 
     VStack(alignment: .leading, spacing: 0) {
       Text("Countdown")
-        .font(.system(size: 11, weight: .medium, design: .rounded))
-        .foregroundColor(.doggyWarmTint.opacity(0.96))
+        .font(.system(size: 10, weight: .medium, design: .rounded))
+        .foregroundColor(.doggyWarmTint.opacity(0.92))
 
       Text(petName)
-        .font(.system(size: 16, weight: .semibold, design: .rounded))
+        .font(.system(size: 15, weight: .semibold, design: .rounded))
         .foregroundColor(.doggyInk)
         .lineLimit(1)
-        .padding(.top, 4)
+        .padding(.top, 3)
 
       Spacer(minLength: 8)
 
       if let countdown {
         HStack(alignment: .firstTextBaseline, spacing: 3) {
           Text("\(max(0, countdown.daysRemaining))")
-            .font(.system(size: 46, weight: .medium, design: .rounded))
+            .font(.system(size: 44, weight: .medium, design: .rounded))
             .foregroundColor(.doggyInk)
 
           Text("天")
-            .font(.system(size: 14, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyInk.opacity(0.58))
+            .font(.system(size: 13, weight: .medium, design: .rounded))
+            .foregroundColor(.doggyInk.opacity(0.55))
         }
 
         Text(countdown.title)
-          .font(.system(size: 12, weight: .medium, design: .rounded))
-          .foregroundColor(.doggyInk.opacity(0.86))
+          .font(.system(size: 11, weight: .medium, design: .rounded))
+          .foregroundColor(.doggyInk.opacity(0.82))
           .lineLimit(1)
 
         Text(_countdownDueDateLabel(ms: countdown.dueAt))
           .font(.system(size: 10, weight: .medium, design: .rounded))
-          .foregroundColor(.doggyWarmTint.opacity(0.92))
-          .padding(.top, 3)
+          .foregroundColor(.doggyWarmTint.opacity(0.90))
+          .padding(.top, 2)
       } else {
         Text("暂无倒计时")
-          .font(.system(size: 15, weight: .semibold, design: .rounded))
+          .font(.system(size: 14, weight: .semibold, design: .rounded))
           .foregroundColor(.doggyInk)
 
         Text("打开 App 添加一个目标吧")
-          .font(.system(size: 11, weight: .medium, design: .rounded))
-          .foregroundColor(.doggyInk.opacity(0.5))
+          .font(.system(size: 10, weight: .medium, design: .rounded))
+          .foregroundColor(.doggyInk.opacity(0.48))
           .padding(.top, 4)
       }
 
-      Spacer(minLength: 10)
+      Spacer(minLength: 8)
 
       HStack(alignment: .bottom, spacing: 0) {
-        _PawRhythmStrip(activeIndex: 1, count: 4, iconSize: 12, spacing: 8)
-        Spacer(minLength: 8)
+        _PawRhythmStrip(activeIndex: 1, count: 4, iconSize: 11, spacing: 7)
+        Spacer(minLength: 6)
         _DogCompanionView()
-          .frame(width: 76, height: 56)
+          .frame(width: 60, height: 60)
       }
     }
     .padding(.horizontal, 14)
@@ -112,13 +112,13 @@ struct DoggyLogCountdownMediumView: View {
 
     VStack(alignment: .leading, spacing: 0) {
       HStack(alignment: .top) {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 3) {
           Text("Countdown")
-            .font(.system(size: 12, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyWarmTint.opacity(0.96))
+            .font(.system(size: 11, weight: .medium, design: .rounded))
+            .foregroundColor(.doggyWarmTint.opacity(0.92))
 
           Text(petName)
-            .font(.system(size: 24, weight: .semibold, design: .rounded))
+            .font(.system(size: 22, weight: .semibold, design: .rounded))
             .foregroundColor(.doggyInk)
             .lineLimit(1)
         }
@@ -126,66 +126,66 @@ struct DoggyLogCountdownMediumView: View {
         Spacer()
 
         Text("陪你守住目标")
-          .font(.system(size: 11, weight: .medium, design: .rounded))
-          .foregroundColor(.doggyInk.opacity(0.44))
+          .font(.system(size: 10, weight: .medium, design: .rounded))
+          .foregroundColor(.doggyInk.opacity(0.40))
       }
 
-      Spacer(minLength: 12)
+      Spacer(minLength: 10)
 
       HStack(alignment: .bottom, spacing: 12) {
         if let countdown {
           VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
               Text("\(max(0, countdown.daysRemaining))")
-                .font(.system(size: 58, weight: .medium, design: .rounded))
+                .font(.system(size: 52, weight: .medium, design: .rounded))
                 .foregroundColor(.doggyInk)
 
               Text("天")
-                .font(.system(size: 15, weight: .medium, design: .rounded))
-                .foregroundColor(.doggyInk.opacity(0.56))
+                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .foregroundColor(.doggyInk.opacity(0.52))
             }
 
             Text(countdown.title)
-              .font(.system(size: 14, weight: .semibold, design: .rounded))
-              .foregroundColor(.doggyInk.opacity(0.88))
+              .font(.system(size: 13, weight: .semibold, design: .rounded))
+              .foregroundColor(.doggyInk.opacity(0.86))
               .lineLimit(2)
               .padding(.top, 2)
 
             Text(_countdownDueDateLabel(ms: countdown.dueAt))
-              .font(.system(size: 11, weight: .medium, design: .rounded))
-              .foregroundColor(.doggyWarmTint.opacity(0.96))
-              .padding(.top, 3)
+              .font(.system(size: 10, weight: .medium, design: .rounded))
+              .foregroundColor(.doggyWarmTint.opacity(0.92))
+              .padding(.top, 2)
 
             _CountdownProgressBar(progress: _progress(countdown: countdown))
-              .padding(.top, 12)
+              .padding(.top, 10)
           }
           .frame(maxWidth: .infinity, alignment: .leading)
         } else {
           VStack(alignment: .leading, spacing: 6) {
             Text("暂无倒计时")
-              .font(.system(size: 18, weight: .semibold, design: .rounded))
+              .font(.system(size: 17, weight: .semibold, design: .rounded))
               .foregroundColor(.doggyInk)
             Text("前往 App 新建一个小目标，狗狗就会来提醒你。")
-              .font(.system(size: 12, weight: .medium, design: .rounded))
-              .foregroundColor(.doggyInk.opacity(0.52))
+              .font(.system(size: 11, weight: .medium, design: .rounded))
+              .foregroundColor(.doggyInk.opacity(0.50))
               .lineLimit(2)
           }
           .frame(maxWidth: .infinity, alignment: .leading)
         }
 
         _DogCompanionView()
-          .frame(width: 98, height: 74)
+          .frame(width: 80, height: 80)
       }
 
-      Spacer(minLength: 10)
+      Spacer(minLength: 8)
 
       HStack(alignment: .center) {
-        _PawRhythmStrip(activeIndex: 2, count: 6, iconSize: 15, spacing: 10)
+        _PawRhythmStrip(activeIndex: 2, count: 6, iconSize: 13, spacing: 9)
         Spacer()
         if let countdown {
           Text("\(Int(_progress(countdown: countdown) * 100))%")
             .font(.system(size: 10, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyInk.opacity(0.45))
+            .foregroundColor(.doggyInk.opacity(0.40))
         }
       }
     }
@@ -206,15 +206,15 @@ private struct _CountdownProgressBar: View {
     GeometryReader { geo in
       ZStack(alignment: .leading) {
         Capsule()
-          .fill(Color.doggyInk.opacity(0.08))
-          .frame(height: 7)
+          .fill(Color.doggyInk.opacity(0.07))
+          .frame(height: 6)
 
         Capsule()
           .fill(Color.doggyWarmTint.opacity(0.85))
-          .frame(width: max(18, geo.size.width * progress), height: 7)
+          .frame(width: max(16, geo.size.width * progress), height: 6)
       }
     }
-    .frame(height: 7)
+    .frame(height: 6)
   }
 }
 
@@ -231,8 +231,8 @@ private struct _PawRhythmStrip: View {
           .font(.system(size: iconSize, weight: .regular))
           .foregroundColor(
             index == activeIndex
-              ? .doggyWarmTint.opacity(0.34)
-              : .doggyInk.opacity(0.08)
+              ? .doggyWarmTint.opacity(0.36)
+              : .doggyInk.opacity(0.07)
           )
       }
     }

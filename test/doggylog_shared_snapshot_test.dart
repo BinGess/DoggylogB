@@ -63,13 +63,6 @@ void main() {
       templates: const [],
       geofences: const [],
       recentSuggestions: const [],
-      stats: const DashboardStats(
-        totalTasks: 2,
-        completedTasks: 1,
-        streakDays: 1,
-        loyaltyPoints: 230,
-        categoryCounts: {CalendarCategory.pet: 2},
-      ),
     );
 
     final snapshot = DoggylogSharedSnapshot.fromAppState(

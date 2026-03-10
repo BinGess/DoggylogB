@@ -97,34 +97,34 @@ struct DoggyLogLargeCalendarView: View {
     VStack(alignment: .leading, spacing: 0) {
       HStack(alignment: .top) {
         Text(monthLabel)
-          .font(.system(size: 28, weight: .regular, design: .rounded))
+          .font(.system(size: 26, weight: .regular, design: .rounded))
           .foregroundColor(.doggyInk)
         Spacer()
-        VStack(alignment: .trailing, spacing: 4) {
+        VStack(alignment: .trailing, spacing: 3) {
           Text(petName)
-            .font(.system(size: 12, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyInk.opacity(0.55))
+            .font(.system(size: 11, weight: .medium, design: .rounded))
+            .foregroundColor(.doggyInk.opacity(0.52))
           Text("陪你过今天")
             .font(.system(size: 10, weight: .regular, design: .rounded))
-            .foregroundColor(.doggyWarmTint.opacity(0.95))
+            .foregroundColor(.doggyWarmTint.opacity(0.90))
         }
       }
       .padding(.horizontal, 18)
-      .padding(.top, 18)
-      .padding(.bottom, 14)
+      .padding(.top, 16)
+      .padding(.bottom, 12)
 
       HStack(spacing: 0) {
         ForEach(weekdayLabels, id: \.self) { label in
           Text(label)
-            .font(.system(size: 12, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyInk.opacity(0.88))
+            .font(.system(size: 11, weight: .medium, design: .rounded))
+            .foregroundColor(.doggyInk.opacity(0.80))
             .frame(maxWidth: .infinity)
         }
       }
       .padding(.horizontal, 12)
-      .padding(.bottom, 10)
+      .padding(.bottom, 8)
 
-      LazyVGrid(columns: columns, spacing: 2) {
+      LazyVGrid(columns: columns, spacing: 4) {
         ForEach(Array(days.enumerated()), id: \.offset) { idx, day in
           _LargeCalendarDayCell(
             day: day,
@@ -138,18 +138,18 @@ struct DoggyLogLargeCalendarView: View {
       Spacer(minLength: 8)
 
       HStack(alignment: .bottom, spacing: 0) {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
           Text("本月节奏")
-            .font(.system(size: 11, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyInk.opacity(0.5))
+            .font(.system(size: 10, weight: .medium, design: .rounded))
+            .foregroundColor(.doggyInk.opacity(0.46))
 
-          HStack(spacing: 8) {
+          HStack(spacing: 6) {
             ForEach(0..<6, id: \.self) { index in
               Image(systemName: "pawprint.fill")
-                .font(.system(size: 16, weight: .regular))
+                .font(.system(size: 13, weight: .regular))
                 .foregroundColor(
                   index == 2
-                    ? .doggyWarmTint.opacity(0.38)
+                    ? .doggyWarmTint.opacity(0.40)
                     : .doggyInk.opacity(0.08)
                 )
             }
@@ -159,7 +159,7 @@ struct DoggyLogLargeCalendarView: View {
         Spacer()
 
         _DogCompanionView()
-          .frame(width: 96, height: 72)
+          .frame(width: 76, height: 76)
       }
       .padding(.horizontal, 18)
       .padding(.bottom, 14)
@@ -189,58 +189,58 @@ struct DoggyLogMediumCalendarView: View {
     VStack(alignment: .leading, spacing: 0) {
       HStack(alignment: .center) {
         Text(monthLabel)
-          .font(.system(size: 24, weight: .regular, design: .rounded))
+          .font(.system(size: 22, weight: .regular, design: .rounded))
           .foregroundColor(.doggyInk)
         Spacer()
       }
       .padding(.horizontal, 18)
-      .padding(.top, 16)
-      .padding(.bottom, 14)
+      .padding(.top, 14)
+      .padding(.bottom, 12)
 
       HStack(spacing: 0) {
         ForEach(weekdayLabels, id: \.self) { label in
           Text(label)
-            .font(.system(size: 12, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyInk.opacity(0.92))
+            .font(.system(size: 11, weight: .medium, design: .rounded))
+            .foregroundColor(.doggyInk.opacity(0.88))
             .frame(maxWidth: .infinity)
         }
       }
       .padding(.horizontal, 18)
-      .padding(.bottom, 10)
+      .padding(.bottom, 8)
 
       HStack(spacing: 0) {
         ForEach(Array(weekDays.enumerated()), id: \.offset) { index, day in
           VStack(spacing: 0) {
             Text(day.isInMonth ? "\(day.day)" : "")
-              .font(.system(size: 16, weight: index == focusIndex ? .semibold : .regular, design: .rounded))
+              .font(.system(size: 15, weight: index == focusIndex ? .semibold : .regular, design: .rounded))
               .foregroundColor(
                 index == focusIndex
                   ? .doggyInk
                   : day.isInMonth
-                    ? .doggyInk.opacity(0.58)
+                    ? .doggyInk.opacity(0.55)
                     : .doggyInk.opacity(0.18)
               )
-              .frame(height: 24)
+              .frame(height: 22)
           }
           .frame(maxWidth: .infinity)
         }
       }
       .padding(.horizontal, 18)
 
-      Spacer(minLength: 10)
+      Spacer(minLength: 8)
 
       ZStack(alignment: .bottomLeading) {
         HStack(spacing: 0) {
           ForEach(Array(weekDays.enumerated()), id: \.offset) { index, day in
-            VStack(spacing: 6) {
+            VStack(spacing: 5) {
               Image(systemName: "pawprint.fill")
-                .font(.system(size: 23, weight: .regular))
+                .font(.system(size: 20, weight: .regular))
                 .foregroundColor(
                   index == focusIndex
-                    ? .doggyInk.opacity(0.12)
+                    ? .doggyInk.opacity(0.10)
                     : day.taskCount > 0
-                      ? .doggyWarmTint.opacity(0.28)
-                      : .doggyInk.opacity(0.08)
+                      ? .doggyWarmTint.opacity(0.30)
+                      : .doggyInk.opacity(0.07)
                 )
 
               Circle()
@@ -249,7 +249,7 @@ struct DoggyLogMediumCalendarView: View {
                     ? Color.doggyTeal.opacity(index == focusIndex ? 0.0 : 0.70)
                     : Color.clear
                 )
-                .frame(width: 5, height: 5)
+                .frame(width: 4, height: 4)
             }
             .frame(maxWidth: .infinity)
           }
@@ -262,13 +262,13 @@ struct DoggyLogMediumCalendarView: View {
           let dogX = dayWidth * (CGFloat(focusIndex) + 0.5)
 
           _DogCompanionView()
-            .frame(width: 88, height: 66)
-            .position(x: dogX, y: 28)
+            .frame(width: 56, height: 56)
+            .position(x: dogX, y: 26)
         }
       }
-      .frame(height: 84)
+      .frame(height: 80)
       .padding(.horizontal, 18)
-      .padding(.bottom, 14)
+      .padding(.bottom, 12)
     }
     .doggyWidgetBackground {
       RoundedRectangle(cornerRadius: 28, style: .continuous)
@@ -287,15 +287,13 @@ private struct _DayCell: View {
   var body: some View {
     VStack(spacing: 1) {
       ZStack {
-        // 今日：Teal 圆形背景
         if day.isToday {
           Circle()
             .fill(Color.doggyTeal)
             .frame(width: 26, height: 26)
         }
-        // 日期数字
         Text(day.isInMonth ? "\(day.day)" : "")
-          .font(.system(size: 12, weight: .regular))
+          .font(.system(size: 12, weight: .regular, design: .rounded))
           .foregroundColor(
             day.isToday
               ? Color.white
@@ -308,15 +306,15 @@ private struct _DayCell: View {
       .overlay(
         Group {
           if day.isToday && showPetOnToday {
-            Text("🐾")
-              .font(.system(size: 10))
+            Image(systemName: "pawprint.fill")
+              .font(.system(size: 8, weight: .medium))
+              .foregroundColor(.doggyInk.opacity(0.70))
               .offset(y: -14)
           }
         },
         alignment: .top
       )
 
-      // 任务小圆点（非今日 & 有任务）
       Circle()
         .fill(day.taskCount > 0 && !day.isToday ? Color.doggyTeal.opacity(0.75) : Color.clear)
         .frame(width: 3.5, height: 3.5)
@@ -334,33 +332,33 @@ private struct _LargeCalendarDayCell: View {
     VStack(spacing: 4) {
       ZStack {
         if isFocus {
-          RoundedRectangle(cornerRadius: 14, style: .continuous)
-            .fill(Color.doggyWarmTint.opacity(0.18))
-            .frame(width: 32, height: 32)
-        } else if day.isToday {
           RoundedRectangle(cornerRadius: 12, style: .continuous)
+            .fill(Color.doggyWarmTint.opacity(0.18))
+            .frame(width: 30, height: 30)
+        } else if day.isToday {
+          RoundedRectangle(cornerRadius: 10, style: .continuous)
             .fill(Color.doggyTeal.opacity(0.88))
-            .frame(width: 28, height: 28)
+            .frame(width: 27, height: 27)
         }
 
         Text(day.isInMonth ? "\(day.day)" : "")
-          .font(.system(size: 14, weight: isFocus ? .semibold : .regular, design: .rounded))
+          .font(.system(size: 13, weight: isFocus ? .semibold : .regular, design: .rounded))
           .foregroundColor(
             day.isToday
               ? .white
               : day.isInMonth
-                ? .doggyInk.opacity(isFocus ? 0.95 : 0.62)
+                ? .doggyInk.opacity(isFocus ? 0.95 : 0.60)
                 : .doggyInk.opacity(0.18)
           )
       }
-      .frame(width: 34, height: 34)
+      .frame(width: 32, height: 32)
       .overlay(
         Group {
           if day.isToday && showPetOnToday {
             Image(systemName: "pawprint.fill")
-              .font(.system(size: 10, weight: .medium))
-              .foregroundColor(.doggyInk.opacity(0.92))
-              .offset(y: -16)
+              .font(.system(size: 9, weight: .medium))
+              .foregroundColor(.doggyInk.opacity(0.85))
+              .offset(y: -15)
           }
         },
         alignment: .top
@@ -368,9 +366,9 @@ private struct _LargeCalendarDayCell: View {
 
       Circle()
         .fill(day.taskCount > 0 && !day.isToday ? Color.doggyTeal.opacity(0.72) : Color.clear)
-        .frame(width: 4, height: 4)
+        .frame(width: 3.5, height: 3.5)
     }
-    .frame(height: 42)
+    .frame(height: 40)
   }
 }
 
@@ -381,7 +379,6 @@ private struct _WeekDayCell: View {
 
   var body: some View {
     VStack(spacing: 5) {
-      // 日期数字
       ZStack {
         if day.isToday {
           Circle()
@@ -389,7 +386,7 @@ private struct _WeekDayCell: View {
             .frame(width: 24, height: 24)
         }
         Text(day.isInMonth ? "\(day.day)" : "")
-          .font(.system(size: 13, weight: .regular))
+          .font(.system(size: 13, weight: .regular, design: .rounded))
           .foregroundColor(
             day.isToday
               ? Color.white
@@ -400,15 +397,14 @@ private struct _WeekDayCell: View {
       }
       .frame(width: 24, height: 24)
 
-      // 爪印指示
       Group {
         if day.isToday {
-          // 今日：宠物 emoji 替代爪印
-          Text("🐾")
-            .font(.system(size: 14))
+          Image(systemName: "pawprint.fill")
+            .font(.system(size: 13, weight: .medium))
+            .foregroundColor(.doggyTeal.opacity(0.9))
         } else {
           Image(systemName: day.taskCount > 0 ? "pawprint.fill" : "pawprint")
-            .font(.system(size: 11))
+            .font(.system(size: 11, weight: .regular))
             .foregroundColor(
               day.taskCount > 0
                 ? Color.doggyTeal
@@ -422,124 +418,13 @@ private struct _WeekDayCell: View {
   }
 }
 
+// MARK: - Dog Companion (real image)
+
 struct _DogCompanionView: View {
   var body: some View {
-    ZStack(alignment: .bottom) {
-      Ellipse()
-        .fill(Color.black.opacity(0.12))
-        .frame(width: 48, height: 10)
-        .offset(y: 6)
-
-      ZStack(alignment: .topLeading) {
-        _DogTailShape()
-          .stroke(Color.doggyInk, style: StrokeStyle(lineWidth: 6, lineCap: .round, lineJoin: .round))
-          .frame(width: 20, height: 32)
-          .offset(x: 8, y: 4)
-
-        RoundedRectangle(cornerRadius: 16, style: .continuous)
-          .fill(Color.doggyInk)
-          .frame(width: 44, height: 24)
-          .offset(x: 18, y: 20)
-
-        Capsule()
-          .fill(Color.doggyTeal.opacity(0.9))
-          .frame(width: 16, height: 5)
-          .offset(x: 42, y: 31)
-
-        Circle()
-          .fill(Color.doggyInk)
-          .frame(width: 25, height: 25)
-          .offset(x: 48, y: 10)
-
-        _DogEarShape(flip: false)
-          .fill(Color.doggyInk)
-          .frame(width: 10, height: 12)
-          .offset(x: 50, y: 4)
-
-        _DogEarShape(flip: true)
-          .fill(Color.doggyInk)
-          .frame(width: 10, height: 12)
-          .offset(x: 62, y: 4)
-
-        RoundedRectangle(cornerRadius: 3, style: .continuous)
-          .fill(Color.doggyInk)
-          .frame(width: 6, height: 16)
-          .offset(x: 24, y: 40)
-
-        RoundedRectangle(cornerRadius: 3, style: .continuous)
-          .fill(Color.doggyInk)
-          .frame(width: 6, height: 16)
-          .offset(x: 39, y: 40)
-
-        RoundedRectangle(cornerRadius: 3, style: .continuous)
-          .fill(Color.doggyInk)
-          .frame(width: 6, height: 16)
-          .offset(x: 52, y: 40)
-
-        RoundedRectangle(cornerRadius: 3, style: .continuous)
-          .fill(Color.doggyInk)
-          .frame(width: 6, height: 16)
-          .offset(x: 63, y: 40)
-
-        Circle()
-          .fill(.white)
-          .frame(width: 6, height: 6)
-          .offset(x: 55, y: 19)
-
-        Circle()
-          .fill(.white)
-          .frame(width: 6, height: 6)
-          .offset(x: 66, y: 19)
-
-        Circle()
-          .fill(Color.black)
-          .frame(width: 2.5, height: 2.5)
-          .offset(x: 57, y: 21)
-
-        Circle()
-          .fill(Color.black)
-          .frame(width: 2.5, height: 2.5)
-          .offset(x: 68, y: 21)
-
-        Capsule()
-          .fill(Color.white.opacity(0.92))
-          .frame(width: 10, height: 6)
-          .offset(x: 60, y: 28)
-      }
-      .frame(width: 88, height: 60)
-    }
-  }
-}
-
-struct _DogEarShape: Shape {
-  let flip: Bool
-
-  func path(in rect: CGRect) -> Path {
-    var path = Path()
-    if flip {
-      path.move(to: CGPoint(x: rect.maxX, y: rect.maxY))
-      path.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
-      path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY * 0.35))
-    } else {
-      path.move(to: CGPoint(x: rect.minX, y: rect.maxY))
-      path.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
-      path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY * 0.35))
-    }
-    path.closeSubpath()
-    return path
-  }
-}
-
-struct _DogTailShape: Shape {
-  func path(in rect: CGRect) -> Path {
-    var path = Path()
-    path.move(to: CGPoint(x: rect.maxX * 0.7, y: rect.maxY))
-    path.addCurve(
-      to: CGPoint(x: rect.maxX * 0.35, y: rect.minY + 3),
-      control1: CGPoint(x: rect.maxX * 0.25, y: rect.maxY * 0.65),
-      control2: CGPoint(x: rect.maxX * 0.9, y: rect.maxY * 0.15)
-    )
-    return path
+    Image("calendar_dog_timeline")
+      .resizable()
+      .scaledToFit()
   }
 }
 
@@ -578,7 +463,6 @@ private func _currentWeekDays(
   let weekStart = (todayIdx / 7) * 7
   let range = weekStart..<min(weekStart + 7, days.count)
   let slice = Array(days[range])
-  // 用空格子补足 7 个
   if slice.count < 7 {
     let pad = Array(repeating: SnapshotCalendarDay(
       day: 0, isInMonth: false, isToday: false, taskCount: 0
@@ -598,7 +482,7 @@ private func _placeholderDays(for date: Date) -> [SnapshotCalendarDay] {
 
   var comps = DateComponents(); comps.year = year; comps.month = month; comps.day = 1
   let firstDay = cal.date(from: comps)!
-  let startOffset = cal.component(.weekday, from: firstDay) - 1 // Sun=1 → 0-based
+  let startOffset = cal.component(.weekday, from: firstDay) - 1
 
   let lastDay: Int = {
     var c = DateComponents(); c.year = year; c.month = month + 1; c.day = 0

@@ -10,10 +10,21 @@ class IosCalendarSyncService {
 
   Future<bool> isAvailable() => _platform.isCalendarSyncAvailable();
 
-  Future<List<CalendarItem>> importItems() => _platform.importCalendarItems();
+  Future<List<SystemCalendar>> loadSystemCalendars() =>
+      _platform.getSystemCalendars();
 
-  Future<CalendarSyncDelta?> syncDelta({DateTime? updatedAfter}) =>
-      _platform.syncCalendarDelta(updatedAfter: updatedAfter);
+  Future<List<CalendarItem>> importItems({List<String>? selectedCalendarIds}) =>
+      _platform.importCalendarItemsFromCalendars(
+        selectedCalendarIds: selectedCalendarIds,
+      );
+
+  Future<CalendarSyncDelta?> syncDelta({
+    DateTime? updatedAfter,
+    List<String>? selectedCalendarIds,
+  }) => _platform.syncCalendarDelta(
+    updatedAfter: updatedAfter,
+    selectedCalendarIds: selectedCalendarIds,
+  );
 
   Future<String?> upsertItem(CalendarItem item) =>
       _platform.upsertCalendarItem(item.copyWith(reminders: const []));

@@ -22,6 +22,7 @@
 		961B36A6CB447916571A7C4E /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 691287E3C59D3D68442B2681 /* Pods_Runner.framework */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
+		DD1A2B3C4D5E6F7080910A1B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC1A2B3C4D5E6F7080910A1B /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		AFDB5C3020AD947A18E85606 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BC9B2E4C685E729D4629D33 /* WidgetKit.framework */; };
 		BBAF9FFF0947EA7AF65CE0E5 /* DoggyLogLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68CCCAA0921EF2F89D49B2AE /* DoggyLogLiveActivity.swift */; };
@@ -100,6 +101,7 @@
 		97C146EE1CF9000F007C117D /* Runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97C146FB1CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CC1A2B3C4D5E6F7080910A1B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9BC9B2E4C685E729D4629D33 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -223,6 +225,7 @@
 			children = (
 				C7F56E731C6F110FDCD5602D /* Info.plist */,
 				B4B33269E822A8D2CFC24B7E /* DoggyLogWidgets.entitlements */,
+				CC1A2B3C4D5E6F7080910A1B /* Assets.xcassets */,
 			);
 			name = DoggyLogWidgets;
 			path = DoggyLogWidgets;
@@ -379,6 +382,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD1A2B3C4D5E6F7080910A1B /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

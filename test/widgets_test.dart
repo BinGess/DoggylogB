@@ -59,7 +59,7 @@ void main() {
       const ProviderScope(child: MaterialApp(home: CalendarScreen())),
     );
 
-    expect(find.text('今天还没安排哦，点击右上角创建'), findsOneWidget);
+    expect(find.text('今日还没安排哦，点击右上角创建追剧文案'), findsOneWidget);
 
     final image = tester.widget<Image>(
       find.byWidgetPredicate(
@@ -71,7 +71,7 @@ void main() {
       ),
     );
 
-    expect(image.fit, BoxFit.cover);
+    expect(image.fit, BoxFit.contain);
   });
 
   testWidgets('CreateEntryScreen uses lightweight date and time sheets', (
@@ -315,7 +315,7 @@ void main() {
   });
 
   testWidgets(
-    'SettingsScreen shows tappable task review card and settings section',
+    'SettingsScreen shows settings section',
     (tester) async {
       await tester.pumpWidget(
         const ProviderScope(child: MaterialApp(home: SettingsScreen())),
@@ -323,36 +323,16 @@ void main() {
       await tester.pump();
 
       expect(find.text('我的'), findsOneWidget);
-      expect(find.text('任务复盘'), findsOneWidget);
-      expect(find.text('完成率'), findsOneWidget);
       expect(find.text('设置'), findsOneWidget);
       expect(find.text('字号'), findsOneWidget);
       expect(find.text('小'), findsOneWidget);
       expect(find.text('中'), findsOneWidget);
       expect(find.text('大'), findsOneWidget);
       expect(find.text('开发调试'), findsOneWidget);
-      expect(find.text('连续打卡'), findsNothing);
-      expect(find.text('忠诚度总分'), findsNothing);
-      expect(find.text('分类分布'), findsNothing);
       expect(find.text('动画强度'), findsNothing);
       expect(find.text('iOS 增强能力'), findsNothing);
     },
   );
-
-  testWidgets('SettingsScreen opens task review detail page', (tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(child: MaterialApp(home: SettingsScreen())),
-    );
-    await tester.pump();
-
-    await tester.tap(find.text('任务复盘'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('任务复盘'), findsWidgets);
-    expect(find.text('连续打卡'), findsOneWidget);
-    expect(find.text('忠诚度总分'), findsOneWidget);
-    expect(find.text('分类分布'), findsOneWidget);
-  });
 
   testWidgets(
     'SettingsScreen opens development debug page from settings footer',

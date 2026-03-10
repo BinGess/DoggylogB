@@ -353,6 +353,8 @@ class UserPreference {
     required this.selectedCalendarView,
     required this.faceIdEnabled,
     required this.debugImmediateReminders,
+    required this.useSystemCalendarFilter,
+    required this.visibleSystemCalendarIds,
   });
 
   const UserPreference.defaults()
@@ -364,7 +366,9 @@ class UserPreference {
       performanceTier = PerformanceTier.balanced,
       selectedCalendarView = CalendarViewMode.month,
       faceIdEnabled = false,
-      debugImmediateReminders = false;
+      debugImmediateReminders = false,
+      useSystemCalendarFilter = false,
+      visibleSystemCalendarIds = const [];
 
   final bool hasCompletedOnboarding;
   final bool weekStartsOnMonday;
@@ -375,6 +379,8 @@ class UserPreference {
   final CalendarViewMode selectedCalendarView;
   final bool faceIdEnabled;
   final bool debugImmediateReminders;
+  final bool useSystemCalendarFilter;
+  final List<String> visibleSystemCalendarIds;
 
   UserPreference copyWith({
     bool? hasCompletedOnboarding,
@@ -386,6 +392,8 @@ class UserPreference {
     CalendarViewMode? selectedCalendarView,
     bool? faceIdEnabled,
     bool? debugImmediateReminders,
+    bool? useSystemCalendarFilter,
+    List<String>? visibleSystemCalendarIds,
   }) {
     return UserPreference(
       hasCompletedOnboarding:
@@ -399,6 +407,10 @@ class UserPreference {
       faceIdEnabled: faceIdEnabled ?? this.faceIdEnabled,
       debugImmediateReminders:
           debugImmediateReminders ?? this.debugImmediateReminders,
+      useSystemCalendarFilter:
+          useSystemCalendarFilter ?? this.useSystemCalendarFilter,
+      visibleSystemCalendarIds:
+          visibleSystemCalendarIds ?? this.visibleSystemCalendarIds,
     );
   }
 }
@@ -446,6 +458,33 @@ class CalendarSyncDelta {
   }
 }
 
+class SystemCalendar {
+  const SystemCalendar({
+    required this.id,
+    required this.title,
+    required this.sourceTitle,
+    required this.colorHex,
+    this.allowsContentModifications = true,
+  });
+
+  final String id;
+  final String title;
+  final String sourceTitle;
+  final String colorHex;
+  final bool allowsContentModifications;
+
+  factory SystemCalendar.fromJson(Map<String, dynamic> json) {
+    return SystemCalendar(
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '未命名日历',
+      sourceTitle: json['sourceTitle'] as String? ?? '其他',
+      colorHex: json['colorHex'] as String? ?? '#C7CDD8',
+      allowsContentModifications:
+          json['allowsContentModifications'] as bool? ?? true,
+    );
+  }
+}
+
 class TaskTemplate {
   const TaskTemplate({
     required this.id,
@@ -460,25 +499,6 @@ class TaskTemplate {
   final int durationMinutes;
 }
 
-class DashboardStats {
-  const DashboardStats({
-    required this.totalTasks,
-    required this.completedTasks,
-    required this.streakDays,
-    required this.loyaltyPoints,
-    required this.categoryCounts,
-  });
-
-  final int totalTasks;
-  final int completedTasks;
-  final int streakDays;
-  final int loyaltyPoints;
-  final Map<CalendarCategory, int> categoryCounts;
-
-  double get completionRate =>
-      totalTasks == 0 ? 0 : completedTasks / totalTasks.clamp(1, totalTasks);
-}
-
 class AppState {
   const AppState({
     required this.preferences,
@@ -490,7 +510,6 @@ class AppState {
     required this.templates,
     required this.geofences,
     required this.recentSuggestions,
-    required this.stats,
     this.notificationPermissionGranted = false,
     this.calendarPermissionGranted = false,
     this.locationPermissionGranted = false,
@@ -513,7 +532,6 @@ class AppState {
   final List<TaskTemplate> templates;
   final List<GeofencePlace> geofences;
   final List<String> recentSuggestions;
-  final DashboardStats stats;
   final bool notificationPermissionGranted;
   final bool calendarPermissionGranted;
   final bool locationPermissionGranted;
@@ -545,7 +563,6 @@ class AppState {
     List<TaskTemplate>? templates,
     List<GeofencePlace>? geofences,
     List<String>? recentSuggestions,
-    DashboardStats? stats,
     bool? notificationPermissionGranted,
     bool? calendarPermissionGranted,
     bool? locationPermissionGranted,
@@ -568,7 +585,6 @@ class AppState {
       templates: templates ?? this.templates,
       geofences: geofences ?? this.geofences,
       recentSuggestions: recentSuggestions ?? this.recentSuggestions,
-      stats: stats ?? this.stats,
       notificationPermissionGranted:
           notificationPermissionGranted ?? this.notificationPermissionGranted,
       calendarPermissionGranted:

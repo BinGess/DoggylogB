@@ -15,7 +15,7 @@ const calendarTimelineDogGifAsset =
     'assets/images/calendar/calendar_dog_timeline.gif';
 const calendarTimelineDogFallbackAsset =
     'assets/images/calendar/calendar_dog_timeline.png';
-const _emptyAgendaCopy = '今天还没安排哦，点击右上角创建';
+const _emptyAgendaCopy = '今日还没安排哦，点击右上角创建追剧文案';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -394,7 +394,7 @@ class _MonthView extends StatelessWidget {
                           ? _PawBadge(
                               day: date.day,
                               size: 64,
-                              dayTop: 24,
+                              dayTop: 19,
                               dayStyle: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(
                                     color: Colors.white,
@@ -704,62 +704,28 @@ class _EmptyAgenda extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(0, 16, 18, 16),
-      decoration: _softDecoration(context, radius: 28).copyWith(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            scheme.surface.withValues(alpha: 0.96),
-            const Color(0xFFFFF2E4),
-          ],
-        ),
-        border: Border.all(
-          color: scheme.primary.withValues(alpha: 0.08),
-          width: 1.2,
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: 116,
-            height: 112,
-            child: ClipRect(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                widthFactor: 0.5,
-                child: Transform.translate(
-                  offset: const Offset(-14, 0),
-                  child: Image.asset(
-                    calendarTimelineDogFallbackAsset,
-                    fit: BoxFit.cover,
-                    filterQuality: FilterQuality.medium,
-                    semanticLabel: '空日程狗狗插画',
-                    width: 180,
-                    height: 112,
-                  ),
-                ),
-              ),
-            ),
+          Image.asset(
+            calendarTimelineDogFallbackAsset,
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.medium,
+            semanticLabel: '空日程狗狗插画',
+            width: 115,
+            height: 88,
           ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.58),
-                borderRadius: BorderRadius.circular(22),
-              ),
-              child: Text(
-                _emptyAgendaCopy,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  height: 1.45,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+          const SizedBox(height: 10),
+          Text(
+            _emptyAgendaCopy,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              height: 1.45,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.82),
             ),
           ),
         ],
@@ -794,13 +760,15 @@ class _PawBadge extends StatelessWidget {
   const _PawBadge({
     required this.day,
     this.size = 66,
-    this.dayTop = 26,
+    this.dayTop = 21,
+    this.imageScale = 1.22,
     this.dayStyle,
   });
 
   final int day;
   final double size;
   final double dayTop;
+  final double imageScale;
   final TextStyle? dayStyle;
 
   @override
@@ -809,14 +777,18 @@ class _PawBadge extends StatelessWidget {
       width: size,
       height: size,
       child: Stack(
+        clipBehavior: Clip.none,
         alignment: Alignment.center,
         children: [
-          Image.asset(
-            _selectedPawAsset,
-            width: size,
-            height: size,
-            fit: BoxFit.contain,
-            filterQuality: FilterQuality.medium,
+          Transform.scale(
+            scale: imageScale,
+            child: Image.asset(
+              _selectedPawAsset,
+              width: size,
+              height: size,
+              fit: BoxFit.contain,
+              filterQuality: FilterQuality.medium,
+            ),
           ),
           Positioned(
             top: dayTop,

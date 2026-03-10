@@ -104,13 +104,6 @@ class AppStateController extends StateNotifier<AppState> {
           templates: const [],
           geofences: const [],
           recentSuggestions: const [],
-          stats: const DashboardStats(
-            totalTasks: 0,
-            completedTasks: 0,
-            streakDays: 0,
-            loyaltyPoints: 0,
-            categoryCounts: {},
-          ),
           lastSyncMessage: 'iOS 增强层待授权',
         ),
       ) {
@@ -162,18 +155,12 @@ class AppStateController extends StateNotifier<AppState> {
 
     _itemsSub = repository.watchCalendarItems().listen((items) {
       unawaited(_syncNotifications(items));
-      final nextState = state.copyWith(
-        calendarItems: items,
-        stats: repository.calculateStats(items, state.pets),
-      );
+      final nextState = state.copyWith(calendarItems: items);
       state = nextState;
       unawaited(_publishSnapshot(nextState));
     });
     _petsSub = repository.watchPets().listen((pets) {
-      final nextState = state.copyWith(
-        pets: pets,
-        stats: repository.calculateStats(state.calendarItems, pets),
-      );
+      final nextState = state.copyWith(pets: pets);
       state = nextState;
       unawaited(_publishSnapshot(nextState));
     });
@@ -439,6 +426,38 @@ class AppStateController extends StateNotifier<AppState> {
     await _performIncrementalCalendarSync();
   }
 
+  Future<List<SystemCalendar>> loadSystemCalendars() async {
+    final service = _ref.read(iosCalendarSyncServiceProvider);
+    final granted = await service.requestAccess();
+    if (!granted) {
+      state = state.copyWith(
+        calendarPermissionGranted: false,
+        lastSyncMessage: '未授予日历权限',
+      );
+      return const [];
+    }
+    final calendars = await service.loadSystemCalendars();
+    state = state.copyWith(calendarPermissionGranted: true);
+    return calendars;
+  }
+
+  Future<void> updateVisibleSystemCalendars(
+    List<String> selectedCalendarIds, {
+    required int totalCalendarCount,
+  }) async {
+    final useFilter = selectedCalendarIds.length != totalCalendarCount;
+    final preferences = state.preferences.copyWith(
+      useSystemCalendarFilter: useFilter,
+      visibleSystemCalendarIds: useFilter ? selectedCalendarIds : const [],
+    );
+    await updatePreferences(preferences);
+    await _performIncrementalCalendarSync(
+      forceFull: true,
+      updateMessage: true,
+      messagePrefix: '系统日历展示范围已更新',
+    );
+  }
+
   Future<void> createFromTemplate(TaskTemplate template) async {
     final startAt = DateTime(
       state.selectedDate.year,
@@ -570,7 +589,10 @@ class AppStateController extends StateNotifier<AppState> {
 
     final repository = await _ref.read(repositoryProvider.future);
     final cursor = forceFull ? null : await repository.loadCalendarSyncCursor();
-    final delta = await service.syncDelta(updatedAfter: cursor);
+    final delta = await service.syncDelta(
+      updatedAfter: cursor,
+      selectedCalendarIds: _selectedSystemCalendarIdsOrNull(),
+    );
     if (delta == null) {
       state = state.copyWith(
         calendarPermissionGranted: true,
@@ -591,6 +613,13 @@ class AppStateController extends StateNotifier<AppState> {
     } else {
       state = state.copyWith(calendarPermissionGranted: true);
     }
+  }
+
+  List<String>? _selectedSystemCalendarIdsOrNull() {
+    if (!state.preferences.useSystemCalendarFilter) {
+      return null;
+    }
+    return state.preferences.visibleSystemCalendarIds;
   }
 
   @override

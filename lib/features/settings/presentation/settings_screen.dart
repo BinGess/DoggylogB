@@ -1,8 +1,8 @@
+import 'package:doggylog/features/pets/presentation/pets_screen.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop.dart';
-import 'package:doggylog/features/stats/presentation/stats_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,11 +26,16 @@ class SettingsScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            TaskReviewSummaryCard(
-              stats: state.stats,
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => TaskReviewDetailScreen(stats: state.stats),
+            Text('宠物', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 12),
+            LiquidGlassCard(
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('切换皮肤'),
+                subtitle: const Text('进入宠物养成页面，切换当前宠物外观'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const PetsScreen()),
                 ),
               ),
             ),
@@ -65,6 +70,22 @@ class SettingsScreen extends ConsumerWidget {
                     title: const Text('Face ID / Touch ID'),
                     value: preferences.faceIdEnabled,
                     onChanged: controller.setFaceIdEnabled,
+                  ),
+                  const Divider(height: 24),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('系统日历'),
+                    subtitle: Text(
+                      _systemCalendarSummary(preferences),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const SystemCalendarSettingsScreen(),
+                      ),
+                    ),
                   ),
                   const Divider(height: 24),
                   ListTile(
@@ -108,6 +129,283 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+String _systemCalendarSummary(UserPreference preferences) {
+  if (!preferences.useSystemCalendarFilter) {
+    return '默认展示系统上所有可访问的日历事件';
+  }
+  if (preferences.visibleSystemCalendarIds.isEmpty) {
+    return '当前未纳入任何系统日历';
+  }
+  return '已选择 ${preferences.visibleSystemCalendarIds.length} 个系统日历';
+}
+
+class SystemCalendarSettingsScreen extends ConsumerStatefulWidget {
+  const SystemCalendarSettingsScreen({super.key});
+
+  @override
+  ConsumerState<SystemCalendarSettingsScreen> createState() =>
+      _SystemCalendarSettingsScreenState();
+}
+
+class _SystemCalendarSettingsScreenState
+    extends ConsumerState<SystemCalendarSettingsScreen> {
+  late Future<List<SystemCalendar>> _calendarsFuture;
+  final Set<String> _selectedIds = <String>{};
+  bool _hasInitializedSelection = false;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _calendarsFuture = ref
+        .read(appStateProvider.notifier)
+        .loadSystemCalendars();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final preferences = ref.watch(appStateProvider).preferences;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('系统日历'),
+        actions: [
+          TextButton(
+            onPressed: _isSaving ? null : () => _saveSelection(context),
+            child: _isSaving
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('完成'),
+          ),
+        ],
+      ),
+      body: SoftBackdrop(
+        child: FutureBuilder<List<SystemCalendar>>(
+          future: _calendarsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final calendars = snapshot.data ?? const <SystemCalendar>[];
+            if (!_hasInitializedSelection) {
+              _hasInitializedSelection = true;
+              if (preferences.useSystemCalendarFilter) {
+                _selectedIds
+                  ..clear()
+                  ..addAll(preferences.visibleSystemCalendarIds);
+              } else {
+                _selectedIds
+                  ..clear()
+                  ..addAll(calendars.map((calendar) => calendar.id));
+              }
+            }
+            if (calendars.isEmpty) {
+              return _EmptySystemCalendarState(
+                onRetry: () {
+                  setState(() {
+                    _hasInitializedSelection = false;
+                    _calendarsFuture = ref
+                        .read(appStateProvider.notifier)
+                        .loadSystemCalendars();
+                  });
+                },
+              );
+            }
+            final grouped = <String, List<SystemCalendar>>{};
+            for (final calendar in calendars) {
+              grouped.putIfAbsent(calendar.sourceTitle, () => []).add(calendar);
+            }
+            final groups = grouped.entries.toList()
+              ..sort((a, b) => a.key.compareTo(b.key));
+            return ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                Text(
+                  '勾选后纳入 DoggyLog 展示与增量同步范围。',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 12),
+                LiquidGlassCard(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('全部日历'),
+                        subtitle: const Text('默认会自动纳入新出现的系统日历'),
+                        trailing: Checkbox(
+                          value: _selectedIds.length == calendars.length,
+                          onChanged: (value) {
+                            setState(() {
+                              if (value ?? false) {
+                                _selectedIds
+                                  ..clear()
+                                  ..addAll(calendars.map((item) => item.id));
+                              } else {
+                                _selectedIds.clear();
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                for (final group in groups) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, bottom: 10),
+                    child: Text(
+                      group.key,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  LiquidGlassCard(
+                    child: Column(
+                      children: [
+                        for (
+                          var index = 0;
+                          index < group.value.length;
+                          index++
+                        ) ...[
+                          _SystemCalendarTile(
+                            calendar: group.value[index],
+                            selected: _selectedIds.contains(
+                              group.value[index].id,
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                if (value) {
+                                  _selectedIds.add(group.value[index].id);
+                                } else {
+                                  _selectedIds.remove(group.value[index].id);
+                                }
+                              });
+                            },
+                          ),
+                          if (index != group.value.length - 1)
+                            const Divider(height: 20),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _saveSelection(BuildContext context) async {
+    final navigator = Navigator.of(context);
+    final calendars = await _calendarsFuture;
+    if (!mounted) {
+      return;
+    }
+    setState(() => _isSaving = true);
+    try {
+      await ref
+          .read(appStateProvider.notifier)
+          .updateVisibleSystemCalendars(
+            _selectedIds.toList(),
+            totalCalendarCount: calendars.length,
+          );
+      if (!mounted) {
+        return;
+      }
+      navigator.pop();
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+}
+
+class _SystemCalendarTile extends StatelessWidget {
+  const _SystemCalendarTile({
+    required this.calendar,
+    required this.selected,
+    required this.onChanged,
+  });
+
+  final SystemCalendar calendar;
+  final bool selected;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final indicatorColor = _parseColor(calendar.colorHex);
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      onTap: () => onChanged(!selected),
+      leading: Container(
+        width: 18,
+        height: 18,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: indicatorColor, width: 2),
+          color: selected ? indicatorColor : Colors.transparent,
+        ),
+        child: selected
+            ? const Icon(Icons.check_rounded, size: 12, color: Colors.white)
+            : null,
+      ),
+      title: Text(calendar.title),
+      subtitle: calendar.allowsContentModifications ? null : const Text('只读日历'),
+      trailing: Checkbox(
+        value: selected,
+        onChanged: (value) => onChanged(value ?? false),
+      ),
+    );
+  }
+}
+
+class _EmptySystemCalendarState extends StatelessWidget {
+  const _EmptySystemCalendarState({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.calendar_month_rounded, size: 48),
+            const SizedBox(height: 12),
+            Text('未读取到系统日历', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text(
+              '请确认已授予日历权限，或当前设备确实存在可访问的日历。',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 16),
+            FilledButton.tonal(onPressed: onRetry, child: const Text('重新加载')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Color _parseColor(String colorHex) {
+  final normalized = colorHex.replaceFirst('#', '');
+  final buffer = StringBuffer();
+  if (normalized.length == 6) {
+    buffer.write('ff');
+  }
+  buffer.write(normalized);
+  return Color(int.tryParse(buffer.toString(), radix: 16) ?? 0xFFC7CDD8);
 }
 
 class DevelopmentDebugScreen extends ConsumerWidget {

@@ -164,6 +164,10 @@ class AppRepository {
       ),
       faceIdEnabled: values['faceIdEnabled'] == 'true',
       debugImmediateReminders: values['debugImmediateReminders'] == 'true',
+      useSystemCalendarFilter: values['useSystemCalendarFilter'] == 'true',
+      visibleSystemCalendarIds: decodeJsonList(
+        values['visibleSystemCalendarIds'],
+      ).map((item) => item['id'].toString()).toList(),
     );
   }
 
@@ -178,6 +182,12 @@ class AppRepository {
       'selectedCalendarView': preference.selectedCalendarView.name,
       'faceIdEnabled': preference.faceIdEnabled.toString(),
       'debugImmediateReminders': preference.debugImmediateReminders.toString(),
+      'useSystemCalendarFilter': preference.useSystemCalendarFilter.toString(),
+      'visibleSystemCalendarIds': encodeJsonList(
+        preference.visibleSystemCalendarIds
+            .map((id) => <String, dynamic>{'id': id})
+            .toList(),
+      ),
     };
     await _database.batch((batch) {
       for (final entry in values.entries) {
@@ -230,13 +240,13 @@ class AppRepository {
   }
 
   Future<void> mergeImportedCalendarItems(List<CalendarItem> items) async {
-    final existing = await (_database.select(
-      _database.calendarEntriesTable,
-    )..where(
-      (tbl) =>
-          tbl.systemEntryId.isNotNull() |
-          tbl.source.equals(SyncSource.iosCalendar.name),
-    )).get();
+    final existing =
+        await (_database.select(_database.calendarEntriesTable)..where(
+              (tbl) =>
+                  tbl.systemEntryId.isNotNull() |
+                  tbl.source.equals(SyncSource.iosCalendar.name),
+            ))
+            .get();
     final bySystemId = {
       for (final row in existing)
         if (row.systemEntryId != null) row.systemEntryId!: row.toDomain(),
@@ -285,6 +295,7 @@ class AppRepository {
     final tracked =
         await (_database.select(_database.calendarEntriesTable)..where(
               (tbl) =>
+                  tbl.source.equals(SyncSource.iosCalendar.name) &
                   tbl.systemEntryId.isNotNull() &
                   tbl.startAt.isBiggerOrEqualValue(
                     windowStart.millisecondsSinceEpoch,
@@ -408,6 +419,32 @@ class AppRepository {
 
   List<TaskTemplate> templates() => defaultTemplates;
 
+  int _calculateStreak(List<CalendarItem> items) {
+    if (items.isEmpty) return 0;
+    final completedDays =
+        items
+            .where((item) => item.isCompleted)
+            .map(
+              (item) => DateTime(
+                item.startAt.year,
+                item.startAt.month,
+                item.startAt.day,
+              ),
+            )
+            .toSet()
+            .toList()
+          ..sort((a, b) => b.compareTo(a));
+    if (completedDays.isEmpty) return 0;
+    var streak = 0;
+    var cursor = DateTime.now();
+    cursor = DateTime(cursor.year, cursor.month, cursor.day);
+    while (completedDays.contains(cursor)) {
+      streak += 1;
+      cursor = cursor.subtract(const Duration(days: 1));
+    }
+    return streak;
+  }
+
   Future<void> _grantLoyalty(String petId, CalendarItem item) async {
     final rows =
         await (_database.select(_database.calendarEntriesTable)..where(
@@ -450,59 +487,6 @@ class AppRepository {
             ).toCompanion(),
           );
     });
-  }
-
-  int _calculateStreak(List<CalendarItem> items) {
-    if (items.isEmpty) {
-      return 0;
-    }
-    final completedDays =
-        items
-            .where((item) => item.isCompleted)
-            .map(
-              (item) => DateTime(
-                item.startAt.year,
-                item.startAt.month,
-                item.startAt.day,
-              ),
-            )
-            .toSet()
-            .toList()
-          ..sort((a, b) => b.compareTo(a));
-    if (completedDays.isEmpty) {
-      return 0;
-    }
-    var streak = 0;
-    var cursor = DateTime.now();
-    cursor = DateTime(cursor.year, cursor.month, cursor.day);
-    while (completedDays.contains(cursor)) {
-      streak += 1;
-      cursor = cursor.subtract(const Duration(days: 1));
-    }
-    return streak;
-  }
-
-  DashboardStats calculateStats(
-    List<CalendarItem> items,
-    List<PetProfile> pets,
-  ) {
-    final total = items.length;
-    final completed = items.where((item) => item.isCompleted).length;
-    final streak = _calculateStreak(items);
-    final points = pets.fold<int>(0, (sum, item) => sum + item.loyaltyPoints);
-    final counts = <CalendarCategory, int>{};
-    for (final category in CalendarCategory.values) {
-      counts[category] = items
-          .where((item) => item.category == category)
-          .length;
-    }
-    return DashboardStats(
-      totalTasks: total,
-      completedTasks: completed,
-      streakDays: streak,
-      loyaltyPoints: points,
-      categoryCounts: counts,
-    );
   }
 
   PetMood deriveMood(PetProfile pet, List<CalendarItem> items) {
