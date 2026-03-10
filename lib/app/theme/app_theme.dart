@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static const _primary = Color(0xFF2F8F8A);
@@ -226,89 +227,90 @@ class AppTheme {
   }
 
   static TextTheme _textTheme(TextTheme base, ColorScheme scheme) {
-    return base.copyWith(
-      displayLarge: base.displayLarge?.copyWith(
+    final zcoolBase = GoogleFonts.zcoolKuaiLeTextTheme(base);
+    return zcoolBase.copyWith(
+      displayLarge: zcoolBase.displayLarge?.copyWith(
         fontSize: 40,
         height: 1.08,
         letterSpacing: -1.2,
         fontWeight: FontWeight.w700,
         color: scheme.onSurface,
       ),
-      displayMedium: base.displayMedium?.copyWith(
+      displayMedium: zcoolBase.displayMedium?.copyWith(
         fontSize: 32,
         height: 1.1,
         letterSpacing: -0.9,
         fontWeight: FontWeight.w700,
         color: scheme.onSurface,
       ),
-      headlineLarge: base.headlineLarge?.copyWith(
+      headlineLarge: zcoolBase.headlineLarge?.copyWith(
         fontSize: 28,
         height: 1.14,
         letterSpacing: -0.6,
         fontWeight: FontWeight.w700,
         color: scheme.onSurface,
       ),
-      headlineMedium: base.headlineMedium?.copyWith(
+      headlineMedium: zcoolBase.headlineMedium?.copyWith(
         fontSize: 24,
         height: 1.16,
         letterSpacing: -0.5,
         fontWeight: FontWeight.w700,
         color: scheme.onSurface,
       ),
-      headlineSmall: base.headlineSmall?.copyWith(
+      headlineSmall: zcoolBase.headlineSmall?.copyWith(
         fontSize: 20,
         height: 1.2,
         letterSpacing: -0.3,
         fontWeight: FontWeight.w600,
         color: scheme.onSurface,
       ),
-      titleLarge: base.titleLarge?.copyWith(
+      titleLarge: zcoolBase.titleLarge?.copyWith(
         fontSize: 18,
         height: 1.28,
         letterSpacing: -0.15,
         fontWeight: FontWeight.w600,
         color: scheme.onSurface,
       ),
-      titleMedium: base.titleMedium?.copyWith(
+      titleMedium: zcoolBase.titleMedium?.copyWith(
         fontSize: 16,
         height: 1.3,
         fontWeight: FontWeight.w600,
         color: scheme.onSurface,
       ),
-      titleSmall: base.titleSmall?.copyWith(
+      titleSmall: zcoolBase.titleSmall?.copyWith(
         fontSize: 14,
         height: 1.3,
         fontWeight: FontWeight.w600,
         color: scheme.onSurface,
       ),
-      bodyLarge: base.bodyLarge?.copyWith(
+      bodyLarge: zcoolBase.bodyLarge?.copyWith(
         fontSize: 16,
         height: 1.55,
         color: scheme.onSurface,
       ),
-      bodyMedium: base.bodyMedium?.copyWith(
+      bodyMedium: zcoolBase.bodyMedium?.copyWith(
         fontSize: 14,
         height: 1.58,
         color: scheme.onSurface,
       ),
-      bodySmall: base.bodySmall?.copyWith(
+      bodySmall: zcoolBase.bodySmall?.copyWith(
         fontSize: 13,
         height: 1.5,
         color: scheme.onSurfaceVariant,
       ),
-      labelLarge: base.labelLarge?.copyWith(
+      labelLarge: zcoolBase.labelLarge?.copyWith(
         fontSize: 14,
         height: 1.2,
         fontWeight: FontWeight.w600,
         color: scheme.onSurface,
       ),
-      labelMedium: base.labelMedium?.copyWith(
+      labelMedium: zcoolBase.labelMedium?.copyWith(
         fontSize: 12,
         height: 1.2,
         fontWeight: FontWeight.w600,
         color: scheme.onSurfaceVariant,
       ),
-      labelSmall: base.labelSmall?.copyWith(
+      labelSmall: zcoolBase.labelSmall?.copyWith(
         fontSize: 11,
         height: 1.2,
         fontWeight: FontWeight.w600,
