@@ -22,38 +22,34 @@ class CountdownScreen extends ConsumerWidget {
         : ([...countdowns]..sort((a, b) => a.dueAt.compareTo(b.dueAt)));
     final activeCount = countdowns.where((item) => !item.hasCelebrated).length;
     return Scaffold(
-      appBar: AppBar(title: const Text('陪伴式倒计时')),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => showCreateEntryScreen(
-          context,
-          initialTab: CreateEntryTab.countdown,
-          initialDate: state.selectedDate,
-        ),
-        icon: const Icon(Icons.flag_rounded),
-        label: const Text('新增倒计时'),
+      appBar: AppBar(
+        title: const Text('陪伴式倒计时'),
+        actions: [
+          IconButton(
+            onPressed: () => showCreateEntryScreen(
+              context,
+              initialTab: CreateEntryTab.countdown,
+              initialDate: state.selectedDate,
+            ),
+            icon: const Icon(Icons.add_rounded),
+            tooltip: '添加',
+          ),
+        ],
       ),
       body: SoftBackdrop(
         child: ListView.separated(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
           itemCount: countdowns.length + 1,
           separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             if (index == 0) {
+              final scheme = Theme.of(context).colorScheme;
+              final surfaceColor = scheme.brightness == Brightness.dark
+                  ? scheme.surface
+                  : const Color(0xFFFBFCFE);
               return LiquidGlassCard(
                 gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.2),
-                    Theme.of(
-                      context,
-                    ).colorScheme.secondary.withValues(alpha: 0.14),
-                    Theme.of(
-                      context,
-                    ).colorScheme.surface.withValues(alpha: 0.88),
-                  ],
+                  colors: [surfaceColor, surfaceColor],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,18 +125,10 @@ class CountdownTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = item.progress(now);
-    final colors = switch (item.mood(now)) {
-      CountdownMood.sunrise => [
-        const Color(0xFFFFD6A5),
-        const Color(0xFFFFADAD),
-      ],
-      CountdownMood.noon => [const Color(0xFF90E0EF), const Color(0xFF48CAE4)],
-      CountdownMood.dusk => [const Color(0xFFFFB4A2), const Color(0xFFE5989B)],
-      CountdownMood.midnight => [
-        const Color(0xFF3A0CA3),
-        const Color(0xFF4361EE),
-      ],
-    };
+    final scheme = Theme.of(context).colorScheme;
+    final surfaceColor = scheme.brightness == Brightness.dark
+        ? scheme.surface
+        : const Color(0xFFFBFCFE);
 
     return Dismissible(
       key: ValueKey(item.id),
@@ -169,9 +157,7 @@ class CountdownTile extends StatelessWidget {
       child: LiquidGlassCard(
         onTap: onTap,
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: colors.map((item) => item.withValues(alpha: 0.28)).toList(),
+          colors: [surfaceColor, surfaceColor],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

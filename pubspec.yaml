@@ -46,7 +46,7 @@ dependencies:
   path_provider: ^2.1.5
   rive: ^0.13.20
   shared_preferences: ^2.5.3
-  sqlite3_flutter_libs: ^0.5.39
+  sqlite3_flutter_libs: 0.5.41
   timezone: ^0.10.1
   uuid: ^4.5.1
 

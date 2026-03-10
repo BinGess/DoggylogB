@@ -101,6 +101,7 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
                 label: '结束时间',
                 value: _endAt,
                 datePattern: 'yyyy/MM/dd',
+                showIcons: false,
                 onChanged: (value) => setState(() => _endAt = value),
               ),
               const SizedBox(height: 16),
