@@ -8,6 +8,7 @@ class DoggylogSharedSnapshot {
     required this.pet,
     required this.countdown,
     required this.recentTasks,
+    required this.calendarDays,
   });
 
   final DateTime generatedAt;
@@ -15,6 +16,7 @@ class DoggylogSharedSnapshot {
   final SnapshotPet pet;
   final SnapshotCountdown? countdown;
   final List<SnapshotTask> recentTasks;
+  final List<SnapshotCalendarDay> calendarDays;
 
   Map<String, dynamic> toJson() => {
     'generatedAt': generatedAt.millisecondsSinceEpoch,
@@ -22,6 +24,7 @@ class DoggylogSharedSnapshot {
     'pet': pet.toJson(),
     'countdown': countdown?.toJson(),
     'recentTasks': recentTasks.map((item) => item.toJson()).toList(),
+    'calendarDays': calendarDays.map((d) => d.toJson()).toList(),
   };
 
   factory DoggylogSharedSnapshot.fromAppState(
@@ -77,6 +80,7 @@ class DoggylogSharedSnapshot {
               dueAt: pinnedCountdown.first.dueAt.millisecondsSinceEpoch,
               daysRemaining:
                   pinnedCountdown.first.dueAt.difference(now).inDays + 1,
+              startAt: pinnedCountdown.first.createdAt.millisecondsSinceEpoch,
             ),
       recentTasks: todayTasks
           .take(3)
@@ -89,7 +93,44 @@ class DoggylogSharedSnapshot {
             ),
           )
           .toList(),
+      calendarDays: _buildCalendarDays(state, now),
     );
+  }
+
+  static List<SnapshotCalendarDay> _buildCalendarDays(
+    AppState state,
+    DateTime now,
+  ) {
+    // 月历格子：42 项，周日起始（0=Sunday）
+    final firstDay = DateTime(now.year, now.month, 1);
+    // weekday: Monday=1…Sunday=7；转为周日=0起始
+    final startOffset = firstDay.weekday % 7;
+    final lastDayOfMonth = DateTime(now.year, now.month + 1, 0).day;
+
+    final days = <SnapshotCalendarDay>[];
+    for (int i = 0; i < 42; i++) {
+      final dayIndex = i - startOffset + 1;
+      final isInMonth = dayIndex >= 1 && dayIndex <= lastDayOfMonth;
+      final isToday = isInMonth && dayIndex == now.day;
+      int taskCount = 0;
+      if (isInMonth) {
+        taskCount = state.calendarItems.where((item) {
+          return !item.isDeleted &&
+              item.startAt.year == now.year &&
+              item.startAt.month == now.month &&
+              item.startAt.day == dayIndex;
+        }).length;
+      }
+      days.add(
+        SnapshotCalendarDay(
+          day: isInMonth ? dayIndex : 0,
+          isInMonth: isInMonth,
+          isToday: isToday,
+          taskCount: taskCount,
+        ),
+      );
+    }
+    return days;
   }
 }
 
@@ -143,16 +184,19 @@ class SnapshotCountdown {
     required this.title,
     required this.dueAt,
     required this.daysRemaining,
+    required this.startAt,
   });
 
   final String title;
   final int dueAt;
   final int daysRemaining;
+  final int startAt;
 
   Map<String, dynamic> toJson() => {
     'title': title,
     'dueAt': dueAt,
     'daysRemaining': daysRemaining,
+    'startAt': startAt,
   };
 }
 
@@ -176,3 +220,25 @@ class SnapshotTask {
     'completed': completed,
   };
 }
+
+class SnapshotCalendarDay {
+  const SnapshotCalendarDay({
+    required this.day,
+    required this.isInMonth,
+    required this.isToday,
+    required this.taskCount,
+  });
+
+  final int day;        // 1-31；非当月填充格为 0
+  final bool isInMonth;
+  final bool isToday;
+  final int taskCount;
+
+  Map<String, dynamic> toJson() => {
+    'day': day,
+    'isInMonth': isInMonth,
+    'isToday': isToday,
+    'taskCount': taskCount,
+  };
+}
+

@@ -6,6 +6,7 @@ struct DoggyLogSharedSnapshot: Decodable {
   let pet: SnapshotPet
   let countdown: SnapshotCountdown?
   let recentTasks: [SnapshotTask]
+  let calendarDays: [SnapshotCalendarDay]
 }
 
 struct SnapshotToday: Decodable {
@@ -27,6 +28,7 @@ struct SnapshotCountdown: Decodable {
   let title: String
   let dueAt: Int
   let daysRemaining: Int
+  let startAt: Int
 }
 
 struct SnapshotTask: Decodable {
@@ -34,6 +36,14 @@ struct SnapshotTask: Decodable {
   let time: String
   let category: String
   let completed: Bool
+}
+
+/// 月历格子：42 项（6周 × 7列，周日起始）
+struct SnapshotCalendarDay: Decodable {
+  let day: Int          // 日期数字 1-31；非当月填充格为 0
+  let isInMonth: Bool
+  let isToday: Bool
+  let taskCount: Int
 }
 
 enum DoggyLogSharedSnapshotStore {
