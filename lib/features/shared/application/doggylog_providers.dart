@@ -119,6 +119,7 @@ class AppStateController extends StateNotifier<AppState> {
   StreamSubscription<DomainEvent>? _eventSub;
   StreamSubscription<String>? _platformEventSub;
   StreamSubscription<MotionSample>? _sensorSub;
+  StreamSubscription<String>? _widgetCompleteTaskSub;
 
   Future<void> _init() async {
     final repository = await _ref.read(repositoryProvider.future);
@@ -197,6 +198,12 @@ class AppStateController extends StateNotifier<AppState> {
     _sensorSub = _ref.read(appPlatformProvider).sensorEvents.listen((sample) {
       state = state.copyWith(motion: sample, sensorStreamActive: true);
     });
+    _widgetCompleteTaskSub = _ref
+        .read(appPlatformProvider)
+        .widgetCompleteTaskEvents
+        .listen((taskId) async {
+          await toggleTaskCompletion(taskId, true);
+        });
     await _configureSensorStream(preferences.performanceTier);
   }
 
@@ -631,6 +638,7 @@ class AppStateController extends StateNotifier<AppState> {
     _eventSub?.cancel();
     _platformEventSub?.cancel();
     _sensorSub?.cancel();
+    _widgetCompleteTaskSub?.cancel();
     try {
       unawaited(_ref.read(appPlatformProvider).stopSensors());
     } on StateError {

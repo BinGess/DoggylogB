@@ -99,6 +99,12 @@ import ActivityKit
         name: .EKEventStoreChanged,
         object: nil
       )
+      NotificationCenter.default.addObserver(
+        self,
+        selector: #selector(handleAppDidBecomeActive),
+        name: UIApplication.didBecomeActiveNotification,
+        object: nil
+      )
     }
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
@@ -106,6 +112,19 @@ import ActivityKit
 
   @objc private func handleEventStoreDidChange() {
     platformChannel?.invokeMethod("eventStoreDidChange", arguments: nil)
+  }
+
+  /// 检查灵动岛交互按钮写入的待处理任务 ID，并通知 Flutter 完成该任务。
+  @objc private func handleAppDidBecomeActive() {
+    let appGroupId = "group.com.timmy.doggylog"
+    let key = "doggylog.widget.pendingCompleteTaskId"
+    guard let defaults = UserDefaults(suiteName: appGroupId),
+          let taskId = defaults.string(forKey: key), !taskId.isEmpty else {
+      return
+    }
+    defaults.removeObject(forKey: key)
+    defaults.synchronize()
+    platformChannel?.invokeMethod("completeTaskFromWidget", arguments: ["taskId": taskId])
   }
 }
 
