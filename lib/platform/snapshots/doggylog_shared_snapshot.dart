@@ -65,6 +65,7 @@ class DoggylogSharedSnapshot {
         nextTaskTime: nextTask.isEmpty
             ? null
             : DateFormat('HH:mm').format(nextTask.first.startAt),
+        nextTaskId: nextTask.isEmpty ? null : nextTask.first.id,
       ),
       pet: SnapshotPet(
         name: state.selectedPet?.name ?? 'DoggyLog',
@@ -140,18 +141,21 @@ class SnapshotToday {
     required this.completedCount,
     required this.nextTaskTitle,
     required this.nextTaskTime,
+    this.nextTaskId,
   });
 
   final int pendingCount;
   final int completedCount;
   final String? nextTaskTitle;
   final String? nextTaskTime;
+  final String? nextTaskId;
 
   Map<String, dynamic> toJson() => {
     'pendingCount': pendingCount,
     'completedCount': completedCount,
     'nextTaskTitle': nextTaskTitle,
     'nextTaskTime': nextTaskTime,
+    'nextTaskId': nextTaskId,
   };
 }
 

@@ -26,6 +26,7 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		AFDB5C3020AD947A18E85606 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BC9B2E4C685E729D4629D33 /* WidgetKit.framework */; };
 		BBAF9FFF0947EA7AF65CE0E5 /* DoggyLogLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68CCCAA0921EF2F89D49B2AE /* DoggyLogLiveActivity.swift */; };
+		CA1234560947EA7AF65CE0F1 /* DoggyLogWidgetIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA1234570947EA7AF65CE0F1 /* DoggyLogWidgetIntent.swift */; };
 		BE9D712BABF553AC7FBCE3B7 /* DoggyLogWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60173334DE24695E2BDAB254 /* DoggyLogWidgetBundle.swift */; };
 		D07E13754A51348CBA071C34 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63D5B07810639CFF709A23F8 /* Foundation.framework */; };
 /* End PBXBuildFile section */
@@ -89,6 +90,7 @@
 		60173334DE24695E2BDAB254 /* DoggyLogWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DoggyLogWidgetBundle.swift; sourceTree = "<group>"; };
 		63D5B07810639CFF709A23F8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		68CCCAA0921EF2F89D49B2AE /* DoggyLogLiveActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DoggyLogLiveActivity.swift; sourceTree = "<group>"; };
+		CA1234570947EA7AF65CE0F1 /* DoggyLogWidgetIntent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DoggyLogWidgetIntent.swift; sourceTree = "<group>"; };
 		691287E3C59D3D68442B2681 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -250,6 +252,7 @@
 				27ABAA5CA40B546C7186CA34 /* DoggyLogCalendarWidget.swift */,
 				4E5AECC64F0994FF1208550F /* DoggyLogCountdownWidget.swift */,
 				68CCCAA0921EF2F89D49B2AE /* DoggyLogLiveActivity.swift */,
+				CA1234570947EA7AF65CE0F1 /* DoggyLogWidgetIntent.swift */,
 				89FF445A009F6F5AE4F187F6 /* DoggyLogSharedSnapshotStore.swift */,
 				E5FA6FCFD7482E06256C0699 /* DoggyLogSummaryWidget.swift */,
 				60173334DE24695E2BDAB254 /* DoggyLogWidgetBundle.swift */,
@@ -532,6 +535,7 @@
 				651BDEC24BE982AD096724B1 /* DoggyLogCalendarWidget.swift in Sources */,
 				0E8D9BF4B516125AA1AFB735 /* DoggyLogCountdownWidget.swift in Sources */,
 				BBAF9FFF0947EA7AF65CE0E5 /* DoggyLogLiveActivity.swift in Sources */,
+				CA1234560947EA7AF65CE0F1 /* DoggyLogWidgetIntent.swift in Sources */,
 				75BF8DF82CC7FDFF2D960B0B /* DoggyLogSharedSnapshotStore.swift in Sources */,
 				2F748881100D285B8FC5DA9F /* DoggyLogSummaryWidget.swift in Sources */,
 				BE9D712BABF553AC7FBCE3B7 /* DoggyLogWidgetBundle.swift in Sources */,

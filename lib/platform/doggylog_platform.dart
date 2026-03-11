@@ -11,6 +11,8 @@ class DoggylogPlatform {
       StreamController<String>.broadcast();
   static final StreamController<MotionSample> _sensorController =
       StreamController<MotionSample>.broadcast();
+  static final StreamController<String> _widgetActionController =
+      StreamController<String>.broadcast();
   static bool _handlerInitialized = false;
 
   DoggylogPlatform() {
@@ -19,6 +21,8 @@ class DoggylogPlatform {
 
   Stream<String> get platformEvents => _eventController.stream;
   Stream<MotionSample> get sensorEvents => _sensorController.stream;
+  /// 灵动岛"完成"按钮触发的任务 ID 流
+  Stream<String> get widgetCompleteTaskEvents => _widgetActionController.stream;
 
   Future<bool> isCalendarSyncAvailable() async {
     return _invokeBool('isCalendarSyncAvailable');
@@ -189,6 +193,14 @@ class DoggylogPlatform {
           _sensorController.add(
             MotionSample.fromJson(Map<String, dynamic>.from(arguments)),
           );
+        }
+      } else if (call.method == 'completeTaskFromWidget') {
+        final arguments = call.arguments;
+        if (arguments is Map) {
+          final taskId = arguments['taskId'] as String?;
+          if (taskId != null && taskId.isNotEmpty) {
+            _widgetActionController.add(taskId);
+          }
         }
       }
     });
