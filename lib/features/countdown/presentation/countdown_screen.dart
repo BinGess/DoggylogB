@@ -49,12 +49,7 @@ class CountdownScreen extends ConsumerWidget {
           separatorBuilder: (context, index) => const SizedBox(height: 14),
           itemBuilder: (context, index) {
             if (index == 0) {
-              final scheme = Theme.of(context).colorScheme;
-              final surfaceColor = scheme.brightness == Brightness.dark
-                  ? scheme.surface
-                  : const Color(0xFFFBFCFE);
               return LiquidGlassCard(
-                gradient: LinearGradient(colors: [surfaceColor, surfaceColor]),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -129,10 +124,6 @@ class CountdownTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = item.progress(now);
-    final scheme = Theme.of(context).colorScheme;
-    final surfaceColor = scheme.brightness == Brightness.dark
-        ? scheme.surface
-        : const Color(0xFFFBFCFE);
 
     return Dismissible(
       key: ValueKey(item.id),
@@ -160,7 +151,6 @@ class CountdownTile extends StatelessWidget {
       },
       child: LiquidGlassCard(
         onTap: onTap,
-        gradient: LinearGradient(colors: [surfaceColor, surfaceColor]),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
