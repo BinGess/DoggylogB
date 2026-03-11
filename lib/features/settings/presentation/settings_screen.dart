@@ -2,6 +2,7 @@ import 'package:doggylog/features/pets/presentation/pets_screen.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
+import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop_app_bar.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,7 +22,7 @@ class SettingsScreen extends ConsumerWidget {
     final controller = ref.read(appStateProvider.notifier);
     final preferences = state.preferences;
     return Scaffold(
-      appBar: AppBar(title: const Text('我的')),
+      appBar: const SoftBackdropAppBar(title: Text('我的')),
       body: SoftBackdrop(
         child: ListView(
           padding: const EdgeInsets.all(20),

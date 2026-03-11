@@ -179,7 +179,7 @@ class AppRepository {
     final rows = await query.get();
     final values = {for (final row in rows) row.key: row.value};
     return UserPreference(
-      hasCompletedOnboarding: values['hasCompletedOnboarding'] == 'true',
+      hasCompletedOnboarding: true,
       weekStartsOnMonday: values['weekStartsOnMonday'] == 'true',
       fontScale: double.tryParse(values['fontScale'] ?? '1') ?? 1,
       hapticsEnabled: values['hapticsEnabled'] != 'false',
@@ -203,7 +203,7 @@ class AppRepository {
 
   Future<void> savePreferences(UserPreference preference) async {
     final values = {
-      'hasCompletedOnboarding': preference.hasCompletedOnboarding.toString(),
+      'hasCompletedOnboarding': 'true',
       'weekStartsOnMonday': preference.weekStartsOnMonday.toString(),
       'fontScale': preference.fontScale.toString(),
       'hapticsEnabled': preference.hapticsEnabled.toString(),
@@ -402,58 +402,6 @@ class AppRepository {
     await (_database.delete(
       _database.countdownItemsTable,
     )..where((tbl) => tbl.id.equals(id))).go();
-  }
-
-  Future<void> completeOnboarding(PetBreed breed, String petName) async {
-    final skin = defaultSkins[breed]!.first;
-    final existing =
-        await (_database.select(_database.petProfilesTable)
-              ..where((tbl) => tbl.breed.equals(breed.name))
-              ..orderBy([
-                (tbl) => OrderingTerm.desc(tbl.isSelected),
-                (tbl) => OrderingTerm.desc(tbl.createdAt),
-              ]))
-            .getSingleOrNull();
-    final now = DateTime.now();
-    await _database.transaction(() async {
-      await _database
-          .update(_database.petProfilesTable)
-          .write(const PetProfilesTableCompanion(isSelected: Value(false)));
-      if (existing == null) {
-        await _database
-            .into(_database.petProfilesTable)
-            .insertOnConflictUpdate(
-              PetProfile(
-                id: _uuid.v4(),
-                name: petName,
-                breed: breed,
-                loyaltyPoints: 0,
-                selectedSkinId: skin.id,
-                unlockedSkinIds: [skin.id],
-                createdAt: now,
-                isSelected: true,
-              ).toCompanion(),
-            );
-      } else {
-        await (_database.update(
-          _database.petProfilesTable,
-        )..where((tbl) => tbl.id.equals(existing.id))).write(
-          PetProfilesTableCompanion(
-            name: Value(petName),
-            selectedSkinId: Value(skin.id),
-            unlockedSkinIdsJson: Value(
-              encodeJsonList([
-                <String, dynamic>{'id': skin.id},
-              ]),
-            ),
-            isSelected: const Value(true),
-          ),
-        );
-      }
-    });
-    await ensureDefaultPetRoster();
-    final current = await loadPreferences();
-    await savePreferences(current.copyWith(hasCompletedOnboarding: true));
   }
 
   Future<void> selectPet(String petId) async {

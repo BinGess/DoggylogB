@@ -1,9 +1,12 @@
+import 'package:doggylog/app/theme/app_skin_theme.dart';
+import 'package:doggylog/app/theme/app_theme.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/calendar/presentation/calendar_screen.dart';
 import 'package:doggylog/features/home/presentation/home_shell.dart';
 import 'package:doggylog/features/countdown/presentation/countdown_detail_sheet.dart';
 import 'package:doggylog/features/shared/presentation/create_entry_screen.dart';
 import 'package:doggylog/features/shared/presentation/widgets/compact_date_time_field.dart';
+import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_circle_icon_button.dart';
 import 'package:doggylog/features/countdown/presentation/countdown_screen.dart';
 import 'package:doggylog/features/settings/presentation/settings_screen.dart';
@@ -178,6 +181,85 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tapped, isTrue);
+  });
+
+  testWidgets('LiquidGlassCard keeps borders and highlights restrained', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(fontScale: 1.0, skinTheme: AppSkinTheme.shibaJoy),
+        home: const Scaffold(
+          body: Center(child: LiquidGlassCard(child: Text('清爽卡片'))),
+        ),
+      ),
+    );
+
+    final decorations = tester
+        .widgetList<DecoratedBox>(
+          find.descendant(
+            of: find.byType(LiquidGlassCard),
+            matching: find.byType(DecoratedBox),
+          ),
+        )
+        .map((widget) => widget.decoration)
+        .whereType<BoxDecoration>()
+        .toList();
+    final outer = decorations.firstWhere(
+      (decoration) => (decoration.boxShadow?.isNotEmpty ?? false),
+    );
+    final inner = decorations.firstWhere(
+      (decoration) =>
+          decoration.gradient != null &&
+          !(decoration.boxShadow?.isNotEmpty ?? false) &&
+          decoration.border == null,
+    );
+    final outerGradient = outer.gradient! as LinearGradient;
+    final innerGradient = inner.gradient! as LinearGradient;
+    final border = outer.border! as Border;
+
+    expect(outerGradient.colors.last.computeLuminance(), greaterThan(0.94));
+    expect(border.top.color.alpha, lessThanOrEqualTo(96));
+    expect(outer.boxShadow!.first.color.alpha, lessThanOrEqualTo(24));
+    expect(innerGradient.colors.first.alpha, lessThanOrEqualTo(28));
+  });
+
+  testWidgets('CountdownScreen app bar blends with soft backdrop', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: AppTheme.light(
+            fontScale: 1.0,
+            skinTheme: AppSkinTheme.shibaJoy,
+          ),
+          home: const CountdownScreen(),
+        ),
+      ),
+    );
+
+    final appBar = tester.widget<AppBar>(find.byType(AppBar));
+    expect(appBar.flexibleSpace, isNotNull);
+  });
+
+  testWidgets('SettingsScreen app bar blends with soft backdrop', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: AppTheme.light(
+            fontScale: 1.0,
+            skinTheme: AppSkinTheme.shibaJoy,
+          ),
+          home: const SettingsScreen(),
+        ),
+      ),
+    );
+
+    final appBar = tester.widget<AppBar>(find.byType(AppBar));
+    expect(appBar.flexibleSpace, isNotNull);
   });
 
   testWidgets('CountdownTile supports swipe actions and tap details', (

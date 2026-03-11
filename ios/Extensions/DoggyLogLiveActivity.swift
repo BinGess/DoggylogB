@@ -184,8 +184,8 @@ struct DoggyLogLiveActivityWidget: Widget {
               }
               .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            // 完成按钮（iOS 16.2+，有待完成任务时显示）
-            if #available(iOSApplicationExtension 16.2, *),
+            // 完成按钮（iOS 17.0+，有待完成任务时显示）
+            if #available(iOSApplicationExtension 17.0, *),
                let taskId = context.state.nextTaskId, !taskId.isEmpty {
               Button(
                 intent: CompleteNextTaskIntent(taskId: taskId)

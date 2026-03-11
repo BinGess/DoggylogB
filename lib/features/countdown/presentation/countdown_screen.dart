@@ -3,6 +3,7 @@ import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/create_entry_screen.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
+import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop_app_bar.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_circle_icon_button.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ class CountdownScreen extends ConsumerWidget {
         : ([...countdowns]..sort((a, b) => a.dueAt.compareTo(b.dueAt)));
     final activeCount = countdowns.where((item) => !item.hasCelebrated).length;
     return Scaffold(
-      appBar: AppBar(
+      appBar: SoftBackdropAppBar(
         title: const Text('陪伴式倒计时'),
         actions: [
           Padding(
@@ -230,7 +231,7 @@ class CountdownTile extends StatelessWidget {
       alignment: alignment,
       padding: padding,
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.18),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(24),
       ),
       child: Row(
@@ -269,15 +270,15 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = item.hasCelebrated
-        ? const Color(0xFF2B9348)
-        : Theme.of(context).colorScheme.primary;
+    final scheme = Theme.of(context).colorScheme;
+    final color = item.hasCelebrated ? const Color(0xFF2B9348) : scheme.primary;
     final label = item.hasCelebrated ? '已完成' : '详情';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.14),
+        color: color.withValues(alpha: item.hasCelebrated ? 0.12 : 0.08),
         borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.14)),
       ),
       child: Text(
         label,
@@ -295,13 +296,13 @@ class _SummaryStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.32),
+        color: scheme.surface.withValues(alpha: 0.76),
+        border: Border.all(color: scheme.outline.withValues(alpha: 0.12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

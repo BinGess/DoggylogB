@@ -17,18 +17,26 @@ void main() {
     );
   });
 
-  test('appRouterProvider does not recreate router on unrelated settings changes', () {
-    final container = ProviderContainer(
-      overrides: [
-        hasCompletedOnboardingProvider.overrideWith((ref) => true),
-      ],
-    );
+  test(
+    'appRouterProvider does not recreate router on unrelated settings changes',
+    () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final routerBefore = container.read(appRouterProvider);
+
+      final routerAfter = container.read(appRouterProvider);
+
+      expect(identical(routerAfter, routerBefore), isTrue);
+    },
+  );
+
+  test('appRouterProvider starts at home by default', () {
+    final container = ProviderContainer();
     addTearDown(container.dispose);
 
-    final routerBefore = container.read(appRouterProvider);
+    final router = container.read(appRouterProvider);
 
-    final routerAfter = container.read(appRouterProvider);
-
-    expect(identical(routerAfter, routerBefore), isTrue);
+    expect(router.routeInformationProvider.value.uri.path, '/');
   });
 }

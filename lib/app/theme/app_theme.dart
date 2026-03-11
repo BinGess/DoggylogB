@@ -81,7 +81,7 @@ class AppTheme {
           cardGradientColors: isDark ? skin.cardDark : skin.cardLight,
           cardBorderColor: isDark
               ? scheme.outline.withValues(alpha: 0.54)
-              : Colors.white.withValues(alpha: 0.92),
+              : scheme.outline.withValues(alpha: 0.24),
           cardShadowColor: isDark ? skin.shadowDark : skin.shadowLight,
           cardRadius: skin.cardRadius,
           cardBorderWidth: skin.cardBorderWidth,
@@ -106,7 +106,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(skin.cardRadius),
           side: BorderSide(
-            color: scheme.outline.withValues(alpha: isDark ? 0.34 : 0.72),
+            color: scheme.outline.withValues(alpha: isDark ? 0.34 : 0.22),
             width: skin.cardBorderWidth,
           ),
         ),

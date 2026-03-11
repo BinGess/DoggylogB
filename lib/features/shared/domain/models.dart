@@ -358,7 +358,7 @@ class UserPreference {
   });
 
   const UserPreference.defaults()
-    : hasCompletedOnboarding = false,
+    : hasCompletedOnboarding = true,
       weekStartsOnMonday = false,
       fontScale = 1,
       hapticsEnabled = true,

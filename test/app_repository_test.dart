@@ -1,7 +1,6 @@
 import 'package:doggylog/features/shared/application/domain_event_bus.dart';
 import 'package:doggylog/features/shared/data/app_database.dart';
 import 'package:doggylog/features/shared/data/app_repository.dart';
-import 'package:doggylog/features/shared/data/sample_data.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -207,6 +206,40 @@ void main() {
   });
 
   test(
+    'loadPreferences treats onboarding as already completed by default',
+    () async {
+      final loaded = await repository.loadPreferences();
+
+      expect(loaded.hasCompletedOnboarding, isTrue);
+    },
+  );
+
+  test(
+    'loadPreferences ignores stale stored onboarding=false values',
+    () async {
+      await repository.savePreferences(
+        const UserPreference(
+          hasCompletedOnboarding: false,
+          weekStartsOnMonday: false,
+          fontScale: 1,
+          hapticsEnabled: true,
+          animationSpeed: 1,
+          performanceTier: PerformanceTier.balanced,
+          selectedCalendarView: CalendarViewMode.month,
+          faceIdEnabled: false,
+          debugImmediateReminders: false,
+          useSystemCalendarFilter: false,
+          visibleSystemCalendarIds: [],
+        ),
+      );
+
+      final loaded = await repository.loadPreferences();
+
+      expect(loaded.hasCompletedOnboarding, isTrue);
+    },
+  );
+
+  test(
     'toggleCountdownCelebrated and deleteCountdown mutate stored item',
     () async {
       final now = DateTime(2026, 3, 9, 12);
@@ -253,25 +286,4 @@ void main() {
     }
     expect(pets.where((pet) => pet.isSelected), hasLength(1));
   });
-
-  test(
-    'completeOnboarding reuses an existing breed pet instead of duplicating',
-    () async {
-      await repository.seedIfNeeded();
-
-      await repository.completeOnboarding(PetBreed.shiba, 'Akira');
-
-      final pets = await (database.select(
-        database.petProfilesTable,
-      )..where((tbl) => tbl.breed.equals(PetBreed.shiba.name))).get();
-
-      expect(pets, hasLength(1));
-      expect(pets.single.name, 'Akira');
-      expect(
-        pets.single.selectedSkinId,
-        defaultSkins[PetBreed.shiba]!.first.id,
-      );
-      expect(pets.single.isSelected, isTrue);
-    },
-  );
 }

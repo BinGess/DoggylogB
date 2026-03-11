@@ -3,7 +3,13 @@ import 'dart:ui';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:flutter/material.dart';
 
-enum AppSkinTheme { shibaJoy, goldenBloom, beagleBreeze, huskyFrost, samoyedSpa }
+enum AppSkinTheme {
+  shibaJoy,
+  goldenBloom,
+  beagleBreeze,
+  huskyFrost,
+  samoyedSpa,
+}
 
 AppSkinTheme appSkinThemeForBreed(PetBreed breed) {
   return switch (breed) {
@@ -102,16 +108,16 @@ extension AppSkinThemeX on AppSkinTheme {
             'Claymorphism + Vibrant Block-based — 饱和珊瑚橙 × 婴儿蓝 × 薄荷绿，'
             '厚实描边（3.2px）、超圆角（28px）、双层阴影，像宠物玩具一样有弹性。',
         // Light ─────────────────────
-        primaryLight: Color(0xFFF05D56),       // Vibrant Coral
-        secondaryLight: Color(0xFF72B8E8),     // Baby Blue
-        tertiaryLight: Color(0xFF3DBA89),      // Vibrant Mint (CTA)
+        primaryLight: Color(0xFFF05D56), // Vibrant Coral
+        secondaryLight: Color(0xFF72B8E8), // Baby Blue
+        tertiaryLight: Color(0xFF3DBA89), // Vibrant Mint (CTA)
         surfaceLight: Color(0xFFFFFCFB),
         backgroundLight: Color(0xFFFFF5F3),
         onPrimaryLight: Colors.white,
         onTertiaryLight: Colors.white,
         onSurfaceLight: Color(0xFF3D1010),
         outlineLight: Color(0xFFF9CCA9),
-        surfaceHighLight: Color(0xFFFFE8E6),
+        surfaceHighLight: Color(0xFFFBF4F1),
         onSurfaceVariantLight: Color(0xFFC04040),
         backdropLight: [
           Color(0xFFFFFBFA),
@@ -119,8 +125,8 @@ extension AppSkinThemeX on AppSkinTheme {
           Color(0xFFFFDAD8),
         ],
         orbLight: Color(0x3DF05D56),
-        cardLight: [Color(0xFFFFFFFF), Color(0xFFFFF8F6), Color(0xFFFFF0ED)],
-        shadowLight: Color(0x22E04040),
+        cardLight: [Color(0xFFFFFFFF), Color(0xFFFFFDFC), Color(0xFFFFFAF8)],
+        shadowLight: Color(0x141F2937),
         // Dark ──────────────────────
         primaryDark: Color(0xFFFF8A85),
         secondaryDark: Color(0xFF9BD3F5),
@@ -151,16 +157,16 @@ extension AppSkinThemeX on AppSkinTheme {
             'Glassmorphism + Flat Design — 电气蓝 × 天蓝 × 青色 CTA，'
             '磨砂玻璃卡片、1px 细描边（14px 圆角）、扁平无阴影按钮，适合数据仪表盘。',
         // Light ─────────────────────
-        primaryLight: Color(0xFF0066FF),       // Electric Blue
-        secondaryLight: Color(0xFF38BDF8),     // Sky Blue
-        tertiaryLight: Color(0xFF0EA5E9),      // Clean Blue (CTA)
+        primaryLight: Color(0xFF0066FF), // Electric Blue
+        secondaryLight: Color(0xFF38BDF8), // Sky Blue
+        tertiaryLight: Color(0xFF0EA5E9), // Clean Blue (CTA)
         surfaceLight: Color(0xFFF7FAFF),
         backgroundLight: Color(0xFFEEF3FF),
         onPrimaryLight: Colors.white,
         onTertiaryLight: Colors.white,
         onSurfaceLight: Color(0xFF0F1B3D),
         outlineLight: Color(0xFFC0D5FF),
-        surfaceHighLight: Color(0xFFDDE8FF),
+        surfaceHighLight: Color(0xFFF1F6FB),
         onSurfaceVariantLight: Color(0xFF3366BB),
         backdropLight: [
           Color(0xFFF2F7FF),
@@ -168,8 +174,8 @@ extension AppSkinThemeX on AppSkinTheme {
           Color(0xFFD8E8FF),
         ],
         orbLight: Color(0x3A0066FF),
-        cardLight: [Color(0xFFFFFFFF), Color(0xFFF4F9FF), Color(0xFFE8F2FF)],
-        shadowLight: Color(0x180066CC),
+        cardLight: [Color(0xFFFFFFFF), Color(0xFFFCFEFF), Color(0xFFF7FAFD)],
+        shadowLight: Color(0x141B2C3D),
         // Dark ──────────────────────
         primaryDark: Color(0xFF60A5FA),
         secondaryDark: Color(0xFF38BDF8),
@@ -200,16 +206,16 @@ extension AppSkinThemeX on AppSkinTheme {
             'AI-Native UI + Minimalism — AI 紫 #6366F1 × 成功绿 CTA，'
             '极简留白、1px 细边框（16px 圆角）、对话气泡层次感，专为智能助手场景打造。',
         // Light ─────────────────────
-        primaryLight: Color(0xFF6366F1),       // AI Purple
-        secondaryLight: Color(0xFFA5B4FC),     // Light Purple
-        tertiaryLight: Color(0xFF059669),      // Forest Green (CTA)
+        primaryLight: Color(0xFF6366F1), // AI Purple
+        secondaryLight: Color(0xFFA5B4FC), // Light Purple
+        tertiaryLight: Color(0xFF059669), // Forest Green (CTA)
         surfaceLight: Color(0xFFFAFAFA),
         backgroundLight: Color(0xFFF5F5F5),
         onPrimaryLight: Colors.white,
         onTertiaryLight: Colors.white,
         onSurfaceLight: Color(0xFF111827),
         outlineLight: Color(0xFFE0E0F0),
-        surfaceHighLight: Color(0xFFEBEBF5),
+        surfaceHighLight: Color(0xFFF4F4F8),
         onSurfaceVariantLight: Color(0xFF4B50D0),
         backdropLight: [
           Color(0xFFF8F8F8),
@@ -217,8 +223,8 @@ extension AppSkinThemeX on AppSkinTheme {
           Color(0xFFEDEDED),
         ],
         orbLight: Color(0x286366F1),
-        cardLight: [Color(0xFFFFFFFF), Color(0xFFF9F9FE), Color(0xFFF2F2FB)],
-        shadowLight: Color(0x106366F1),
+        cardLight: [Color(0xFFFFFFFF), Color(0xFFFDFCFF), Color(0xFFFAFAFD)],
+        shadowLight: Color(0x141E2433),
         // Dark ──────────────────────
         primaryDark: Color(0xFF818CF8),
         secondaryDark: Color(0xFFC4B5FD),
@@ -249,16 +255,16 @@ extension AppSkinThemeX on AppSkinTheme {
             'Neumorphism + Soft UI Evolution — 治愈蓝 × 天蓝 × 鼠尾草绿 CTA，'
             '柔性双层阴影（-5px/-5px + 5px/5px）、20px 圆角、极细边框，专为健康养生场景设计。',
         // Light ─────────────────────
-        primaryLight: Color(0xFF4A90D9),       // Therapeutic Blue
-        secondaryLight: Color(0xFF87CEEB),     // Sky Blue
-        tertiaryLight: Color(0xFF4E9E7E),      // Sage Green (CTA)
-        surfaceLight: Color(0xFFE8EFF6),       // Neumorphic base surface
-        backgroundLight: Color(0xFFDDE7F0),    // Slightly deeper for depth
+        primaryLight: Color(0xFF4A90D9), // Therapeutic Blue
+        secondaryLight: Color(0xFF87CEEB), // Sky Blue
+        tertiaryLight: Color(0xFF4E9E7E), // Sage Green (CTA)
+        surfaceLight: Color(0xFFE8EFF6), // Neumorphic base surface
+        backgroundLight: Color(0xFFDDE7F0), // Slightly deeper for depth
         onPrimaryLight: Colors.white,
         onTertiaryLight: Colors.white,
         onSurfaceLight: Color(0xFF1A3651),
         outlineLight: Color(0xFFB8D0E8),
-        surfaceHighLight: Color(0xFFD8E8F3),
+        surfaceHighLight: Color(0xFFF0F4F8),
         onSurfaceVariantLight: Color(0xFF356890),
         backdropLight: [
           Color(0xFFE8F0F8),
@@ -266,8 +272,8 @@ extension AppSkinThemeX on AppSkinTheme {
           Color(0xFFCFE0EC),
         ],
         orbLight: Color(0x2A4A90D9),
-        cardLight: [Color(0xFFF6FAFE), Color(0xFFEDF3F9), Color(0xFFE4EEF5)],
-        shadowLight: Color(0x1E4A90D9),
+        cardLight: [Color(0xFFFFFFFF), Color(0xFFFCFDFE), Color(0xFFF7FAFC)],
+        shadowLight: Color(0x141D2A38),
         // Dark ──────────────────────
         primaryDark: Color(0xFF7BB8E8),
         secondaryDark: Color(0xFFA8D5F0),
@@ -298,16 +304,16 @@ extension AppSkinThemeX on AppSkinTheme {
             'Soft UI Evolution + Neumorphism — 玫瑰粉 × 胭脂粉 × 薰衣草紫 CTA，'
             '进化版柔性浮雕、1.2px 描边（18px 圆角）、WCAG AA+ 对比度，专为美容与温泉服务打造。',
         // Light ─────────────────────
-        primaryLight: Color(0xFFC96480),       // Rose Pink
-        secondaryLight: Color(0xFFF4B8C5),     // Blush
-        tertiaryLight: Color(0xFF9B7BBF),      // Lavender Purple (CTA)
+        primaryLight: Color(0xFFC96480), // Rose Pink
+        secondaryLight: Color(0xFFF4B8C5), // Blush
+        tertiaryLight: Color(0xFF9B7BBF), // Lavender Purple (CTA)
         surfaceLight: Color(0xFFFFF5F7),
         backgroundLight: Color(0xFFFBEEF2),
         onPrimaryLight: Colors.white,
         onTertiaryLight: Colors.white,
         onSurfaceLight: Color(0xFF5C1832),
         outlineLight: Color(0xFFF0C0CC),
-        surfaceHighLight: Color(0xFFFFE0EA),
+        surfaceHighLight: Color(0xFFFCF2F5),
         onSurfaceVariantLight: Color(0xFFAA4060),
         backdropLight: [
           Color(0xFFFFF8FA),
@@ -315,8 +321,8 @@ extension AppSkinThemeX on AppSkinTheme {
           Color(0xFFFFE4EA),
         ],
         orbLight: Color(0x2AC96480),
-        cardLight: [Color(0xFFFFFFFF), Color(0xFFFFFAFC), Color(0xFFFFF1F5)],
-        shadowLight: Color(0x18C96480),
+        cardLight: [Color(0xFFFFFFFF), Color(0xFFFFFCFD), Color(0xFFFFF8FA)],
+        shadowLight: Color(0x141F2330),
         // Dark ──────────────────────
         primaryDark: Color(0xFFF0A0B4),
         secondaryDark: Color(0xFFF9C5D0),

@@ -208,13 +208,6 @@ class AppStateController extends StateNotifier<AppState> {
     await _configureSensorStream(preferences.performanceTier);
   }
 
-  Future<void> completeOnboarding(PetBreed breed, String name) async {
-    final repository = await _ref.read(repositoryProvider.future);
-    await repository.completeOnboarding(breed, name);
-    final updated = await repository.loadPreferences();
-    state = state.copyWith(preferences: updated);
-  }
-
   Future<void> selectDate(DateTime date) async {
     state = state.copyWith(selectedDate: date);
   }

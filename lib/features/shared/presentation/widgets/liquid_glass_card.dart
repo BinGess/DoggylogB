@@ -38,8 +38,10 @@ class LiquidGlassCard extends StatelessWidget {
                   surfaceStyle?.cardGradientColors ??
                   [
                     isDark ? const Color(0xFF213040) : const Color(0xFFFDFEFF),
-                    isDark ? const Color(0xFF19232E) : const Color(0xFFF2F6FB),
-                    scheme.primary.withValues(alpha: isDark ? 0.08 : 0.05),
+                    isDark ? const Color(0xFF19232E) : const Color(0xFFF8FAFC),
+                    isDark
+                        ? scheme.outline.withValues(alpha: 0.16)
+                        : const Color(0xFFF4F7FA),
                   ],
             ),
         border: Border.all(
@@ -47,7 +49,7 @@ class LiquidGlassCard extends StatelessWidget {
               surfaceStyle?.cardBorderColor ??
               (isDark
                   ? scheme.outline.withValues(alpha: 0.4)
-                  : Colors.white.withValues(alpha: 0.88)),
+                  : scheme.outline.withValues(alpha: 0.22)),
           width: surfaceStyle?.cardBorderWidth ?? 1.0,
         ),
         boxShadow: [
@@ -56,16 +58,18 @@ class LiquidGlassCard extends StatelessWidget {
                 surfaceStyle?.cardShadowColor ??
                 (isDark
                     ? Colors.black.withValues(alpha: 0.22)
-                    : const Color(0xFFB8C8D9).withValues(alpha: 0.2)),
-            blurRadius: 18,
-            offset: const Offset(8, 10),
+                    : const Color(0xFF1F2937).withValues(alpha: 0.08)),
+            blurRadius: 24,
+            spreadRadius: -10,
+            offset: const Offset(0, 14),
           ),
           BoxShadow(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.03)
-                : Colors.white.withValues(alpha: 0.7),
-            blurRadius: 14,
-            offset: const Offset(-5, -5),
+                : Colors.white.withValues(alpha: 0.24),
+            blurRadius: 10,
+            spreadRadius: -6,
+            offset: const Offset(0, -2),
           ),
         ],
       ),
@@ -76,7 +80,7 @@ class LiquidGlassCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Colors.white.withValues(alpha: isDark ? 0.03 : 0.2),
+              Colors.white.withValues(alpha: isDark ? 0.03 : 0.1),
               Colors.transparent,
             ],
           ),

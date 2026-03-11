@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:doggylog/app/theme/app_theme.dart';
 import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
@@ -56,5 +58,51 @@ void main() {
       large.textTheme.titleLarge!.fontSize!,
       greaterThan(small.textTheme.titleLarge!.fontSize!),
     );
+  });
+
+  test('Light themes keep card surfaces airy and low saturation', () {
+    for (final skinTheme in AppSkinTheme.values) {
+      final theme = AppTheme.light(fontScale: 1.0, skinTheme: skinTheme);
+      final surfaceStyle = theme.extension<AppThemeSurfaceStyle>()!;
+
+      for (final color in surfaceStyle.cardGradientColors) {
+        final darkestChannel = math.min(
+          color.red,
+          math.min(color.green, color.blue),
+        );
+        final channelSpread =
+            math.max(color.red, math.max(color.green, color.blue)) -
+            darkestChannel;
+
+        expect(
+          color.computeLuminance(),
+          greaterThan(0.94),
+          reason: '$skinTheme card color should stay bright: $color',
+        );
+        expect(
+          darkestChannel,
+          greaterThanOrEqualTo(242),
+          reason:
+              '$skinTheme card color should stay near-white instead of muddy: $color',
+        );
+        expect(
+          channelSpread,
+          lessThanOrEqualTo(12),
+          reason:
+              '$skinTheme card color should stay neutral instead of over-tinted: $color',
+        );
+      }
+
+      expect(
+        surfaceStyle.cardBorderColor.alpha,
+        lessThanOrEqualTo(96),
+        reason: '$skinTheme card border should stay subtle in light mode.',
+      );
+      expect(
+        surfaceStyle.cardShadowColor.alpha,
+        lessThanOrEqualTo(24),
+        reason: '$skinTheme card shadow should stay restrained in light mode.',
+      );
+    }
   });
 }
