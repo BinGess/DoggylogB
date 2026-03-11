@@ -16,9 +16,22 @@ class PetSkinGallery extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Deduplicate by breed: each skin theme (determined by breed) appears once.
+    // If multiple pets share a breed, prefer the currently selected one.
+    final seenBreeds = <PetBreed>{};
+    final uniquePets = <PetProfile>[];
+    for (final pet in [
+      ...pets.where((p) => p.id == selectedPetId),
+      ...pets.where((p) => p.id != selectedPetId),
+    ]) {
+      if (seenBreeds.add(pet.breed)) {
+        uniquePets.add(pet);
+      }
+    }
+
     return Column(
       children: [
-        for (final pet in pets)
+        for (final pet in uniquePets)
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: _PetSkinCard(

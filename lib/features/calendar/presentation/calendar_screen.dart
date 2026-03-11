@@ -1,3 +1,4 @@
+import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/features/calendar/presentation/task_editor_sheet.dart';
 import 'package:doggylog/features/pets/presentation/pets_screen.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
@@ -934,11 +935,18 @@ BoxDecoration _softDecoration(
 }) {
   final theme = Theme.of(context);
   final isDark = theme.brightness == Brightness.dark;
+  final surfaceStyle = theme.extension<AppThemeSurfaceStyle>();
+
+  // In light mode use the theme's card gradient base colour (near-white,
+  // slightly tinted to match the backdrop) instead of the neutral cool-gray,
+  // so cards stay visually light on warm-coloured backdrops like 积木学堂 and
+  // 云朵温柔.
   final background =
       fillColor ??
       (isDark
           ? const Color(0xFF202835).withValues(alpha: 0.9)
-          : const Color(0xFFF1F3F6).withValues(alpha: 0.96));
+          : surfaceStyle?.cardGradientColors.first.withValues(alpha: 0.94) ??
+              Colors.white.withValues(alpha: 0.94));
 
   return BoxDecoration(
     color: background,
@@ -946,13 +954,14 @@ BoxDecoration _softDecoration(
     border: Border.all(
       color: isDark
           ? theme.colorScheme.outline.withValues(alpha: 0.36)
-          : Colors.white.withValues(alpha: 0.78),
+          : Colors.white.withValues(alpha: 0.88),
     ),
     boxShadow: [
       BoxShadow(
         color: isDark
             ? Colors.black.withValues(alpha: 0.2)
-            : const Color(0xFFD3D9E2).withValues(alpha: 0.34),
+            : surfaceStyle?.cardShadowColor.withValues(alpha: 0.16) ??
+                const Color(0xFFD3D9E2).withValues(alpha: 0.34),
         blurRadius: 16,
         offset: const Offset(6, 8),
       ),
