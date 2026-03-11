@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:collection/collection.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
@@ -60,6 +61,7 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: EdgeInsets.only(
         left: 24,
@@ -75,19 +77,18 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                widget.item == null ? '新建日程' : '编辑日程',
+                widget.item == null ? l10n.createTask : l10n.editTask,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 18),
               TextField(
                 controller: _titleController,
-                decoration: const InputDecoration(labelText: '标题'),
+                decoration: InputDecoration(labelText: l10n.titleLabel),
               ),
               const SizedBox(height: 16),
               CompactDateTimeField(
-                label: '开始时间',
+                label: l10n.startTime,
                 value: _startAt,
-                datePattern: 'yyyy/MM/dd',
                 showIcons: false,
                 onChanged: (value) => setState(() {
                   _startAt = value;
@@ -98,14 +99,13 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
               ),
               const SizedBox(height: 12),
               CompactDateTimeField(
-                label: '结束时间',
+                label: l10n.endTime,
                 value: _endAt,
-                datePattern: 'yyyy/MM/dd',
                 showIcons: false,
                 onChanged: (value) => setState(() => _endAt = value),
               ),
               const SizedBox(height: 16),
-              Text('提醒时间', style: Theme.of(context).textTheme.titleMedium),
+              Text(l10n.reminderTime, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 10),
               DropdownButtonFormField<int>(
                 initialValue: _selectedOffset,
@@ -113,7 +113,7 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
                     .map(
                       (offset) => DropdownMenuItem<int>(
                         value: offset,
-                        child: Text('$offset 分钟前'),
+                        child: Text(l10n.minutesBefore(offset)),
                       ),
                     )
                     .toList(),
@@ -134,7 +134,7 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
                         if (!context.mounted) return;
                         Navigator.of(context).pop();
                       },
-                      child: const Text('删除'),
+                      child: Text(l10n.delete),
                     ),
                     const SizedBox(width: 12),
                   ],
@@ -159,7 +159,7 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
                         if (!context.mounted) return;
                         Navigator.of(context).pop();
                       },
-                      child: const Text('保存日程'),
+                      child: Text(l10n.saveSchedule),
                     ),
                   ),
                 ],

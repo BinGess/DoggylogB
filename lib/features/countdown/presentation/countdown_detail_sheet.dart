@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/widgets/compact_date_time_field.dart';
@@ -53,6 +54,7 @@ class _CountdownDetailSheetState extends ConsumerState<CountdownDetailSheet> {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final remainingDays = _dueAt.difference(now).inHours / 24;
+    final l10n = context.l10n;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -68,17 +70,16 @@ class _CountdownDetailSheetState extends ConsumerState<CountdownDetailSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('倒计时详情', style: Theme.of(context).textTheme.titleLarge),
+              Text(l10n.countdownDetail, style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 18),
               TextField(
                 controller: _titleController,
-                decoration: const InputDecoration(labelText: '标题'),
+                decoration: InputDecoration(labelText: l10n.titleLabel),
               ),
               const SizedBox(height: 12),
               CompactDateTimeField(
-                label: '目标时间',
+                label: l10n.targetDateTime,
                 value: _dueAt,
-                datePattern: 'yyyy/MM/dd',
                 showIcons: false,
                 onChanged: (value) => setState(() => _dueAt = value),
               ),
@@ -87,17 +88,22 @@ class _CountdownDetailSheetState extends ConsumerState<CountdownDetailSheet> {
                 children: [
                   Expanded(
                     child: _CountdownMetaChip(
-                      label: '剩余',
+                      label: l10n.remaining,
                       value: _hasCelebrated
-                          ? '已完成'
-                          : '${remainingDays.ceil().clamp(0, 999)} 天',
+                          ? l10n.completed
+                          : l10n.daysLabel(
+                              remainingDays.ceil().clamp(0, 999),
+                            ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _CountdownMetaChip(
-                      label: '创建于',
-                      value: DateFormat('M月d日').format(widget.item.createdAt),
+                      label: l10n.createdOn,
+                      value: DateFormat(
+                        'M月d日',
+                        l10n.localeName,
+                      ).format(widget.item.createdAt),
                     ),
                   ),
                 ],
@@ -105,13 +111,17 @@ class _CountdownDetailSheetState extends ConsumerState<CountdownDetailSheet> {
               const SizedBox(height: 18),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('置顶倒计时'),
+                title: Text(l10n.pinCountdown),
                 value: _isPinned,
                 onChanged: (value) => setState(() => _isPinned = value),
               ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text(_hasCelebrated ? '已完成倒计时' : '完成倒计时'),
+                title: Text(
+                  _hasCelebrated
+                      ? l10n.completedCountdown
+                      : l10n.completeCountdown,
+                ),
                 value: _hasCelebrated,
                 onChanged: (value) => setState(() => _hasCelebrated = value),
               ),
@@ -128,7 +138,7 @@ class _CountdownDetailSheetState extends ConsumerState<CountdownDetailSheet> {
                       }
                       Navigator.of(context).pop();
                     },
-                    child: const Text('删除'),
+                    child: Text(l10n.delete),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -137,7 +147,7 @@ class _CountdownDetailSheetState extends ConsumerState<CountdownDetailSheet> {
                         final title = _titleController.text.trim();
                         if (title.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('请输入标题')),
+                            SnackBar(content: Text(l10n.enterTitle)),
                           );
                           return;
                         }
@@ -156,7 +166,7 @@ class _CountdownDetailSheetState extends ConsumerState<CountdownDetailSheet> {
                         }
                         Navigator.of(context).pop();
                       },
-                      child: const Text('保存倒计时'),
+                      child: Text(l10n.saveCountdown),
                     ),
                   ),
                 ],

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/shared/application/domain_event_bus.dart';
 import 'package:doggylog/features/shared/data/app_database.dart';
 import 'package:doggylog/features/shared/data/app_repository.dart';
@@ -104,7 +105,7 @@ class AppStateController extends StateNotifier<AppState> {
           templates: const [],
           geofences: const [],
           recentSuggestions: const [],
-          lastSyncMessage: 'iOS 增强层待授权',
+          lastSyncMessage: null,
         ),
       ) {
     _init();
@@ -148,9 +149,10 @@ class AppStateController extends StateNotifier<AppState> {
       // that cannot actually complete biometric auth.
       appUnlocked: true,
       lastSyncMessage: preferences.faceIdEnabled && !biometricAvailable
-          ? '当前设备不支持 Face ID / Touch ID，已跳过应用解锁'
+          ? AppLocalizations.current(mode: preferences.languageMode).messageBiometricUnsupportedSkipped
           : state.lastSyncMessage,
     );
+    syncGlobalLocale(preferences.languageMode);
     if (calendarAvailable) {
       unawaited(_performIncrementalCalendarSync());
     }
@@ -229,7 +231,9 @@ class AppStateController extends StateNotifier<AppState> {
     if (!available) {
       state = state.copyWith(
         biometricAvailable: false,
-        lastSyncMessage: '当前设备不支持 Face ID / Touch ID',
+        lastSyncMessage:
+            AppLocalizations.current(mode: state.preferences.languageMode)
+                .messageBiometricUnsupported,
       );
       return;
     }
@@ -239,7 +243,9 @@ class AppStateController extends StateNotifier<AppState> {
       if (!authenticated) {
         state = state.copyWith(
           biometricAvailable: true,
-          lastSyncMessage: '生物识别验证失败，未开启应用解锁',
+          lastSyncMessage:
+              AppLocalizations.current(mode: state.preferences.languageMode)
+                  .messageBiometricFailed,
         );
         return;
       }
@@ -249,7 +255,11 @@ class AppStateController extends StateNotifier<AppState> {
     state = state.copyWith(
       biometricAvailable: true,
       appUnlocked: !enabled || authenticated,
-      lastSyncMessage: enabled ? '已开启 Face ID / Touch ID 解锁' : '已关闭生物识别解锁',
+      lastSyncMessage: enabled
+          ? AppLocalizations.current(mode: state.preferences.languageMode)
+              .messageBiometricEnabled
+          : AppLocalizations.current(mode: state.preferences.languageMode)
+              .messageBiometricDisabled,
     );
   }
 
@@ -268,7 +278,9 @@ class AppStateController extends StateNotifier<AppState> {
     if (!state.biometricAvailable) {
       state = state.copyWith(
         appUnlocked: true,
-        lastSyncMessage: '当前设备不支持 Face ID / Touch ID，已跳过应用解锁',
+        lastSyncMessage:
+            AppLocalizations.current(mode: state.preferences.languageMode)
+                .messageBiometricUnsupportedSkipped,
       );
       return;
     }
@@ -277,7 +289,11 @@ class AppStateController extends StateNotifier<AppState> {
         .authenticate();
     state = state.copyWith(
       appUnlocked: authenticated,
-      lastSyncMessage: authenticated ? '已解锁 DoggyLog' : '解锁失败，请重试',
+      lastSyncMessage: authenticated
+          ? AppLocalizations.current(mode: state.preferences.languageMode)
+              .messageUnlocked
+          : AppLocalizations.current(mode: state.preferences.languageMode)
+              .messageUnlockFailed,
     );
   }
 
@@ -286,7 +302,11 @@ class AppStateController extends StateNotifier<AppState> {
     final granted = await service.requestPermission();
     state = state.copyWith(
       locationPermissionGranted: granted,
-      lastSyncMessage: granted ? '位置权限已开启，地理围栏已启动' : '未授予位置权限',
+      lastSyncMessage: granted
+          ? AppLocalizations.current(mode: state.preferences.languageMode)
+              .messageLocationPermissionEnabled
+          : AppLocalizations.current(mode: state.preferences.languageMode)
+              .messageLocationPermissionDenied,
     );
     if (granted) {
       await _startGeofenceMonitoring(state.geofences);
@@ -354,7 +374,9 @@ class AppStateController extends StateNotifier<AppState> {
       await repository.upsertCalendarItem(updated);
       state = state.copyWith(
         calendarPermissionGranted: true,
-        lastSyncMessage: '已同步到 iOS 日历',
+        lastSyncMessage:
+            AppLocalizations.current(mode: state.preferences.languageMode)
+                .messageSyncedToIosCalendar,
       );
     }
   }
@@ -385,7 +407,11 @@ class AppStateController extends StateNotifier<AppState> {
         .then((service) => service.requestPermissions());
     state = state.copyWith(
       notificationPermissionGranted: granted,
-      lastSyncMessage: granted ? '通知权限已开启' : '通知权限未开启',
+      lastSyncMessage: granted
+          ? AppLocalizations.current(mode: state.preferences.languageMode)
+              .messageNotificationPermissionOn
+          : AppLocalizations.current(mode: state.preferences.languageMode)
+              .messageNotificationPermissionOff,
     );
   }
 
@@ -393,7 +419,9 @@ class AppStateController extends StateNotifier<AppState> {
     await _performIncrementalCalendarSync(
       forceFull: true,
       updateMessage: true,
-      messagePrefix: '已导入系统日历快照',
+      messagePrefix:
+          AppLocalizations.current(mode: state.preferences.languageMode)
+              .messagePrefixImportedSystemCalendarSnapshot(),
     );
   }
 
@@ -403,7 +431,9 @@ class AppStateController extends StateNotifier<AppState> {
     if (!granted) {
       state = state.copyWith(
         calendarPermissionGranted: false,
-        lastSyncMessage: '未授予日历权限',
+        lastSyncMessage:
+            AppLocalizations.current(mode: state.preferences.languageMode)
+                .messageCalendarPermissionDenied,
       );
       return;
     }
@@ -422,7 +452,9 @@ class AppStateController extends StateNotifier<AppState> {
     }
     state = state.copyWith(
       calendarPermissionGranted: true,
-      lastSyncMessage: '已同步 $synced 条任务到 iOS 日历',
+      lastSyncMessage:
+          AppLocalizations.current(mode: state.preferences.languageMode)
+              .messageSyncedTasksToIosCalendar(synced),
     );
     await _performIncrementalCalendarSync();
   }
@@ -433,7 +465,9 @@ class AppStateController extends StateNotifier<AppState> {
     if (!granted) {
       state = state.copyWith(
         calendarPermissionGranted: false,
-        lastSyncMessage: '未授予日历权限',
+        lastSyncMessage:
+            AppLocalizations.current(mode: state.preferences.languageMode)
+                .messageCalendarPermissionDenied,
       );
       return const [];
     }
@@ -455,7 +489,9 @@ class AppStateController extends StateNotifier<AppState> {
     await _performIncrementalCalendarSync(
       forceFull: true,
       updateMessage: true,
-      messagePrefix: '系统日历展示范围已更新',
+      messagePrefix:
+          AppLocalizations.current(mode: state.preferences.languageMode)
+              .messagePrefixSystemCalendarScopeUpdated(),
     );
   }
 
@@ -523,6 +559,7 @@ class AppStateController extends StateNotifier<AppState> {
     final repository = await _ref.read(repositoryProvider.future);
     final previousTier = state.preferences.performanceTier;
     await repository.savePreferences(preferences);
+    syncGlobalLocale(preferences.languageMode);
     state = state.copyWith(
       preferences: preferences,
       calendarView: preferences.selectedCalendarView,
@@ -570,8 +607,13 @@ class AppStateController extends StateNotifier<AppState> {
         activeScene: update.sceneMode,
         activeGeofenceName: update.placeName,
         lastSyncMessage: update.placeName == null
-            ? '当前位置不在预设围栏内'
-            : '已进入 ${update.placeName} · ${update.sceneMode.name}',
+            ? AppLocalizations.current(mode: state.preferences.languageMode)
+                .messageLocationOutsideGeofence
+            : AppLocalizations.current(mode: state.preferences.languageMode)
+                .messageEnteredGeofence(
+                  update.placeName!,
+                  update.sceneMode,
+                ),
       );
       state = nextState;
       unawaited(_publishSnapshot(nextState));
@@ -588,7 +630,9 @@ class AppStateController extends StateNotifier<AppState> {
     if (!granted) {
       state = state.copyWith(
         calendarPermissionGranted: false,
-        lastSyncMessage: '未授予日历权限',
+        lastSyncMessage:
+            AppLocalizations.current(mode: state.preferences.languageMode)
+                .messageCalendarPermissionDenied,
       );
       return;
     }
@@ -602,7 +646,9 @@ class AppStateController extends StateNotifier<AppState> {
     if (delta == null) {
       state = state.copyWith(
         calendarPermissionGranted: true,
-        lastSyncMessage: '系统日历增量同步失败',
+        lastSyncMessage:
+            AppLocalizations.current(mode: state.preferences.languageMode)
+                .messageIncrementalCalendarSyncFailed,
       );
       return;
     }
@@ -610,11 +656,15 @@ class AppStateController extends StateNotifier<AppState> {
     await repository.reconcileCalendarDelta(delta);
     await repository.saveCalendarSyncCursor(delta.syncedAt);
     if (updateMessage) {
-      final prefix = messagePrefix ?? '系统日历已增量同步';
+      final l10n = AppLocalizations.current(mode: state.preferences.languageMode);
+      final prefix = messagePrefix ?? l10n.messageIncrementalCalendarSyncPrefix;
       state = state.copyWith(
         calendarPermissionGranted: true,
-        lastSyncMessage:
-            '$prefix：${delta.items.length} 条变更，${delta.visibleSystemEntryIds.length} 条可见事件',
+        lastSyncMessage: l10n.messageIncrementalCalendarSyncResult(
+          prefix,
+          delta.items.length,
+          delta.visibleSystemEntryIds.length,
+        ),
       );
     } else {
       state = state.copyWith(calendarPermissionGranted: true);

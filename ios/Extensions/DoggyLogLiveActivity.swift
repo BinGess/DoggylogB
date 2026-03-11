@@ -2,6 +2,7 @@ import SwiftUI
 
 #if canImport(ActivityKit)
 import ActivityKit
+import AppIntents
 import WidgetKit
 
 @available(iOSApplicationExtension 16.1, *)
@@ -22,6 +23,8 @@ struct DoggyLogLiveActivityAttributes: ActivityAttributes {
 
   var title: String
 }
+
+// CompleteNextTaskIntent 定义在 DoggyLogWidgetIntent.swift，供灵动岛完成按钮使用。
 
 @available(iOSApplicationExtension 16.1, *)
 struct DoggyLogLiveActivityWidget: Widget {

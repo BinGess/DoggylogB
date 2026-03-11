@@ -66,7 +66,7 @@ void main() {
       const ProviderScope(child: MaterialApp(home: CalendarScreen())),
     );
 
-    expect(find.text('今日还没安排哦，点击右上角创建追剧文案'), findsOneWidget);
+    expect(find.text('今日还没安排哦，点击右上角创建'), findsOneWidget);
 
     final image = tester.widget<Image>(
       find.byWidgetPredicate(

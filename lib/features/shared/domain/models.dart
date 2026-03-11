@@ -27,6 +27,8 @@ enum CountdownMood { sunrise, noon, dusk, midnight }
 
 enum PerformanceTier { rich, balanced, lite }
 
+enum AppLanguageMode { system, zh, en, ja }
+
 class MotionSample {
   const MotionSample({required this.x, required this.y, required this.depth});
 
@@ -355,6 +357,7 @@ class UserPreference {
     required this.debugImmediateReminders,
     required this.useSystemCalendarFilter,
     required this.visibleSystemCalendarIds,
+    this.languageMode = AppLanguageMode.system,
   });
 
   const UserPreference.defaults()
@@ -367,6 +370,7 @@ class UserPreference {
       selectedCalendarView = CalendarViewMode.month,
       faceIdEnabled = false,
       debugImmediateReminders = false,
+      languageMode = AppLanguageMode.system,
       useSystemCalendarFilter = false,
       visibleSystemCalendarIds = const [];
 
@@ -379,6 +383,7 @@ class UserPreference {
   final CalendarViewMode selectedCalendarView;
   final bool faceIdEnabled;
   final bool debugImmediateReminders;
+  final AppLanguageMode languageMode;
   final bool useSystemCalendarFilter;
   final List<String> visibleSystemCalendarIds;
 
@@ -392,6 +397,7 @@ class UserPreference {
     CalendarViewMode? selectedCalendarView,
     bool? faceIdEnabled,
     bool? debugImmediateReminders,
+    AppLanguageMode? languageMode,
     bool? useSystemCalendarFilter,
     List<String>? visibleSystemCalendarIds,
   }) {
@@ -407,6 +413,7 @@ class UserPreference {
       faceIdEnabled: faceIdEnabled ?? this.faceIdEnabled,
       debugImmediateReminders:
           debugImmediateReminders ?? this.debugImmediateReminders,
+      languageMode: languageMode ?? this.languageMode,
       useSystemCalendarFilter:
           useSystemCalendarFilter ?? this.useSystemCalendarFilter,
       visibleSystemCalendarIds:
@@ -476,8 +483,8 @@ class SystemCalendar {
   factory SystemCalendar.fromJson(Map<String, dynamic> json) {
     return SystemCalendar(
       id: json['id'] as String? ?? '',
-      title: json['title'] as String? ?? '未命名日历',
-      sourceTitle: json['sourceTitle'] as String? ?? '其他',
+      title: json['title'] as String? ?? 'Untitled Calendar',
+      sourceTitle: json['sourceTitle'] as String? ?? 'Other',
       colorHex: json['colorHex'] as String? ?? '#C7CDD8',
       allowsContentModifications:
           json['allowsContentModifications'] as bool? ?? true,

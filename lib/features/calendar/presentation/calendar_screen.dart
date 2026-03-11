@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/features/calendar/presentation/calendar_theme_assets.dart';
 import 'package:doggylog/features/calendar/presentation/task_editor_sheet.dart';
@@ -13,8 +14,6 @@ import 'package:intl/intl.dart';
 
 const _selectedPawAsset = 'assets/images/calendar/paw_badge_selected.png';
 const _idlePawAsset = 'assets/images/calendar/paw_stamp_idle.png';
-const _emptyAgendaCopy = '今日还没安排哦，点击右上角创建追剧文案';
-
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
 
@@ -30,6 +29,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final state = ref.watch(appStateProvider);
     final controller = ref.read(appStateProvider.notifier);
     final selectedItems = sortAgendaItemsByReminderTime(_selectedItems(state));
+    final l10n = context.l10n;
 
     return Scaffold(
       body: SoftBackdrop(
@@ -38,7 +38,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 120),
             children: [
               _CalendarHeader(
-                monthLabel: DateFormat('yyyy年MM月').format(state.selectedDate),
+                monthLabel: l10n.monthLabel(state.selectedDate),
                 pet: state.selectedPet,
                 onPickMonth: () => _pickMonth(context, controller, state),
                 onPetTap: () => Navigator.of(context).push(
@@ -62,16 +62,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      DateFormat(
-                        'M月d日 EEEE',
-                        'zh_CN',
-                      ).format(state.selectedDate),
+                      l10n.dateWithWeekday(state.selectedDate),
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
                   TextButton(
                     onPressed: () => controller.selectDate(DateTime.now()),
-                    child: const Text('今天'),
+                    child: Text(l10n.today),
                   ),
                 ],
               ),
@@ -233,7 +230,9 @@ class _CalendarDeck extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            expanded ? '上滑收起月历' : '下拉展开月历',
+            expanded
+                ? context.l10n.collapseMonthCalendar
+                : context.l10n.expandMonthCalendar,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Theme.of(
                 context,
@@ -296,7 +295,7 @@ class _CalendarHeader extends StatelessWidget {
         SoftCircleIconButton(
           onTap: onAddTap,
           icon: Icons.add_rounded,
-          tooltip: '添加',
+          tooltip: context.l10n.add,
         ),
       ],
     );
@@ -311,8 +310,8 @@ class _WeekdayHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final labels = weekStartsOnMonday
-        ? const ['一', '二', '三', '四', '五', '六', '日']
-        : const ['日', '一', '二', '三', '四', '五', '六'];
+        ? context.l10n.weekdayLabels(startsOnMonday: true)
+        : context.l10n.weekdayLabels(startsOnMonday: false);
 
     return Row(
       children: labels.map((label) {
@@ -572,14 +571,14 @@ class _AgendaItemRow extends StatelessWidget {
       background: _agendaAction(
         context,
         icon: Icons.check_rounded,
-        label: item.isCompleted ? '恢复' : '完成',
+        label: item.isCompleted ? context.l10n.restore : context.l10n.complete,
         color: Theme.of(context).colorScheme.primary,
         alignment: Alignment.centerLeft,
       ),
       secondaryBackground: _agendaAction(
         context,
         icon: Icons.delete_outline_rounded,
-        label: '删除',
+        label: context.l10n.delete,
         color: Colors.redAccent,
         alignment: Alignment.centerRight,
       ),
@@ -639,7 +638,9 @@ class _AgendaItemRow extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  DateFormat('HH:mm').format(item.startAt),
+                  DateFormat('HH:mm', context.l10n.localeName).format(
+                    item.startAt,
+                  ),
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: accent.withValues(alpha: 0.85),
                   ),
@@ -714,13 +715,13 @@ class _EmptyAgenda extends StatelessWidget {
             assets.pngAssetPath,
             fit: BoxFit.contain,
             filterQuality: FilterQuality.medium,
-            semanticLabel: '空日程狗狗插画',
+            semanticLabel: context.l10n.emptyAgendaDogIllustration,
             width: 115,
             height: 88,
           ),
           const SizedBox(height: 10),
           Text(
-            _emptyAgendaCopy,
+            context.l10n.calendarEmptyAgenda,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               height: 1.45,

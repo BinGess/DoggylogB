@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -11,7 +12,7 @@ class CompactDateTimeField extends StatelessWidget {
     this.showTime = true,
     this.firstDate,
     this.lastDate,
-    this.datePattern = 'yyyy 年 MM 月 dd 日',
+    this.datePattern = '',
     this.dateChipWidth,
     this.timeChipWidth = 96,
     this.showIcons = true,
@@ -49,7 +50,13 @@ class CompactDateTimeField extends StatelessWidget {
                 child: SizedBox(
                   width: dateChipWidth,
                   child: _PickerChip(
-                    label: DateFormat(datePattern).format(value),
+                    label: _formatDate(
+                      value,
+                      datePattern.isEmpty
+                          ? context.l10n.chipDatePattern()
+                          : datePattern,
+                      context.l10n.localeName,
+                    ),
                     icon: showIcons ? Icons.calendar_today_rounded : null,
                     onTap: () => _pickDate(context),
                   ),
@@ -109,6 +116,14 @@ class CompactDateTimeField extends StatelessWidget {
   }
 }
 
+String _formatDate(DateTime value, String pattern, String localeName) {
+  try {
+    return DateFormat(pattern, localeName).format(value);
+  } catch (_) {
+    return DateFormat(pattern).format(value);
+  }
+}
+
 Future<DateTime?> showCompactDatePickerSheet(
   BuildContext context, {
   required DateTime initialDate,
@@ -136,19 +151,19 @@ Future<DateTime?> showCompactDatePickerSheet(
                       Row(
                         children: [
                           Text(
-                            '选择日期',
+                            context.l10n.chooseDate,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const Spacer(),
                           TextButton(
                             onPressed: () =>
                                 Navigator.of(context).pop(DateTime.now()),
-                            child: const Text('今天'),
+                            child: Text(context.l10n.today),
                           ),
                         ],
                       ),
                       Text(
-                        '直接点选日期即可，流程比系统双弹窗更短。',
+                        context.l10n.datePickerHint,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -167,7 +182,7 @@ Future<DateTime?> showCompactDatePickerSheet(
                         width: double.infinity,
                         child: FilledButton(
                           onPressed: () => Navigator.of(context).pop(selected),
-                          child: const Text('完成'),
+                          child: Text(context.l10n.done),
                         ),
                       ),
                     ],
@@ -210,12 +225,12 @@ Future<TimeOfDay?> showCompactTimePickerSheet(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '选择时间',
+                      context.l10n.chooseTime,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '滚轮选择更适合单手快速调整小时和分钟。',
+                      context.l10n.timePickerHint,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -236,7 +251,7 @@ Future<TimeOfDay?> showCompactTimePickerSheet(
                       width: double.infinity,
                       child: FilledButton(
                         onPressed: () => Navigator.of(context).pop(selected),
-                        child: const Text('完成'),
+                        child: Text(context.l10n.done),
                       ),
                     ),
                   ],

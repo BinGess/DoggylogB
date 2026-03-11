@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   cupertino_icons: ^1.0.8
   collection: ^1.19.1
   drift: ^2.28.2
@@ -78,3 +80,10 @@ flutter:
     - assets/images/calendar/
     - assets/shaders/liquid_glass.frag
     - assets/rive/
+  fonts:
+    - family: LXGWWenKai
+      fonts:
+        - asset: assets/fonts/LXGWWenKai-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/LXGWWenKai-Medium.ttf
+          weight: 500

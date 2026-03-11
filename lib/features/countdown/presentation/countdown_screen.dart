@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/countdown/presentation/countdown_detail_sheet.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
@@ -23,6 +24,7 @@ class CountdownScreen extends ConsumerWidget {
         ? null
         : ([...countdowns]..sort((a, b) => a.dueAt.compareTo(b.dueAt)));
     final activeCount = countdowns.where((item) => !item.hasCelebrated).length;
+    final l10n = context.l10n;
     return Scaffold(
       body: SoftBackdrop(
         child: SafeArea(
@@ -36,8 +38,8 @@ class CountdownScreen extends ConsumerWidget {
                 final titleStyle = Theme.of(context).textTheme.headlineMedium
                     ?.copyWith(fontWeight: FontWeight.w700);
                 return SoftBackdropPageHeader(
-                  title: '倒计时',
-                  subtitle: '把重要日期放进一个连续的期待列表里。',
+                  title: l10n.countdownTitle,
+                  subtitle: l10n.countdownSubtitle,
                   titleStyle: titleStyle,
                   trailing: SoftCircleIconButton(
                     onTap: () => showCreateEntryScreen(
@@ -46,7 +48,7 @@ class CountdownScreen extends ConsumerWidget {
                       initialDate: state.selectedDate,
                     ),
                     icon: Icons.add_rounded,
-                    tooltip: '添加',
+                    tooltip: l10n.add,
                   ),
                 );
               }
@@ -59,14 +61,14 @@ class CountdownScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '下一次重要节点',
+                          l10n.nextImportantMilestone,
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const SizedBox(height: 8),
                         Text(
                           nearest == null
-                              ? '还没有倒计时，先放一个值得期待的日期。'
-                              : '${nearest.first.title} · ${DateFormat('M 月 d 日').format(nearest.first.dueAt)}',
+                              ? l10n.noCountdownYet
+                              : '${nearest.first.title} · ${DateFormat('M 月 d 日', l10n.localeName).format(nearest.first.dueAt)}',
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                         const SizedBox(height: 16),
@@ -74,17 +76,22 @@ class CountdownScreen extends ConsumerWidget {
                           children: [
                             Expanded(
                               child: _SummaryStat(
-                                label: '进行中',
+                                label: l10n.inProgress,
                                 value: '$activeCount',
                               ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: _SummaryStat(
-                                label: '最近到期',
+                                label: l10n.dueSoon,
                                 value: nearest == null
                                     ? '--'
-                                    : '${nearest.first.dueAt.difference(now).inDays + 1} 天',
+                                    : l10n.daysLabel(
+                                        nearest.first.dueAt
+                                                .difference(now)
+                                                .inDays +
+                                            1,
+                                      ),
                               ),
                             ),
                           ],
@@ -141,14 +148,14 @@ class CountdownTile extends StatelessWidget {
       background: _swipeAction(
         context,
         icon: item.hasCelebrated ? Icons.undo_rounded : Icons.check_rounded,
-        label: item.hasCelebrated ? '恢复' : '完成',
+        label: item.hasCelebrated ? context.l10n.restore : context.l10n.complete,
         color: Theme.of(context).colorScheme.primary,
         alignment: Alignment.centerLeft,
       ),
       secondaryBackground: _swipeAction(
         context,
         icon: Icons.delete_outline_rounded,
-        label: '删除',
+        label: context.l10n.delete,
         color: Colors.redAccent,
         alignment: Alignment.centerRight,
       ),
@@ -191,7 +198,7 @@ class CountdownTile extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              '截止 ${DateFormat('yyyy/MM/dd HH:mm').format(item.dueAt)}',
+              context.l10n.dueAtLabel(item.dueAt),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 16),
@@ -262,14 +269,16 @@ class CountdownTile extends StatelessWidget {
 
   static String _remainingLabel(CountdownItem item, DateTime now) {
     if (item.hasCelebrated) {
-      return '已完成';
+      return AppLocalizations.current().completed;
     }
     final hours = item.dueAt.difference(now).inHours;
     if (hours < 0) {
-      return '已逾期 ${hours.abs().ceil()} 小时';
+      return AppLocalizations.current().overdueHoursLabel(
+        hours.abs().ceil(),
+      );
     }
     final days = (hours / 24).ceil();
-    return '剩余 $days 天';
+    return AppLocalizations.current().remainingDaysLabel(days);
   }
 }
 
@@ -282,7 +291,9 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final color = item.hasCelebrated ? const Color(0xFF2B9348) : scheme.primary;
-    final label = item.hasCelebrated ? '已完成' : '详情';
+    final label = item.hasCelebrated
+        ? context.l10n.completed
+        : context.l10n.detail;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(

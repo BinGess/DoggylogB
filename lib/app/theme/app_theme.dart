@@ -1,6 +1,7 @@
 import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+const _appFontFamily = 'LXGWWenKai';
 
 class AppTheme {
   static ThemeData light({
@@ -59,7 +60,8 @@ class AppTheme {
   ) {
     final isDark = brightness == Brightness.dark;
     final textTheme = _textTheme(
-      isDark ? Typography.whiteMountainView : Typography.blackMountainView,
+      (isDark ? Typography.whiteMountainView : Typography.blackMountainView)
+          .apply(fontFamily: _appFontFamily),
       scheme,
       fontScale,
     );
@@ -67,6 +69,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
+      fontFamily: _appFontFamily,
       colorScheme: scheme,
       scaffoldBackgroundColor: isDark
           ? skin.backgroundDark
@@ -95,7 +98,7 @@ class AppTheme {
         foregroundColor: scheme.onSurface,
         centerTitle: false,
         titleTextStyle: textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w500,
         ),
       ),
       cardTheme: CardThemeData(
@@ -174,7 +177,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(skin.cardRadius - 10),
           ),
           textStyle: textTheme.labelLarge?.copyWith(
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
@@ -201,7 +204,7 @@ class AppTheme {
         backgroundColor: scheme.tertiary,
         foregroundColor: scheme.onTertiary,
         extendedTextStyle: textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w500,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(skin.cardRadius - 8),
@@ -286,13 +289,8 @@ class AppTheme {
     double fontScale,
   ) {
     final scale = fontScale.clamp(1.0, 1.2);
-    final canLoadGoogleFonts = GoogleFonts.config.allowRuntimeFetching;
-    final headingBase = canLoadGoogleFonts
-        ? GoogleFonts.varelaRoundTextTheme(base)
-        : base;
-    final bodyBase = canLoadGoogleFonts
-        ? GoogleFonts.notoSansScTextTheme(base)
-        : base;
+    final headingBase = base.apply(fontFamily: _appFontFamily);
+    final bodyBase = base.apply(fontFamily: _appFontFamily);
 
     return bodyBase.copyWith(
       // Display — 大标题：移除负向字距，中文不需要紧缩字距
@@ -300,14 +298,14 @@ class AppTheme {
         fontSize: 38 * scale,
         height: 1.28,
         letterSpacing: 0,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
         color: scheme.onSurface,
       ),
       displayMedium: headingBase.displayMedium?.copyWith(
         fontSize: 30 * scale,
         height: 1.28,
         letterSpacing: 0,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
         color: scheme.onSurface,
       ),
       // Headline — 页面标题
@@ -315,21 +313,21 @@ class AppTheme {
         fontSize: 26 * scale,
         height: 1.32,
         letterSpacing: 0,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
         color: scheme.onSurface,
       ),
       headlineMedium: headingBase.headlineMedium?.copyWith(
         fontSize: 22 * scale,
         height: 1.32,
         letterSpacing: 0,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
         color: scheme.onSurface,
       ),
       headlineSmall: headingBase.headlineSmall?.copyWith(
         fontSize: 19 * scale,
         height: 1.38,
         letterSpacing: 0,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
         color: scheme.onSurface,
       ),
       // Title — 卡片/列表标题
@@ -337,21 +335,21 @@ class AppTheme {
         fontSize: 17 * scale,
         height: 1.42,
         letterSpacing: 0,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
         color: scheme.onSurface,
       ),
       titleMedium: headingBase.titleMedium?.copyWith(
         fontSize: 15 * scale,
         height: 1.45,
         letterSpacing: 0,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
         color: scheme.onSurface,
       ),
       titleSmall: headingBase.titleSmall?.copyWith(
         fontSize: 13 * scale,
         height: 1.45,
         letterSpacing: 0,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
         color: scheme.onSurface,
       ),
       // Body — 正文：中文需要充裕的行高才舒适
@@ -378,21 +376,21 @@ class AppTheme {
         fontSize: 13 * scale,
         height: 1.35,
         letterSpacing: 0.3,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
         color: scheme.onSurface,
       ),
       labelMedium: bodyBase.labelMedium?.copyWith(
         fontSize: 11 * scale,
         height: 1.35,
         letterSpacing: 0.3,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
         color: scheme.onSurfaceVariant,
       ),
       labelSmall: bodyBase.labelSmall?.copyWith(
         fontSize: 10 * scale,
         height: 1.35,
         letterSpacing: 0.4,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w500,
         color: scheme.onSurfaceVariant,
       ),
     );

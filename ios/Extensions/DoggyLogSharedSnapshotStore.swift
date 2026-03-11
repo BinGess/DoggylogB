@@ -52,18 +52,75 @@ enum DoggyLogSharedSnapshotStore {
   static let snapshotFileName = "doggylog_widget_snapshot.json"
 
   static func load() -> DoggyLogSharedSnapshot? {
-    if let defaults = UserDefaults(suiteName: appGroupIdentifier),
-       let json = defaults.string(forKey: snapshotKey),
-       let data = json.data(using: .utf8) {
-      return try? JSONDecoder().decode(DoggyLogSharedSnapshot.self, from: data)
+    // Read exclusively from the shared file.
+    // Intentionally avoids UserDefaults(suiteName:): on fresh installs the
+    // cfprefsd daemon rejects app-extension access with a "detaching" warning
+    // that can block the call long enough to time out getSnapshot/getTimeline,
+    // which causes WidgetKit to keep the widget stuck in gray-placeholder mode.
+    guard let containerURL = FileManager.default.containerURL(
+      forSecurityApplicationGroupIdentifier: appGroupIdentifier
+    ) else { return nil }
+
+    let fileURL = containerURL.appendingPathComponent(snapshotFileName)
+    guard let data = try? Data(contentsOf: fileURL) else { return nil }
+    return try? JSONDecoder().decode(DoggyLogSharedSnapshot.self, from: data)
+  }
+
+  /// Returns hardcoded sample data for the widget gallery preview.
+  /// Called when `context.isPreview == true` in `getSnapshot`.
+  static func preview() -> DoggyLogSharedSnapshot? {
+    let cal = Calendar.current
+    let now = Date()
+    let year = cal.component(.year, from: now)
+    let month = cal.component(.month, from: now)
+    let today = cal.component(.day, from: now)
+
+    var comps = DateComponents()
+    comps.year = year; comps.month = month; comps.day = 1
+    guard let firstDay = cal.date(from: comps) else { return nil }
+    let startOffset = cal.component(.weekday, from: firstDay) - 1
+    guard let dayRange = cal.range(of: .day, in: .month, for: firstDay) else { return nil }
+    let lastDay = dayRange.count
+
+    let taskDays: Set<Int> = [3, 7, 12, 15, 20, 22, 25]
+    let calendarDays: [SnapshotCalendarDay] = (0..<42).map { i in
+      let dayIndex = i - startOffset + 1
+      let inMonth = dayIndex >= 1 && dayIndex <= lastDay
+      return SnapshotCalendarDay(
+        day: inMonth ? dayIndex : 0,
+        isInMonth: inMonth,
+        isToday: inMonth && dayIndex == today,
+        taskCount: inMonth && taskDays.contains(dayIndex) ? 2 : 0
+      )
     }
 
-    if let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier)?
-      .appendingPathComponent(snapshotFileName),
-       let data = try? Data(contentsOf: url) {
-      return try? JSONDecoder().decode(DoggyLogSharedSnapshot.self, from: data)
-    }
-
-    return nil
+    return DoggyLogSharedSnapshot(
+      generatedAt: Int(now.timeIntervalSince1970 * 1000),
+      today: SnapshotToday(
+        pendingCount: 3,
+        completedCount: 2,
+        nextTaskTitle: "下午遛狗",
+        nextTaskTime: "15:00"
+      ),
+      pet: SnapshotPet(
+        name: "小白",
+        breed: "柯基",
+        mood: "开心",
+        loyaltyLevel: 7,
+        sceneMode: "sunny"
+      ),
+      countdown: SnapshotCountdown(
+        title: "狗狗生日",
+        dueAt: Int(now.addingTimeInterval(12 * 86400).timeIntervalSince1970 * 1000),
+        daysRemaining: 12,
+        startAt: Int(now.addingTimeInterval(-30 * 86400).timeIntervalSince1970 * 1000)
+      ),
+      recentTasks: [
+        SnapshotTask(title: "晨跑 30 分钟", time: "07:00", category: "exercise", completed: true),
+        SnapshotTask(title: "宠物检查", time: "10:00", category: "vet", completed: true),
+        SnapshotTask(title: "下午遛狗", time: "15:00", category: "walk", completed: false)
+      ],
+      calendarDays: calendarDays
+    )
   }
 }

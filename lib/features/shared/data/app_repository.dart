@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/shared/application/domain_event_bus.dart';
 import 'package:doggylog/features/shared/data/app_database.dart';
 import 'package:doggylog/features/shared/data/sample_data.dart';
@@ -23,14 +24,15 @@ class AppRepository {
       return;
     }
     final now = DateTime.now();
+    final l10n = AppLocalizations.current();
     final pets = _buildDefaultPetRoster(now);
     final selectedPet = pets.firstWhere((pet) => pet.isSelected);
 
     final tasks = [
       CalendarItem(
         id: _uuid.v4(),
-        title: '晨间遛弯',
-        description: '带 Mochi 出门散步，顺手补充饮水。',
+        title: l10n.text('晨间遛弯', 'Morning walk', '朝の散歩'),
+        description: l10n.text('带 Mochi 出门散步，顺手补充饮水。', 'Take Mochi out for a walk and refill water on the way.', 'Mochi を散歩に連れ出し、そのついでに水を補充します。'),
         startAt: DateTime(now.year, now.month, now.day, 7, 30),
         endAt: DateTime(now.year, now.month, now.day, 8, 0),
         category: CalendarCategory.pet,
@@ -42,8 +44,8 @@ class AppRepository {
       ),
       CalendarItem(
         id: _uuid.v4(),
-        title: '产品评审',
-        description: '确认 DoggyLog 首屏交互和 Widget 数据源。',
+        title: l10n.text('产品评审', 'Product review', 'プロダクトレビュー'),
+        description: l10n.text('确认 DoggyLog 首屏交互和 Widget 数据源。', 'Review DoggyLog home interactions and widget data sources.', 'DoggyLog のホーム画面操作とウィジェットデータソースを確認します。'),
         startAt: DateTime(now.year, now.month, now.day, 10, 0),
         endAt: DateTime(now.year, now.month, now.day, 11, 0),
         category: CalendarCategory.work,
@@ -55,8 +57,8 @@ class AppRepository {
       ),
       CalendarItem(
         id: _uuid.v4(),
-        title: '疫苗到期提醒',
-        description: '确认宠物医院预约时间。',
+        title: l10n.text('疫苗到期提醒', 'Vaccine due reminder', 'ワクチン期限リマインダー'),
+        description: l10n.text('确认宠物医院预约时间。', 'Confirm the veterinary appointment time.', '動物病院の予約時刻を確認します。'),
         startAt: now.add(const Duration(days: 5, hours: 9)),
         endAt: now.add(const Duration(days: 5, hours: 10)),
         category: CalendarCategory.anniversary,
@@ -79,7 +81,7 @@ class AppRepository {
       batch.insertAll(_database.countdownItemsTable, [
         CountdownItem(
           id: _uuid.v4(),
-          title: 'Mochi 生日',
+          title: l10n.text('Mochi 生日', 'Mochi Birthday', 'Mochi の誕生日'),
           dueAt: now.add(const Duration(days: 28)),
           createdAt: now.subtract(const Duration(days: 2)),
           petId: selectedPet.id,
@@ -87,7 +89,7 @@ class AppRepository {
         ).toCompanion(),
         CountdownItem(
           id: _uuid.v4(),
-          title: '年度体检',
+          title: l10n.text('年度体检', 'Annual checkup', '年次健診'),
           dueAt: now.add(const Duration(days: 41)),
           createdAt: now,
           petId: selectedPet.id,
@@ -194,6 +196,10 @@ class AppRepository {
       ),
       faceIdEnabled: values['faceIdEnabled'] == 'true',
       debugImmediateReminders: values['debugImmediateReminders'] == 'true',
+      languageMode: AppLanguageMode.values.firstWhere(
+        (item) => item.name == values['languageMode'],
+        orElse: () => AppLanguageMode.system,
+      ),
       useSystemCalendarFilter: values['useSystemCalendarFilter'] == 'true',
       visibleSystemCalendarIds: decodeJsonList(
         values['visibleSystemCalendarIds'],
@@ -212,6 +218,7 @@ class AppRepository {
       'selectedCalendarView': preference.selectedCalendarView.name,
       'faceIdEnabled': preference.faceIdEnabled.toString(),
       'debugImmediateReminders': preference.debugImmediateReminders.toString(),
+      'languageMode': preference.languageMode.name,
       'useSystemCalendarFilter': preference.useSystemCalendarFilter.toString(),
       'visibleSystemCalendarIds': encodeJsonList(
         preference.visibleSystemCalendarIds

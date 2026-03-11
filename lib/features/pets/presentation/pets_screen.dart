@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/features/pets/presentation/widgets/pet_skin_gallery.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
@@ -20,8 +21,9 @@ class PetsScreen extends ConsumerWidget {
     final activeSkin = appSkinThemeForBreed(
       activePet?.breed ?? PetBreed.shiba,
     ).spec;
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('管理宠物皮肤')),
+      appBar: AppBar(title: Text(l10n.managePetSkins)),
       body: SoftBackdrop(
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -41,14 +43,17 @@ class PetsScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('当前皮肤', style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    l10n.currentSkin,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     activePet == null
-                        ? '还没有选中宠物。'
+                        ? l10n.noPetSelected
                         : isHiddenActiveSkin
-                        ? '${activePet.name} · ${breedLabel(activePet.breed)} · 当前已隐藏'
-                        : '${activePet.name} · ${breedLabel(activePet.breed)} · ${activeSkin.styleName}',
+                        ? '${activePet.name} · ${l10n.breedLabel(activePet.breed)} · ${l10n.currentHidden}'
+                        : '${activePet.name} · ${l10n.breedLabel(activePet.breed)} · ${l10n.localizedSkinStyleName(activeSkin.styleName)}',
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 8),

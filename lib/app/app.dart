@@ -1,9 +1,11 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/app/router/app_router.dart';
 import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/app/theme/app_theme.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DoggyLogApp extends ConsumerStatefulWidget {
@@ -76,9 +78,21 @@ class _DoggyLogAppState extends ConsumerState<DoggyLogApp>
     final skinTheme = appSkinThemeForBreed(
       state.selectedPet?.breed ?? PetBreed.shiba,
     );
+    final locale = state.preferences.languageMode == AppLanguageMode.system
+        ? null
+        : resolveAppLocale(state.preferences.languageMode);
     return MaterialApp.router(
-      title: 'DoggyLog',
+      title: AppLocalizations.current(mode: state.preferences.languageMode)
+          .appTitle,
       debugShowCheckedModeBanner: false,
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       themeMode: ThemeMode.system,
       theme: AppTheme.light(
         fontScale: state.preferences.fontScale,
@@ -112,13 +126,13 @@ class _DoggyLogAppState extends ConsumerState<DoggyLogApp>
                               const Icon(Icons.lock_rounded, size: 42),
                               const SizedBox(height: 14),
                               Text(
-                                'DoggyLog 已锁定',
+                                context.l10n.unlockSheetTitle,
                                 style: Theme.of(context).textTheme.titleLarge,
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                '使用 Face ID / Touch ID 恢复访问。',
+                                context.l10n.unlockSheetSubtitle,
                                 style: Theme.of(context).textTheme.bodyMedium,
                                 textAlign: TextAlign.center,
                               ),
@@ -134,7 +148,7 @@ class _DoggyLogAppState extends ConsumerState<DoggyLogApp>
                               FilledButton.icon(
                                 onPressed: () => _attemptUnlockIfNeeded(state),
                                 icon: const Icon(Icons.fingerprint_rounded),
-                                label: const Text('立即解锁'),
+                                label: Text(context.l10n.unlockNow),
                               ),
                             ],
                           ),

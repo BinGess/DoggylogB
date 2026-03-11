@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/pets/presentation/pets_screen.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
@@ -7,10 +8,10 @@ import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop_page
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const _fontScaleOptions = <({String label, double value})>[
-  (label: '小', value: 1.0),
-  (label: '中', value: 1.1),
-  (label: '大', value: 1.2),
+const _fontScaleOptions = <({double value})>[
+  (value: 1.0),
+  (value: 1.1),
+  (value: 1.2),
 ];
 
 class SettingsScreen extends ConsumerWidget {
@@ -21,6 +22,7 @@ class SettingsScreen extends ConsumerWidget {
     final state = ref.watch(appStateProvider);
     final controller = ref.read(appStateProvider.notifier);
     final preferences = state.preferences;
+    final l10n = context.l10n;
     return Scaffold(
       body: SoftBackdrop(
         child: SafeArea(
@@ -29,7 +31,7 @@ class SettingsScreen extends ConsumerWidget {
             padding: const EdgeInsets.only(bottom: 40),
             children: [
               SoftBackdropPageHeader(
-                title: '我的',
+                title: l10n.settingsHeaderTitle,
                 titleStyle: Theme.of(
                   context,
                 ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
@@ -39,7 +41,7 @@ class SettingsScreen extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
-                  '宠物',
+                  l10n.petsSectionTitle,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
@@ -49,7 +51,7 @@ class SettingsScreen extends ConsumerWidget {
                 child: LiquidGlassCard(
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('管理宠物皮肤'),
+                    title: Text(l10n.managePetSkins),
                    // subtitle: const Text('进入页面后切换宠物，对应整套 App 皮肤会立即切换'),
                     trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: () => Navigator.of(context).push(
@@ -64,7 +66,7 @@ class SettingsScreen extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
-                  '设置',
+                  l10n.settingsSectionTitle,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
@@ -76,7 +78,7 @@ class SettingsScreen extends ConsumerWidget {
                     children: [
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('周一作为起始日'),
+                        title: Text(l10n.weekStartsOnMonday),
                         value: preferences.weekStartsOnMonday,
                         onChanged: (value) {
                           controller.updatePreferences(
@@ -86,7 +88,7 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('震动反馈'),
+                        title: Text(l10n.hapticsFeedback),
                         value: preferences.hapticsEnabled,
                         onChanged: (value) {
                           controller.updatePreferences(
@@ -103,9 +105,46 @@ class SettingsScreen extends ConsumerWidget {
                       const Divider(height: 24),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('系统日历'),
+                        title: Text(l10n.language),
                         subtitle: Text(
-                          _systemCalendarSummary(preferences),
+                          l10n.languageCurrentLabel(preferences.languageMode),
+                        ),
+                        trailing: DropdownButtonHideUnderline(
+                          child: DropdownButton<AppLanguageMode>(
+                            value: preferences.languageMode,
+                            items: [
+                              DropdownMenuItem(
+                                value: AppLanguageMode.system,
+                                child: Text(l10n.languageSystem),
+                              ),
+                              DropdownMenuItem(
+                                value: AppLanguageMode.zh,
+                                child: Text(l10n.languageChinese),
+                              ),
+                              DropdownMenuItem(
+                                value: AppLanguageMode.en,
+                                child: Text(l10n.languageEnglish),
+                              ),
+                              DropdownMenuItem(
+                                value: AppLanguageMode.ja,
+                                child: Text(l10n.languageJapanese),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              if (value == null) return;
+                              controller.updatePreferences(
+                                preferences.copyWith(languageMode: value),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      const Divider(height: 24),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l10n.systemCalendar),
+                        subtitle: Text(
+                          _systemCalendarSummary(l10n, preferences),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -120,8 +159,8 @@ class SettingsScreen extends ConsumerWidget {
                       const Divider(height: 24),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('字号'),
-                        subtitle: const Text('切换小、中、大三档全局字体大小'),
+                        title: Text(l10n.fontSize),
+                        subtitle: Text(l10n.fontSizeSubtitle),
                       ),
                       Align(
                         alignment: Alignment.centerLeft,
@@ -130,7 +169,7 @@ class SettingsScreen extends ConsumerWidget {
                           runSpacing: 8,
                           children: _fontScaleOptions.map((option) {
                             return ChoiceChip(
-                              label: Text(option.label),
+                              label: Text(l10n.fontScaleLabel(option.value)),
                               selected: preferences.fontScale == option.value,
                               onSelected: (_) => controller.updatePreferences(
                                 preferences.copyWith(fontScale: option.value),
@@ -142,8 +181,8 @@ class SettingsScreen extends ConsumerWidget {
                       const Divider(height: 24),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('开发调试'),
-                        subtitle: const Text('动画强度、提醒调试与 iOS 增强能力'),
+                        title: Text(l10n.developmentDebug),
+                        subtitle: Text(l10n.developmentDebugSubtitle),
                         trailing: const Icon(Icons.chevron_right_rounded),
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute<void>(
@@ -163,14 +202,19 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
-String _systemCalendarSummary(UserPreference preferences) {
+String _systemCalendarSummary(
+  AppLocalizations l10n,
+  UserPreference preferences,
+) {
   if (!preferences.useSystemCalendarFilter) {
-    return '默认展示系统上所有可访问的日历事件';
+    return l10n.systemCalendarSummaryAll;
   }
   if (preferences.visibleSystemCalendarIds.isEmpty) {
-    return '当前未纳入任何系统日历';
+    return l10n.systemCalendarSummaryNone;
   }
-  return '已选择 ${preferences.visibleSystemCalendarIds.length} 个系统日历';
+  return l10n.systemCalendarSummarySelected(
+    preferences.visibleSystemCalendarIds.length,
+  );
 }
 
 class SystemCalendarSettingsScreen extends ConsumerStatefulWidget {
@@ -199,9 +243,10 @@ class _SystemCalendarSettingsScreenState
   @override
   Widget build(BuildContext context) {
     final preferences = ref.watch(appStateProvider).preferences;
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('系统日历'),
+        title: Text(l10n.systemCalendar),
         actions: [
           TextButton(
             onPressed: _isSaving ? null : () => _saveSelection(context),
@@ -211,7 +256,7 @@ class _SystemCalendarSettingsScreenState
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('完成'),
+                : Text(l10n.done),
           ),
         ],
       ),
@@ -257,7 +302,7 @@ class _SystemCalendarSettingsScreenState
               padding: const EdgeInsets.all(20),
               children: [
                 Text(
-                  '勾选后纳入 DoggyLog 展示与增量同步范围。',
+                  l10n.systemCalendarGuide,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: 12),
@@ -266,8 +311,8 @@ class _SystemCalendarSettingsScreenState
                     children: [
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('全部日历'),
-                        subtitle: const Text('默认会自动纳入新出现的系统日历'),
+                        title: Text(l10n.allCalendars),
+                        subtitle: Text(l10n.allCalendarsSubtitle),
                         trailing: Checkbox(
                           value: _selectedIds.length == calendars.length,
                           onChanged: (value) {
@@ -390,7 +435,9 @@ class _SystemCalendarTile extends StatelessWidget {
             : null,
       ),
       title: Text(calendar.title),
-      subtitle: calendar.allowsContentModifications ? null : const Text('只读日历'),
+      subtitle: calendar.allowsContentModifications
+          ? null
+          : Text(context.l10n.readOnlyCalendar),
       trailing: Checkbox(
         value: selected,
         onChanged: (value) => onChanged(value ?? false),
@@ -406,6 +453,7 @@ class _EmptySystemCalendarState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -414,15 +462,18 @@ class _EmptySystemCalendarState extends StatelessWidget {
           children: [
             const Icon(Icons.calendar_month_rounded, size: 48),
             const SizedBox(height: 12),
-            Text('未读取到系统日历', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              l10n.emptySystemCalendarsTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
             Text(
-              '请确认已授予日历权限，或当前设备确实存在可访问的日历。',
+              l10n.emptySystemCalendarsSubtitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 16),
-            FilledButton.tonal(onPressed: onRetry, child: const Text('重新加载')),
+            FilledButton.tonal(onPressed: onRetry, child: Text(l10n.reload)),
           ],
         ),
       ),
@@ -448,8 +499,9 @@ class DevelopmentDebugScreen extends ConsumerWidget {
     final state = ref.watch(appStateProvider);
     final controller = ref.read(appStateProvider.notifier);
     final preferences = state.preferences;
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('开发调试')),
+      appBar: AppBar(title: Text(l10n.developmentDebug)),
       body: SoftBackdrop(
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -458,10 +510,13 @@ class DevelopmentDebugScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('动画强度', style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    l10n.animationIntensity,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   const SizedBox(height: 6),
                   Text(
-                    '保留柔和动效，但给低性能设备留出缓冲。',
+                    l10n.animationIntensitySubtitle,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   Slider(
@@ -477,14 +532,14 @@ class DevelopmentDebugScreen extends ConsumerWidget {
                     },
                   ),
                   const SizedBox(height: 8),
-                  Text('渲染档位', style: Theme.of(context).textTheme.titleLarge),
+                  Text(l10n.renderTier, style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: PerformanceTier.values.map((tier) {
                       return ChoiceChip(
-                        label: Text(tier.name),
+                        label: Text(l10n.performanceTierLabel(tier)),
                         selected: preferences.performanceTier == tier,
                         onSelected: (_) => controller.updatePreferences(
                           preferences.copyWith(performanceTier: tier),
@@ -495,8 +550,8 @@ class DevelopmentDebugScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('提醒调试模式'),
-                    subtitle: const Text('保存带提醒的任务后，立即触发一次 App 内提醒预览'),
+                    title: Text(l10n.reminderDebugMode),
+                    subtitle: Text(l10n.reminderDebugModeSubtitle),
                     value: preferences.debugImmediateReminders,
                     onChanged: (value) {
                       controller.updatePreferences(
@@ -513,15 +568,15 @@ class DevelopmentDebugScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'iOS 增强能力',
+                    l10n.iosCapabilities,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 12),
                   _CapabilityRow(
-                    title: 'EventKit 同步',
+                    title: l10n.eventKitSync,
                     subtitle: state.calendarPermissionGranted
-                        ? '日历已可访问，可导入系统事件并回写 DoggyLog 任务'
-                        : '尚未授予日历权限',
+                        ? l10n.eventKitGranted
+                        : l10n.calendarPermissionDenied,
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -530,48 +585,53 @@ class DevelopmentDebugScreen extends ConsumerWidget {
                     children: [
                       FilledButton.tonal(
                         onPressed: controller.importIosCalendarEvents,
-                        child: const Text('导入系统日历'),
+                        child: Text(l10n.importSystemCalendar),
                       ),
                       FilledButton.tonal(
                         onPressed: controller.syncAllToIosCalendar,
-                        child: const Text('同步到 iOS 日历'),
+                        child: Text(l10n.syncToIosCalendar),
                       ),
                     ],
                   ),
                   const SizedBox(height: 14),
                   _CapabilityRow(
-                    title: '通知提醒',
+                    title: l10n.notificationReminders,
                     subtitle: state.notificationPermissionGranted
-                        ? '通知权限已开启，任务保存后会自动调度提醒'
-                        : '尚未授予通知权限',
+                        ? l10n.notificationPermissionGranted
+                        : l10n.notificationPermissionDenied,
                   ),
                   const SizedBox(height: 8),
                   FilledButton.tonal(
                     onPressed: controller.requestNotificationPermissions,
-                    child: const Text('开启通知权限'),
+                    child: Text(l10n.enableNotificationPermission),
                   ),
                   const SizedBox(height: 14),
                   _CapabilityRow(
-                    title: '地理围栏遛弯模式',
+                    title: l10n.geofenceWalkingMode,
                     subtitle: state.locationPermissionGranted
                         ? state.activeGeofenceName == null
-                              ? '位置权限已开启，当前未进入任何预设围栏'
-                              : '当前位于 ${state.activeGeofenceName}，宠物状态为 ${state.activeScene.name}'
-                        : '尚未授予定位权限，无法自动切换宠物场景',
+                              ? l10n.geofenceInactive
+                              : l10n.geofenceActive(
+                                  state.activeGeofenceName!,
+                                  state.activeScene,
+                                )
+                        : l10n.locationPermissionDenied,
                   ),
                   const SizedBox(height: 8),
                   FilledButton.tonal(
                     onPressed: controller.enableGeofenceMonitoring,
                     child: Text(
-                      state.locationPermissionGranted ? '刷新地理围栏状态' : '开启定位权限',
+                      state.locationPermissionGranted
+                          ? l10n.refreshGeofenceStatus
+                          : l10n.enableLocationPermission,
                     ),
                   ),
                   const SizedBox(height: 14),
                   _CapabilityRow(
-                    title: 'Core Motion 视差',
+                    title: l10n.coreMotionParallax,
                     subtitle: state.sensorStreamActive
-                        ? '传感器流已启动，液态玻璃和宠物动效会跟随设备倾斜'
-                        : '当前设备未启用传感器流，界面会自动降级为静态效果',
+                        ? l10n.sensorStreamEnabled
+                        : l10n.sensorStreamDisabled,
                   ),
                   if (state.lastSyncMessage != null) ...[
                     const SizedBox(height: 14),
@@ -581,13 +641,13 @@ class DevelopmentDebugScreen extends ConsumerWidget {
                     ),
                   ],
                   const SizedBox(height: 14),
-                  const _CapabilityRow(
-                    title: 'CloudKit 备份恢复',
-                    subtitle: '共享快照与映射存储已预留',
+                  _CapabilityRow(
+                    title: l10n.cloudkitBackupRestore,
+                    subtitle: l10n.cloudkitBackupRestoreSubtitle,
                   ),
-                  const _CapabilityRow(
-                    title: 'Widget / Dynamic Island',
-                    subtitle: '快照协议与原生扩展骨架待接入',
+                  _CapabilityRow(
+                    title: l10n.widgetDynamicIsland,
+                    subtitle: l10n.widgetDynamicIslandSubtitle,
                   ),
                 ],
               ),

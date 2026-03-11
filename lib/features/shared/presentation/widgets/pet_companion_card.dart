@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/shared/presentation/widgets/animated_pet_avatar.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
@@ -21,6 +22,7 @@ class PetCompanionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final pet = this.pet;
+    final l10n = context.l10n;
     return GestureDetector(
       onLongPress: onLongPress,
       child: LiquidGlassCard(
@@ -46,12 +48,14 @@ class PetCompanionCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    pet == null ? 'Pick your first pup' : '${pet.name} 今天陪你冲刺',
+                    pet == null
+                        ? l10n.pickFirstPup
+                        : l10n.petCompanionTitle(pet.name),
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    _moodCopy(mood, sceneMode),
+                    _moodCopy(context, mood, sceneMode),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 14),
@@ -60,15 +64,17 @@ class PetCompanionCard extends StatelessWidget {
                     runSpacing: 8,
                     children: [
                       _TinyPill(
-                        label: pet == null ? '未选择宠物' : 'Lv.${pet.loyaltyLevel}',
+                        label: pet == null
+                            ? l10n.noPetChosen
+                            : l10n.levelLabel(pet.loyaltyLevel),
                         icon: Icons.star_rounded,
                       ),
                       _TinyPill(
-                        label: _sceneLabel(sceneMode),
+                        label: l10n.sceneLabel(sceneMode),
                         icon: Icons.location_on_rounded,
                       ),
-                      const _TinyPill(
-                        label: '长按试试 Fetch',
+                      _TinyPill(
+                        label: l10n.longPressFetch,
                         icon: Icons.sports_baseball_rounded,
                       ),
                     ],
@@ -82,26 +88,16 @@ class PetCompanionCard extends StatelessWidget {
     );
   }
 
-  static String _sceneLabel(SceneMode mode) {
-    return switch (mode) {
-      SceneMode.home => '居家',
-      SceneMode.working => '工作中',
-      SceneMode.walking => '遛弯模式',
-      SceneMode.resting => '休息中',
-      SceneMode.caring => '守护中',
-    };
-  }
-
-  static String _moodCopy(PetMood mood, SceneMode sceneMode) {
+  static String _moodCopy(
+    BuildContext context,
+    PetMood mood,
+    SceneMode sceneMode,
+  ) {
+    final l10n = context.l10n;
     if (sceneMode == SceneMode.walking) {
-      return 'Mochi 已切换到遛弯姿态，随时准备提醒你按时出门。';
+      return l10n.walkingModeCopy;
     }
-    return switch (mood) {
-      PetMood.excited => '今日任务推进顺利，宠物会在完成关键待办时给你奖励反馈。',
-      PetMood.calm => '节奏稳定，保持今天的完成率就能继续解锁隐藏动作。',
-      PetMood.lazy => '还有待办没推进，长按宠物直接拖球到日期上创建任务。',
-      PetMood.sad => '存在逾期任务，优先清掉积压项让宠物恢复精神。',
-    };
+    return l10n.moodCopy(mood);
   }
 }
 

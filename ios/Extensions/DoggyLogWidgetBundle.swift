@@ -16,7 +16,7 @@ struct DoggyLogWidgetBundle: WidgetBundle {
     // 新增：倒计时（systemSmall + systemMedium）
     DoggyLogCountdownWidget()
 
-    if #available(iOS 16.1, *) {
+    if #available(iOSApplicationExtension 16.1, *) {
       DoggyLogLiveActivityWidget()
     }
   }

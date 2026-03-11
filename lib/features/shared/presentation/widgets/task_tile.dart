@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
 import 'package:flutter/material.dart';
@@ -25,13 +26,13 @@ class TaskTile extends StatelessWidget {
       background: _swipeAction(
         context,
         Icons.check_circle_rounded,
-        '完成',
+        context.l10n.complete,
         scheme.primary,
       ),
       secondaryBackground: _swipeAction(
         context,
         Icons.delete_rounded,
-        '删除',
+        context.l10n.delete,
         Colors.redAccent,
       ),
       confirmDismiss: (direction) async {
@@ -66,7 +67,7 @@ class TaskTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    '${DateFormat('MM/dd HH:mm').format(item.startAt)} - ${DateFormat('HH:mm').format(item.endAt)}',
+                    '${DateFormat('MM/dd HH:mm', context.l10n.localeName).format(item.startAt)} - ${DateFormat('HH:mm', context.l10n.localeName).format(item.endAt)}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   if (item.description.isNotEmpty) ...[
@@ -162,7 +163,7 @@ class _CategoryBadge extends StatelessWidget {
           Icon(icon, size: 18, color: color),
           const SizedBox(height: 4),
           Text(
-            category.label,
+            context.l10n.categoryLabel(category),
             style: Theme.of(
               context,
             ).textTheme.labelSmall?.copyWith(color: color),

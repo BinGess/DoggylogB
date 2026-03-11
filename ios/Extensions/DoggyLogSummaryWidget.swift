@@ -8,11 +8,16 @@ struct DoggyLogEntry: TimelineEntry {
 
 struct DoggyLogProvider: TimelineProvider {
   func placeholder(in context: Context) -> DoggyLogEntry {
-    DoggyLogEntry(date: Date(), snapshot: DoggyLogSharedSnapshotStore.load())
+    // Return immediately; placeholder is always shown fully redacted by WidgetKit
+    // so actual data is irrelevant — and calling load() here can cause I/O delays.
+    DoggyLogEntry(date: Date(), snapshot: nil)
   }
 
   func getSnapshot(in context: Context, completion: @escaping (DoggyLogEntry) -> Void) {
-    completion(DoggyLogEntry(date: Date(), snapshot: DoggyLogSharedSnapshotStore.load()))
+    let snapshot = context.isPreview
+      ? DoggyLogSharedSnapshotStore.preview()
+      : DoggyLogSharedSnapshotStore.load()
+    completion(DoggyLogEntry(date: Date(), snapshot: snapshot))
   }
 
   func getTimeline(in context: Context, completion: @escaping (Timeline<DoggyLogEntry>) -> Void) {

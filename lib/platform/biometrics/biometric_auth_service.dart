@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:local_auth/local_auth.dart';
 
 class BiometricAuthService {
@@ -14,7 +15,7 @@ class BiometricAuthService {
   Future<bool> authenticate() async {
     try {
       return await _localAuth.authenticate(
-        localizedReason: '使用 Face ID / Touch ID 解锁 DoggyLog',
+        localizedReason: AppLocalizations.current().biometricReason,
         options: const AuthenticationOptions(
           biometricOnly: true,
           stickyAuth: true,

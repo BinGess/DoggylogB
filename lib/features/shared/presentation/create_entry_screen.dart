@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/widgets/compact_date_time_field.dart';
@@ -81,6 +82,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       body: SoftBackdrop(
         child: SafeArea(
@@ -98,7 +100,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
                     FilledButton.icon(
                       onPressed: _submit,
                       icon: const Icon(Icons.check_rounded),
-                      label: const Text('保存'),
+                      label: Text(l10n.save),
                     ),
                   ],
                 ),
@@ -132,6 +134,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
   }
 
   Widget _buildScheduleForm(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       key: const ValueKey('schedule-form'),
       children: [
@@ -142,9 +145,9 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
               TextField(
                 controller: _titleController,
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  labelText: '标题',
-                  hintText: '例如：带 Mochi 晚间遛弯',
+                decoration: InputDecoration(
+                  labelText: l10n.titleLabel,
+                  hintText: l10n.titleHintSchedule,
                 ),
               ),
             ],
@@ -156,7 +159,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
           child: Column(
             children: [
               CompactDateTimeField(
-                label: '开始时间',
+                label: l10n.startTime,
                 value: _startAt,
                 showIcons: false,
                 onChanged: (value) => setState(() {
@@ -168,7 +171,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
               ),
               const SizedBox(height: 12),
               CompactDateTimeField(
-                label: '结束时间',
+                label: l10n.endTime,
                 value: _endAt,
                 showIcons: false,
                 onChanged: (value) => setState(() {
@@ -184,33 +187,33 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
           child: Column(
             children: [
               _SelectionRow<_RepeatOption>(
-                label: '重复',
-                value: _repeat.label,
+                label: l10n.repeat,
+                value: _repeat.label(l10n),
                 onTap: () => _selectOption<_RepeatOption>(
-                  title: '重复',
+                  title: l10n.repeat,
                   current: _repeat,
                   options: _RepeatOption.values,
-                  labelBuilder: (option) => option.label,
+                  labelBuilder: (option) => option.label(l10n),
                   onSelected: (option) => setState(() => _repeat = option),
                 ),
               ),
               const SizedBox(height: 10),
               _SelectionRow<_ReminderOption>(
-                label: '提醒',
-                value: _scheduleReminder.label,
+                label: l10n.reminder,
+                value: _scheduleReminder.label(l10n),
                 onTap: () => _selectOption<_ReminderOption>(
-                  title: '提醒',
+                  title: l10n.reminder,
                   current: _scheduleReminder,
                   options: _ReminderOption.values,
-                  labelBuilder: (option) => option.label,
+                  labelBuilder: (option) => option.label(l10n),
                   onSelected: (option) =>
                       setState(() => _scheduleReminder = option),
                 ),
               ),
               const SizedBox(height: 10),
               _SelectionRow<_CalendarOption>(
-                label: '分类',
-                value: _calendar.label,
+                label: l10n.category,
+                value: _calendar.label(l10n),
                 prefix: Container(
                   width: 10,
                   height: 10,
@@ -220,10 +223,10 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
                   ),
                 ),
                 onTap: () => _selectOption<_CalendarOption>(
-                  title: '分类',
+                  title: l10n.category,
                   current: _calendar,
                   options: _CalendarOption.values,
-                  labelBuilder: (option) => option.label,
+                  labelBuilder: (option) => option.label(l10n),
                   onSelected: (option) => setState(() => _calendar = option),
                 ),
               ),
@@ -235,6 +238,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
   }
 
   Widget _buildCountdownForm(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       key: const ValueKey('countdown-form'),
       children: [
@@ -245,9 +249,9 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
               TextField(
                 controller: _titleController,
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  labelText: '标题',
-                  hintText: '例如：Mochi 生日 / 年度体检 / 疫苗到期',
+                decoration: InputDecoration(
+                  labelText: l10n.titleLabel,
+                  hintText: l10n.titleHintCountdown,
                 ),
               ),
             ],
@@ -257,7 +261,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
         _FormSection(
           title: null,
           child: CompactDateTimeField(
-            label: '倒计时目标时间',
+            label: l10n.countdownTargetTime,
             value: _countdownAt,
             showIcons: false,
             onChanged: (value) => setState(() {
@@ -271,13 +275,13 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
           child: Column(
             children: [
               _SelectionRow<_ReminderOption>(
-                label: '提醒',
-                value: _countdownReminder.label,
+                label: l10n.reminder,
+                value: _countdownReminder.label(l10n),
                 onTap: () => _selectOption<_ReminderOption>(
-                  title: '提醒',
+                  title: l10n.reminder,
                   current: _countdownReminder,
                   options: _ReminderOption.values,
-                  labelBuilder: (option) => option.label,
+                  labelBuilder: (option) => option.label(l10n),
                   onSelected: (option) =>
                       setState(() => _countdownReminder = option),
                 ),
@@ -287,12 +291,12 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
                 children: [
                   Expanded(
                     child: Text(
-                      '倒计时贴纸',
+                      l10n.countdownSticker,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
                   Text(
-                    _sticker.label,
+                    _sticker.label(l10n),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
@@ -317,15 +321,16 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
   }
 
   Future<void> _submit() async {
+    final l10n = context.l10n;
     final title = _titleController.text.trim();
     if (title.isEmpty) {
-      _showMessage('请输入标题');
+      _showMessage(l10n.enterTitle);
       return;
     }
 
     if (_activeTab == CreateEntryTab.schedule) {
       if (!_endAt.isAfter(_startAt)) {
-        _showMessage('结束时间需要晚于开始时间');
+        _showMessage(l10n.endTimeAfterStart);
         return;
       }
       final reminders = _scheduleReminder.offsetMinutes == null
@@ -384,7 +389,7 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
                 Text(title, style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 8),
                 Text(
-                  '选择一个最接近当前场景的选项，之后还可以继续改。',
+                  context.l10n.chooseBestOption,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: 14),
@@ -421,54 +426,78 @@ class _CreateEntryScreenState extends ConsumerState<CreateEntryScreen>
 }
 
 enum _ReminderOption {
-  none('无', null),
-  atTime('事件发生时', 0),
-  fiveMinutes('5 分钟前', 5),
-  fifteenMinutes('15 分钟前', 15),
-  thirtyMinutes('30 分钟前', 30),
-  oneHour('1 小时前', 60),
-  oneDay('1 天前', 1440);
+  none(null),
+  atTime(0),
+  fiveMinutes(5),
+  fifteenMinutes(15),
+  thirtyMinutes(30),
+  oneHour(60),
+  oneDay(1440);
 
-  const _ReminderOption(this.label, this.offsetMinutes);
+  const _ReminderOption(this.offsetMinutes);
 
-  final String label;
   final int? offsetMinutes;
+
+  String label(AppLocalizations l10n) => switch (this) {
+    _ReminderOption.none => l10n.none,
+    _ReminderOption.atTime => l10n.atTime,
+    _ReminderOption.fiveMinutes => l10n.minutesBefore(5),
+    _ReminderOption.fifteenMinutes => l10n.minutesBefore(15),
+    _ReminderOption.thirtyMinutes => l10n.minutesBefore(30),
+    _ReminderOption.oneHour => l10n.hoursBefore(1),
+    _ReminderOption.oneDay => l10n.daysBefore(1),
+  };
 }
 
 enum _RepeatOption {
-  none('无'),
-  everyDay('每天'),
-  everyWeek('每周'),
-  everyMonth('每月');
+  none,
+  everyDay,
+  everyWeek,
+  everyMonth;
 
-  const _RepeatOption(this.label);
-
-  final String label;
+  String label(AppLocalizations l10n) => switch (this) {
+    _RepeatOption.none => l10n.none,
+    _RepeatOption.everyDay => l10n.everyDay,
+    _RepeatOption.everyWeek => l10n.everyWeek,
+    _RepeatOption.everyMonth => l10n.everyMonth,
+  };
 }
 
 enum _CalendarOption {
-  personal('个人', Color(0xFFE58A5E), CalendarCategory.daily),
-  work('工作', Color(0xFF6B7EFF), CalendarCategory.work),
-  pet('宠物', Color(0xFF56BFA3), CalendarCategory.pet),
-  anniversary('纪念', Color(0xFFF0B24D), CalendarCategory.anniversary);
+  personal(Color(0xFFE58A5E), CalendarCategory.daily),
+  work(Color(0xFF6B7EFF), CalendarCategory.work),
+  pet(Color(0xFF56BFA3), CalendarCategory.pet),
+  anniversary(Color(0xFFF0B24D), CalendarCategory.anniversary);
 
-  const _CalendarOption(this.label, this.color, this.category);
+  const _CalendarOption(this.color, this.category);
 
-  final String label;
   final Color color;
   final CalendarCategory category;
+
+  String label(AppLocalizations l10n) => switch (this) {
+    _CalendarOption.personal => l10n.personalCategory,
+    _CalendarOption.work => l10n.workCategoryShort,
+    _CalendarOption.pet => l10n.petCategoryShort,
+    _CalendarOption.anniversary => l10n.anniversaryCategoryShort,
+  };
 }
 
 enum _StickerOption {
-  stopwatch('效率', Icons.timer_rounded),
-  coffee('轻松', Icons.local_cafe_rounded),
-  star('置顶', Icons.auto_awesome_rounded),
-  cake('庆祝', Icons.cake_rounded);
+  stopwatch(Icons.timer_rounded),
+  coffee(Icons.local_cafe_rounded),
+  star(Icons.auto_awesome_rounded),
+  cake(Icons.cake_rounded);
 
-  const _StickerOption(this.label, this.icon);
+  const _StickerOption(this.icon);
 
-  final String label;
   final IconData icon;
+
+  String label(AppLocalizations l10n) => switch (this) {
+    _StickerOption.stopwatch => l10n.stickerEfficiency,
+    _StickerOption.coffee => l10n.stickerRelaxed,
+    _StickerOption.star => l10n.stickerPinned,
+    _StickerOption.cake => l10n.stickerCelebrate,
+  };
 }
 
 class _SegmentedTabBar extends StatelessWidget {
@@ -480,9 +509,9 @@ class _SegmentedTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SegmentedButton<int>(
-      segments: const [
-        ButtonSegment<int>(value: 0, label: Text('日程')),
-        ButtonSegment<int>(value: 1, label: Text('倒计时')),
+      segments: [
+        ButtonSegment<int>(value: 0, label: Text(context.l10n.scheduleTab)),
+        ButtonSegment<int>(value: 1, label: Text(context.l10n.countdownTab)),
       ],
       selected: {controller.index},
       onSelectionChanged: (values) => onChanged(values.first),

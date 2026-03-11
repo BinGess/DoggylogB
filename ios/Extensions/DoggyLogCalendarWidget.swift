@@ -31,11 +31,16 @@ extension View {
 
 struct DoggyLogCalendarProvider: TimelineProvider {
   func placeholder(in context: Context) -> DoggyLogEntry {
-    DoggyLogEntry(date: Date(), snapshot: DoggyLogSharedSnapshotStore.load())
+    // Return immediately; placeholder is always shown fully redacted by WidgetKit
+    // so actual data is irrelevant — and calling load() here can cause I/O delays.
+    DoggyLogEntry(date: Date(), snapshot: nil)
   }
 
   func getSnapshot(in context: Context, completion: @escaping (DoggyLogEntry) -> Void) {
-    completion(DoggyLogEntry(date: Date(), snapshot: DoggyLogSharedSnapshotStore.load()))
+    let snapshot = context.isPreview
+      ? DoggyLogSharedSnapshotStore.preview()
+      : DoggyLogSharedSnapshotStore.load()
+    completion(DoggyLogEntry(date: Date(), snapshot: snapshot))
   }
 
   func getTimeline(in context: Context, completion: @escaping (Timeline<DoggyLogEntry>) -> Void) {
@@ -472,22 +477,21 @@ private func _currentWeekDays(
   return slice
 }
 
-/// 无 snapshot 时生成当月占位日历格
+/// 无 snapshot 时生成当月占位日历格（42 格，周日起始）
 private func _placeholderDays(for date: Date) -> [SnapshotCalendarDay] {
   let cal = Calendar.current
-  let now = date
-  let year = cal.component(.year, from: now)
-  let month = cal.component(.month, from: now)
-  let todayDay = cal.component(.day, from: now)
+  let year = cal.component(.year, from: date)
+  let month = cal.component(.month, from: date)
+  let todayDay = cal.component(.day, from: date)
 
-  var comps = DateComponents(); comps.year = year; comps.month = month; comps.day = 1
-  let firstDay = cal.date(from: comps)!
-  let startOffset = cal.component(.weekday, from: firstDay) - 1
+  var comps = DateComponents()
+  comps.year = year; comps.month = month; comps.day = 1
+  guard let firstDay = cal.date(from: comps) else { return [] }
+  let startOffset = cal.component(.weekday, from: firstDay) - 1 // Sun=1 → 0-based
 
-  let lastDay: Int = {
-    var c = DateComponents(); c.year = year; c.month = month + 1; c.day = 0
-    return cal.component(.day, from: cal.date(from: c)!)
-  }()
+  // cal.range(of:in:for:) safely returns days-in-month without force-unwrap
+  guard let dayRange = cal.range(of: .day, in: .month, for: firstDay) else { return [] }
+  let lastDay = dayRange.count
 
   return (0..<42).map { i in
     let dayIndex = i - startOffset + 1

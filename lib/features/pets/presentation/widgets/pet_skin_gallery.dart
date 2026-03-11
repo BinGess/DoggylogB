@@ -1,6 +1,14 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:flutter/material.dart';
+
+const _skinPreviewDogAssets = [
+  'assets/images/calendar/calendar_dog_timeline.png',
+  'assets/images/calendar/calendar_dog1_timeline.png',
+  'assets/images/calendar/calendar_dog2_timeline.png',
+  'assets/images/calendar/calendar_dog3_timeline.png',
+];
 
 class PetSkinGallery extends StatelessWidget {
   const PetSkinGallery({
@@ -43,13 +51,15 @@ class PetSkinGallery extends StatelessWidget {
 
     return Column(
       children: [
-        for (final pet in uniquePets)
+        for (var index = 0; index < uniquePets.length; index++)
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: _PetSkinCard(
-              pet: pet,
-              isSelected: pet.id == selectedPetId,
-              onTap: () => onPetSelected(pet.id),
+              pet: uniquePets[index],
+              previewAsset:
+                  _skinPreviewDogAssets[index % _skinPreviewDogAssets.length],
+              isSelected: uniquePets[index].id == selectedPetId,
+              onTap: () => onPetSelected(uniquePets[index].id),
             ),
           ),
       ],
@@ -60,11 +70,13 @@ class PetSkinGallery extends StatelessWidget {
 class _PetSkinCard extends StatelessWidget {
   const _PetSkinCard({
     required this.pet,
+    required this.previewAsset,
     required this.isSelected,
     required this.onTap,
   });
 
   final PetProfile pet;
+  final String previewAsset;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -99,23 +111,14 @@ class _PetSkinCard extends StatelessWidget {
               color: borderColor,
               width: isSelected ? 2.2 : 1.2,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: spec.shadowLight.withValues(
-                  alpha: isSelected ? 0.42 : 0.22,
-                ),
-                blurRadius: isSelected ? 28 : 16,
-                offset: const Offset(0, 14),
-              ),
-            ],
           ),
           child: Padding(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: 108,
+                  height: 82,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(spec.cardRadius),
                     gradient: LinearGradient(
@@ -131,50 +134,99 @@ class _PetSkinCard extends StatelessWidget {
                   child: Stack(
                     children: [
                       Positioned(
-                        top: 12,
-                        left: 14,
-                        child: _PreviewOrb(
-                          size: 44,
-                          color: spec.primaryLight.withValues(alpha: 0.34),
+                        top: 10,
+                        left: 12,
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            color: Colors.white.withValues(alpha: 0.72),
+                            border: Border.all(
+                              color: spec.primaryLight.withValues(alpha: 0.16),
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(4),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Image.asset(
+                                  previewAsset,
+                                  fit: BoxFit.cover,
+                                  alignment: Alignment.centerLeft,
+                                  filterQuality: FilterQuality.medium,
+                                ),
+                                DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        spec.primaryLight.withValues(
+                                          alpha: 0.18,
+                                        ),
+                                        spec.secondaryLight.withValues(
+                                          alpha: 0.12,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: spec.backgroundLight.withValues(
+                                      alpha: 0.08,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                       Positioned(
-                        top: 28,
-                        right: 24,
+                        top: 20,
+                        right: 16,
                         child: _PreviewOrb(
-                          size: 58,
+                          size: 42,
                           color: spec.secondaryLight.withValues(alpha: 0.24),
                         ),
                       ),
                       Positioned(
-                        bottom: 12,
-                        left: 18,
-                        right: 18,
+                        bottom: 8,
+                        left: 12,
+                        right: 12,
                         child: Container(
-                          height: 34,
+                          height: 26,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: BorderRadius.circular(14),
                             color: Colors.white.withValues(alpha: 0.82),
                             border: Border.all(
                               color: spec.primaryLight.withValues(alpha: 0.14),
                             ),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: Row(
                             children: [
                               Icon(
                                 Icons.pets_rounded,
+                                size: 16,
                                 color: spec.primaryLight,
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 5),
                               Expanded(
                                 child: Text(
-                                  spec.styleName,
+                                  context.l10n.localizedSkinStyleName(
+                                    spec.styleName,
+                                  ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     color: spec.onSurfaceVariantLight,
-                                    fontWeight: FontWeight.w700,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
@@ -185,7 +237,7 @@ class _PetSkinCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     Expanded(
@@ -197,21 +249,25 @@ class _PetSkinCard extends StatelessWidget {
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(
                                   color: spec.onSurfaceVariantLight,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w500,
                                 ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
                           Text(
-                            '${breedLabel(pet.breed)} · ${spec.styleName}',
+                            '${context.l10n.breedLabel(pet.breed)} · ${context.l10n.localizedSkinStyleName(spec.styleName)}',
                             style: Theme.of(
                               context,
-                            ).textTheme.bodySmall?.copyWith(color: labelColor),
+                            ).textTheme.labelMedium?.copyWith(
+                              color: labelColor,
+                            ),
                           ),
                         ],
                       ),
                     ),
                     _StatusBadge(
-                      label: isSelected ? '当前皮肤' : '点击切换',
+                      label: isSelected
+                          ? context.l10n.currentSkinBadge
+                          : context.l10n.tapToSwitchSkin,
                       background: isSelected
                           ? spec.primaryLight
                           : spec.primaryLight.withValues(alpha: 0.10),
@@ -219,36 +275,15 @@ class _PetSkinCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 6),
                 Text(
-                  spec.styleDescription,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  context.l10n.localizedSkinDescription(spec),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: labelColor,
-                    height: 1.55,
+                    height: 1.45,
                   ),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    ...[
-                      spec.primaryLight,
-                      spec.secondaryLight,
-                      spec.backgroundLight,
-                    ].map(
-                      (color) => Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: _PreviewOrb(size: 16, color: color),
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      'Lv.${pet.loyaltyLevel}',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: spec.primaryLight,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
@@ -306,19 +341,9 @@ class _StatusBadge extends StatelessWidget {
         label,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
           color: foreground,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
   }
-}
-
-String breedLabel(PetBreed breed) {
-  return switch (breed) {
-    PetBreed.shiba => 'Shiba',
-    PetBreed.goldenRetriever => 'Golden Retriever',
-    PetBreed.beagle => 'Beagle',
-    PetBreed.husky => 'Husky',
-    PetBreed.samoyed => 'Samoyed',
-  };
 }

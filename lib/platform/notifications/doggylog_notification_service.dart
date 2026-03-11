@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -69,6 +70,7 @@ class DoggylogNotificationService {
     CalendarItem item, {
     bool fireNowForDebug = false,
   }) async {
+    final l10n = AppLocalizations.current();
     await cancelTask(item.id);
     if (item.isDeleted || item.isCompleted) {
       return;
@@ -82,10 +84,13 @@ class DoggylogNotificationService {
       for (final reminder in item.reminders) {
         await _plugin.show(
           _debugPreviewNotificationId(item.id, reminder.offsetMinutes),
-          '${item.title} · 调试提醒',
+          l10n.notificationDebugTitle(item.title),
           item.description.isEmpty
-              ? '立即预览，原提醒设定为 ${reminder.offsetMinutes} 分钟前。'
-              : '${item.description}\n调试预览：${reminder.offsetMinutes} 分钟前',
+              ? l10n.notificationDebugBody(reminder.offsetMinutes)
+              : l10n.notificationDebugBodyWithDescription(
+                  item.description,
+                  reminder.offsetMinutes,
+                ),
           NotificationDetails(
             iOS: const DarwinNotificationDetails(
               interruptionLevel: InterruptionLevel.timeSensitive,
@@ -94,9 +99,8 @@ class DoggylogNotificationService {
             ),
             android: AndroidNotificationDetails(
               'doggylog_tasks',
-              'DoggyLog Tasks',
-              channelDescription:
-                  'Task reminders for DoggyLog calendar entries.',
+              l10n.notificationChannelName,
+              channelDescription: l10n.notificationChannelDescription,
               importance: Importance.max,
               priority: Priority.high,
             ),
@@ -117,7 +121,7 @@ class DoggylogNotificationService {
         _notificationId(item.id, reminder.offsetMinutes),
         item.title,
         item.description.isEmpty
-            ? '即将开始 · ${item.category.label}'
+            ? l10n.notificationStartingSoon(item.category)
             : item.description,
         tz.TZDateTime.from(fireAt, tz.local),
         NotificationDetails(
@@ -128,8 +132,8 @@ class DoggylogNotificationService {
           ),
           android: AndroidNotificationDetails(
             'doggylog_tasks',
-            'DoggyLog Tasks',
-            channelDescription: 'Task reminders for DoggyLog calendar entries.',
+            l10n.notificationChannelName,
+            channelDescription: l10n.notificationChannelDescription,
             importance: Importance.max,
             priority: Priority.high,
           ),
@@ -180,15 +184,16 @@ class DoggylogNotificationService {
   }
 
   Future<void> _createAndroidChannel() async {
+    final l10n = AppLocalizations.current();
     final android = _plugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
     await android?.createNotificationChannel(
-      const AndroidNotificationChannel(
+      AndroidNotificationChannel(
         'doggylog_tasks',
-        'DoggyLog Tasks',
-        description: 'Task reminders for DoggyLog calendar entries.',
+        l10n.notificationChannelName,
+        description: l10n.notificationChannelDescription,
         importance: Importance.max,
       ),
     );

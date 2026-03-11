@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/calendar/presentation/calendar_screen.dart';
 import 'package:doggylog/features/countdown/presentation/countdown_screen.dart';
 import 'package:doggylog/features/settings/presentation/settings_screen.dart';
@@ -139,14 +140,25 @@ class _HomeBottomTabBar extends StatelessWidget {
   final ColorScheme scheme;
   final bool isDark;
 
-  static const _items = <({IconData icon, String label, String keyId})>[
-    (icon: Icons.timelapse_rounded, label: '倒计时', keyId: 'countdown'),
-    (icon: Icons.calendar_month_rounded, label: '日历', keyId: 'calendar'),
-    (icon: Icons.person_rounded, label: '我的', keyId: 'settings'),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final items = <({IconData icon, String label, String keyId})>[
+      (
+        icon: Icons.timelapse_rounded,
+        label: context.l10n.homeTabCountdown,
+        keyId: 'countdown',
+      ),
+      (
+        icon: Icons.calendar_month_rounded,
+        label: context.l10n.homeTabCalendar,
+        keyId: 'calendar',
+      ),
+      (
+        icon: Icons.person_rounded,
+        label: context.l10n.homeTabSettings,
+        keyId: 'settings',
+      ),
+    ];
     final theme = Theme.of(context);
     final selectedColor = scheme.primary;
     final unselectedColor = scheme.onSurfaceVariant;
@@ -162,12 +174,12 @@ class _HomeBottomTabBar extends StatelessWidget {
       height: HomeShell.navHeight,
       child: Row(
         children: [
-          for (var i = 0; i < _items.length; i++)
+          for (var i = 0; i < items.length; i++)
             Expanded(
               child: _HomeTabItem(
-                icon: _items[i].icon,
-                label: _items[i].label,
-                keyId: _items[i].keyId,
+                icon: items[i].icon,
+                label: items[i].label,
+                keyId: items[i].keyId,
                 selected: i == selectedIndex,
                 selectedColor: selectedColor,
                 unselectedColor: unselectedColor,
