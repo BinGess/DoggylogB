@@ -15,6 +15,8 @@ class PetsScreen extends ConsumerWidget {
     final state = ref.watch(appStateProvider);
     final controller = ref.read(appStateProvider.notifier);
     final activePet = state.selectedPet;
+    final isHiddenActiveSkin =
+        activePet != null && !isPetSkinVisibleInManagement(activePet.breed);
     final activeSkin = appSkinThemeForBreed(
       activePet?.breed ?? PetBreed.shiba,
     ).spec;
@@ -44,16 +46,18 @@ class PetsScreen extends ConsumerWidget {
                   Text(
                     activePet == null
                         ? '还没有选中宠物。'
+                        : isHiddenActiveSkin
+                        ? '${activePet.name} · ${breedLabel(activePet.breed)} · 当前已隐藏'
                         : '${activePet.name} · ${breedLabel(activePet.breed)} · ${activeSkin.styleName}',
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    activePet == null
-                        ? '进入下面的卡片后选择任意宠物，即可切换整套 App 视觉皮肤。'
-                        : '切换宠物会同步切换按钮、文字、卡片、导航和背景风格，不再单独做设置页联动。',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
+                  // Text(
+                  // activePet == null
+                  // ? '进入下面的卡片后选择任意宠物，即可切换整套 App 视觉皮肤。'
+                  //   : '切换宠物会同步切换按钮、文字、卡片、导航和背景风格，不再单独做设置页联动。',
+                  //style: Theme.of(context).textTheme.bodyMedium,
+                  //),
                 ],
               ),
             ),

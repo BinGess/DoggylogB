@@ -3,9 +3,9 @@ import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/create_entry_screen.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
-import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop_app_bar.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_circle_icon_button.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop.dart';
+import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop_page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -24,82 +24,92 @@ class CountdownScreen extends ConsumerWidget {
         : ([...countdowns]..sort((a, b) => a.dueAt.compareTo(b.dueAt)));
     final activeCount = countdowns.where((item) => !item.hasCelebrated).length;
     return Scaffold(
-      appBar: SoftBackdropAppBar(
-        title: const Text('陪伴式倒计时'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Center(
-              child: SoftCircleIconButton(
-                onTap: () => showCreateEntryScreen(
-                  context,
-                  initialTab: CreateEntryTab.countdown,
-                  initialDate: state.selectedDate,
-                ),
-                icon: Icons.add_rounded,
-                tooltip: '添加',
-              ),
-            ),
-          ),
-        ],
-      ),
       body: SoftBackdrop(
-        child: ListView.separated(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
-          itemCount: countdowns.length + 1,
-          separatorBuilder: (context, index) => const SizedBox(height: 14),
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return LiquidGlassCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '下一次重要节点',
-                      style: Theme.of(context).textTheme.titleLarge,
+        child: SafeArea(
+          bottom: false,
+          child: ListView.separated(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 100),
+            itemCount: countdowns.length + 2,
+            separatorBuilder: (context, index) => const SizedBox(height: 14),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                final titleStyle = Theme.of(context).textTheme.headlineMedium
+                    ?.copyWith(fontWeight: FontWeight.w700);
+                return SoftBackdropPageHeader(
+                  title: '倒计时',
+                  subtitle: '把重要日期放进一个连续的期待列表里。',
+                  titleStyle: titleStyle,
+                  trailing: SoftCircleIconButton(
+                    onTap: () => showCreateEntryScreen(
+                      context,
+                      initialTab: CreateEntryTab.countdown,
+                      initialDate: state.selectedDate,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      nearest == null
-                          ? '还没有倒计时，先放一个值得期待的日期。'
-                          : '${nearest.first.title} · ${DateFormat('M 月 d 日').format(nearest.first.dueAt)}',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
+                    icon: Icons.add_rounded,
+                    tooltip: '添加',
+                  ),
+                );
+              }
+
+              if (index == 1) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: LiquidGlassCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: _SummaryStat(
-                            label: '进行中',
-                            value: '$activeCount',
-                          ),
+                        Text(
+                          '下一次重要节点',
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _SummaryStat(
-                            label: '最近到期',
-                            value: nearest == null
-                                ? '--'
-                                : '${nearest.first.dueAt.difference(now).inDays + 1} 天',
-                          ),
+                        const SizedBox(height: 8),
+                        Text(
+                          nearest == null
+                              ? '还没有倒计时，先放一个值得期待的日期。'
+                              : '${nearest.first.title} · ${DateFormat('M 月 d 日').format(nearest.first.dueAt)}',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _SummaryStat(
+                                label: '进行中',
+                                value: '$activeCount',
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _SummaryStat(
+                                label: '最近到期',
+                                value: nearest == null
+                                    ? '--'
+                                    : '${nearest.first.dueAt.difference(now).inDays + 1} 天',
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
+                );
+              }
+
+              final item = countdowns[index - 2];
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: CountdownTile(
+                  item: item,
+                  now: now,
+                  onToggleCelebrated: (value) =>
+                      controller.toggleCountdownCelebrated(item.id, value),
+                  onDelete: () => controller.deleteCountdown(item.id),
+                  onTap: () =>
+                      showCountdownDetailSheet(context, ref, item: item),
                 ),
               );
-            }
-
-            final item = countdowns[index - 1];
-            return CountdownTile(
-              item: item,
-              now: now,
-              onToggleCelebrated: (value) =>
-                  controller.toggleCountdownCelebrated(item.id, value),
-              onDelete: () => controller.deleteCountdown(item.id),
-              onTap: () => showCountdownDetailSheet(context, ref, item: item),
-            );
-          },
+            },
+          ),
         ),
       ),
     );

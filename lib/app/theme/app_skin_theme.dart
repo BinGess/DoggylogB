@@ -21,6 +21,10 @@ AppSkinTheme appSkinThemeForBreed(PetBreed breed) {
   };
 }
 
+bool isPetSkinVisibleInManagement(PetBreed breed) {
+  return appSkinThemeForBreed(breed) != AppSkinTheme.goldenBloom;
+}
+
 class AppSkinSpec {
   const AppSkinSpec({
     required this.styleName,
@@ -104,9 +108,7 @@ extension AppSkinThemeX on AppSkinTheme {
       // ─────────────────────────────────────────────────────────────────────
       AppSkinTheme.shibaJoy => const AppSkinSpec(
         styleName: '积木学堂',
-        styleDescription:
-            'Claymorphism + Vibrant Block-based — 饱和珊瑚橙 × 婴儿蓝 × 薄荷绿，'
-            '厚实描边（3.2px）、超圆角（28px）、双层阴影，像宠物玩具一样有弹性。',
+        styleDescription: '',
         // Light ─────────────────────
         primaryLight: Color(0xFFF05D56), // Vibrant Coral
         secondaryLight: Color(0xFF72B8E8), // Baby Blue
@@ -153,9 +155,7 @@ extension AppSkinThemeX on AppSkinTheme {
       // ─────────────────────────────────────────────────────────────────────
       AppSkinTheme.goldenBloom => const AppSkinSpec(
         styleName: '数据透明',
-        styleDescription:
-            'Glassmorphism + Flat Design — 电气蓝 × 天蓝 × 青色 CTA，'
-            '磨砂玻璃卡片、1px 细描边（14px 圆角）、扁平无阴影按钮，适合数据仪表盘。',
+        styleDescription: '',
         // Light ─────────────────────
         primaryLight: Color(0xFF0066FF), // Electric Blue
         secondaryLight: Color(0xFF38BDF8), // Sky Blue
@@ -202,9 +202,7 @@ extension AppSkinThemeX on AppSkinTheme {
       // ─────────────────────────────────────────────────────────────────────
       AppSkinTheme.beagleBreeze => const AppSkinSpec(
         styleName: 'AI 对话',
-        styleDescription:
-            'AI-Native UI + Minimalism — AI 紫 #6366F1 × 成功绿 CTA，'
-            '极简留白、1px 细边框（16px 圆角）、对话气泡层次感，专为智能助手场景打造。',
+        styleDescription: '',
         // Light ─────────────────────
         primaryLight: Color(0xFF6366F1), // AI Purple
         secondaryLight: Color(0xFFA5B4FC), // Light Purple
@@ -251,9 +249,7 @@ extension AppSkinThemeX on AppSkinTheme {
       // ─────────────────────────────────────────────────────────────────────
       AppSkinTheme.huskyFrost => const AppSkinSpec(
         styleName: '健康轻灵',
-        styleDescription:
-            'Neumorphism + Soft UI Evolution — 治愈蓝 × 天蓝 × 鼠尾草绿 CTA，'
-            '柔性双层阴影（-5px/-5px + 5px/5px）、20px 圆角、极细边框，专为健康养生场景设计。',
+        styleDescription: '',
         // Light ─────────────────────
         primaryLight: Color(0xFF4A90D9), // Therapeutic Blue
         secondaryLight: Color(0xFF87CEEB), // Sky Blue
@@ -300,9 +296,7 @@ extension AppSkinThemeX on AppSkinTheme {
       // ─────────────────────────────────────────────────────────────────────
       AppSkinTheme.samoyedSpa => const AppSkinSpec(
         styleName: '云朵温柔',
-        styleDescription:
-            'Soft UI Evolution + Neumorphism — 玫瑰粉 × 胭脂粉 × 薰衣草紫 CTA，'
-            '进化版柔性浮雕、1.2px 描边（18px 圆角）、WCAG AA+ 对比度，专为美容与温泉服务打造。',
+        styleDescription: '',
         // Light ─────────────────────
         primaryLight: Color(0xFFC96480), // Rose Pink
         secondaryLight: Color(0xFFF4B8C5), // Blush

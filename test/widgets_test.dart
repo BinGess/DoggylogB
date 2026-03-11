@@ -1,5 +1,6 @@
 import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/app/theme/app_theme.dart';
+import 'package:doggylog/features/calendar/presentation/calendar_theme_assets.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/calendar/presentation/calendar_screen.dart';
 import 'package:doggylog/features/home/presentation/home_shell.dart';
@@ -58,6 +59,9 @@ void main() {
   testWidgets('CalendarScreen empty agenda shows dog image and new copy', (
     tester,
   ) async {
+    final expectedAsset = calendarTimelineAssetsForTheme(
+      AppSkinTheme.shibaJoy,
+    ).pngAssetPath;
     await tester.pumpWidget(
       const ProviderScope(child: MaterialApp(home: CalendarScreen())),
     );
@@ -69,12 +73,63 @@ void main() {
         (widget) =>
             widget is Image &&
             widget.image is AssetImage &&
-            (widget.image as AssetImage).assetName ==
-                calendarTimelineDogFallbackAsset,
+            (widget.image as AssetImage).assetName == expectedAsset,
       ),
     );
 
     expect(image.fit, BoxFit.contain);
+  });
+
+  testWidgets('CalendarScreen compact selected paw badge stays restrained', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: CalendarScreen())),
+    );
+    await tester.pumpAndSettle();
+
+    final pawImages = tester
+        .widgetList<Image>(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is Image &&
+                widget.image is AssetImage &&
+                (widget.image as AssetImage).assetName ==
+                    'assets/images/calendar/paw_badge_selected.png',
+          ),
+        )
+        .toList();
+
+    expect(pawImages, isNotEmpty);
+    expect(pawImages.every((image) => (image.width ?? 0) <= 58), isTrue);
+  });
+
+  testWidgets('CalendarScreen month selected paw badge stays restrained', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: CalendarScreen())),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.fling(find.text('下拉展开月历'), const Offset(0, 300), 1200);
+    await tester.pumpAndSettle();
+
+    final pawImages = tester
+        .widgetList<Image>(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is Image &&
+                widget.image is AssetImage &&
+                (widget.image as AssetImage).assetName ==
+                    'assets/images/calendar/paw_badge_selected.png',
+          ),
+        )
+        .toList();
+
+    expect(find.text('上滑收起月历'), findsOneWidget);
+    expect(pawImages, isNotEmpty);
+    expect(pawImages.every((image) => (image.width ?? 0) <= 58), isTrue);
   });
 
   testWidgets('CreateEntryScreen uses lightweight date and time sheets', (
@@ -224,42 +279,48 @@ void main() {
     expect(innerGradient.colors.first.alpha, lessThanOrEqualTo(28));
   });
 
-  testWidgets('CountdownScreen app bar blends with soft backdrop', (
+  testWidgets('CountdownScreen renders title inline without AppBar', (
     tester,
   ) async {
+    final theme = AppTheme.light(
+      fontScale: 1.0,
+      skinTheme: AppSkinTheme.shibaJoy,
+    );
+
     await tester.pumpWidget(
       ProviderScope(
-        child: MaterialApp(
-          theme: AppTheme.light(
-            fontScale: 1.0,
-            skinTheme: AppSkinTheme.shibaJoy,
-          ),
-          home: const CountdownScreen(),
-        ),
+        child: MaterialApp(theme: theme, home: const CountdownScreen()),
       ),
     );
 
-    final appBar = tester.widget<AppBar>(find.byType(AppBar));
-    expect(appBar.flexibleSpace, isNotNull);
+    expect(find.byType(AppBar), findsNothing);
+    expect(find.text('陪伴式倒计时'), findsNothing);
+    expect(find.text('倒计时'), findsOneWidget);
+    expect(find.byType(SoftCircleIconButton), findsOneWidget);
+
+    final title = tester.widget<Text>(find.text('倒计时'));
+    expect(title.style?.fontSize, theme.textTheme.headlineMedium?.fontSize);
   });
 
-  testWidgets('SettingsScreen app bar blends with soft backdrop', (
+  testWidgets('SettingsScreen renders title inline without AppBar', (
     tester,
   ) async {
+    final theme = AppTheme.light(
+      fontScale: 1.0,
+      skinTheme: AppSkinTheme.shibaJoy,
+    );
+
     await tester.pumpWidget(
       ProviderScope(
-        child: MaterialApp(
-          theme: AppTheme.light(
-            fontScale: 1.0,
-            skinTheme: AppSkinTheme.shibaJoy,
-          ),
-          home: const SettingsScreen(),
-        ),
+        child: MaterialApp(theme: theme, home: const SettingsScreen()),
       ),
     );
 
-    final appBar = tester.widget<AppBar>(find.byType(AppBar));
-    expect(appBar.flexibleSpace, isNotNull);
+    expect(find.byType(AppBar), findsNothing);
+    expect(find.text('我的'), findsOneWidget);
+
+    final title = tester.widget<Text>(find.text('我的'));
+    expect(title.style?.fontSize, theme.textTheme.headlineMedium?.fontSize);
   });
 
   testWidgets('CountdownTile supports swipe actions and tap details', (

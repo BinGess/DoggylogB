@@ -1,4 +1,5 @@
 import 'package:doggylog/app/theme/app_skin_theme.dart';
+import 'package:doggylog/features/calendar/presentation/calendar_theme_assets.dart';
 import 'package:doggylog/features/calendar/presentation/task_editor_sheet.dart';
 import 'package:doggylog/features/pets/presentation/pets_screen.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
@@ -12,10 +13,6 @@ import 'package:intl/intl.dart';
 
 const _selectedPawAsset = 'assets/images/calendar/paw_badge_selected.png';
 const _idlePawAsset = 'assets/images/calendar/paw_stamp_idle.png';
-const calendarTimelineDogGifAsset =
-    'assets/images/calendar/calendar_dog_timeline.gif';
-const calendarTimelineDogFallbackAsset =
-    'assets/images/calendar/calendar_dog_timeline.png';
 const _emptyAgendaCopy = '今日还没安排哦，点击右上角创建追剧文案';
 
 class CalendarScreen extends ConsumerStatefulWidget {
@@ -80,7 +77,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               ),
               const SizedBox(height: 14),
               if (selectedItems.isEmpty)
-                const _EmptyAgenda()
+                _EmptyAgenda(breed: state.selectedPet?.breed)
               else
                 ...selectedItems.map((item) {
                   return Padding(
@@ -394,8 +391,8 @@ class _MonthView extends StatelessWidget {
                       child: selected
                           ? _PawBadge(
                               day: date.day,
-                              size: 64,
-                              dayTop: 19,
+                              size: 58,
+                              dayTop: 25,
                               dayStyle: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(
                                     color: Colors.white,
@@ -701,17 +698,20 @@ class _AgendaItemRow extends StatelessWidget {
 }
 
 class _EmptyAgenda extends StatelessWidget {
-  const _EmptyAgenda();
+  const _EmptyAgenda({required this.breed});
+
+  final PetBreed? breed;
 
   @override
   Widget build(BuildContext context) {
+    final assets = calendarTimelineAssetsForBreed(breed);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset(
-            calendarTimelineDogFallbackAsset,
+            assets.pngAssetPath,
             fit: BoxFit.contain,
             filterQuality: FilterQuality.medium,
             semanticLabel: '空日程狗狗插画',
@@ -761,9 +761,9 @@ class _PetGlyph extends StatelessWidget {
 class _PawBadge extends StatelessWidget {
   const _PawBadge({
     required this.day,
-    this.size = 66,
-    this.dayTop = 21,
-    this.imageScale = 1.22,
+    this.size = 50,
+    this.dayTop = 30,
+    this.imageScale = 1.00,
     this.dayStyle,
   });
 
@@ -878,6 +878,7 @@ class _TimelinePetIllustration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final assets = calendarTimelineAssetsForBreed(breed);
     return SizedBox(
       width: width,
       height: height,
@@ -889,11 +890,11 @@ class _TimelinePetIllustration extends StatelessWidget {
             width: width,
             height: height,
             child: Image.asset(
-              calendarTimelineDogGifAsset,
+              assets.gifAssetPath,
               fit: BoxFit.contain,
               filterQuality: FilterQuality.medium,
               errorBuilder: (context, error, stackTrace) => Image.asset(
-                calendarTimelineDogFallbackAsset,
+                assets.pngAssetPath,
                 fit: BoxFit.contain,
                 filterQuality: FilterQuality.medium,
               ),
@@ -946,7 +947,7 @@ BoxDecoration _softDecoration(
       (isDark
           ? const Color(0xFF202835).withValues(alpha: 0.9)
           : surfaceStyle?.cardGradientColors.first.withValues(alpha: 0.94) ??
-              Colors.white.withValues(alpha: 0.94));
+                Colors.white.withValues(alpha: 0.94));
 
   return BoxDecoration(
     color: background,
@@ -961,7 +962,7 @@ BoxDecoration _softDecoration(
         color: isDark
             ? Colors.black.withValues(alpha: 0.2)
             : surfaceStyle?.cardShadowColor.withValues(alpha: 0.16) ??
-                const Color(0xFFD3D9E2).withValues(alpha: 0.34),
+                  const Color(0xFFD3D9E2).withValues(alpha: 0.34),
         blurRadius: 16,
         offset: const Offset(6, 8),
       ),

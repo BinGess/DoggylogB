@@ -23,6 +23,9 @@ class PetSkinGallery extends StatelessWidget {
     final petsByBreed = <PetBreed, List<PetProfile>>{};
     final orderedBreeds = <PetBreed>[];
     for (final pet in pets) {
+      if (!isPetSkinVisibleInManagement(pet.breed)) {
+        continue;
+      }
       final breedPets = petsByBreed.putIfAbsent(pet.breed, () {
         orderedBreeds.add(pet.breed);
         return <PetProfile>[];

@@ -2,8 +2,8 @@ import 'package:doggylog/features/pets/presentation/pets_screen.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
-import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop_app_bar.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop.dart';
+import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop_page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,110 +22,141 @@ class SettingsScreen extends ConsumerWidget {
     final controller = ref.read(appStateProvider.notifier);
     final preferences = state.preferences;
     return Scaffold(
-      appBar: const SoftBackdropAppBar(title: Text('我的')),
       body: SoftBackdrop(
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            Text('宠物', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 12),
-            LiquidGlassCard(
-              child: ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('管理宠物皮肤'),
-                subtitle: const Text('进入页面后切换宠物，对应整套 App 皮肤会立即切换'),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const PetsScreen()),
+        child: SafeArea(
+          bottom: false,
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: 40),
+            children: [
+              SoftBackdropPageHeader(
+                title: '我的',
+                titleStyle: Theme.of(
+                  context,
+                ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
+                //subtitle: '管理宠物、偏好设置和设备能力。',
+              ),
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  '宠物',
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text('设置', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 12),
-            LiquidGlassCard(
-              child: Column(
-                children: [
-                  SwitchListTile(
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: LiquidGlassCard(
+                  child: ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('周一作为起始日'),
-                    value: preferences.weekStartsOnMonday,
-                    onChanged: (value) {
-                      controller.updatePreferences(
-                        preferences.copyWith(weekStartsOnMonday: value),
-                      );
-                    },
-                  ),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('震动反馈'),
-                    value: preferences.hapticsEnabled,
-                    onChanged: (value) {
-                      controller.updatePreferences(
-                        preferences.copyWith(hapticsEnabled: value),
-                      );
-                    },
-                  ),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Face ID / Touch ID'),
-                    value: preferences.faceIdEnabled,
-                    onChanged: controller.setFaceIdEnabled,
-                  ),
-                  const Divider(height: 24),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('系统日历'),
-                    subtitle: Text(
-                      _systemCalendarSummary(preferences),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    title: const Text('管理宠物皮肤'),
+                   // subtitle: const Text('进入页面后切换宠物，对应整套 App 皮肤会立即切换'),
                     trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
-                        builder: (_) => const SystemCalendarSettingsScreen(),
+                        builder: (_) => const PetsScreen(),
                       ),
                     ),
                   ),
-                  const Divider(height: 24),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('字号'),
-                    subtitle: const Text('切换小、中、大三档全局字体大小'),
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: _fontScaleOptions.map((option) {
-                        return ChoiceChip(
-                          label: Text(option.label),
-                          selected: preferences.fontScale == option.value,
-                          onSelected: (_) => controller.updatePreferences(
-                            preferences.copyWith(fontScale: option.value),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const Divider(height: 24),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('开发调试'),
-                    subtitle: const Text('动画强度、提醒调试与 iOS 增强能力'),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const DevelopmentDebugScreen(),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  '设置',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: LiquidGlassCard(
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('周一作为起始日'),
+                        value: preferences.weekStartsOnMonday,
+                        onChanged: (value) {
+                          controller.updatePreferences(
+                            preferences.copyWith(weekStartsOnMonday: value),
+                          );
+                        },
+                      ),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('震动反馈'),
+                        value: preferences.hapticsEnabled,
+                        onChanged: (value) {
+                          controller.updatePreferences(
+                            preferences.copyWith(hapticsEnabled: value),
+                          );
+                        },
+                      ),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Face ID / Touch ID'),
+                        value: preferences.faceIdEnabled,
+                        onChanged: controller.setFaceIdEnabled,
+                      ),
+                      const Divider(height: 24),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('系统日历'),
+                        subtitle: Text(
+                          _systemCalendarSummary(preferences),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        trailing: const Icon(Icons.chevron_right_rounded),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                const SystemCalendarSettingsScreen(),
+                          ),
+                        ),
+                      ),
+                      const Divider(height: 24),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('字号'),
+                        subtitle: const Text('切换小、中、大三档全局字体大小'),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _fontScaleOptions.map((option) {
+                            return ChoiceChip(
+                              label: Text(option.label),
+                              selected: preferences.fontScale == option.value,
+                              onSelected: (_) => controller.updatePreferences(
+                                preferences.copyWith(fontScale: option.value),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      const Divider(height: 24),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('开发调试'),
+                        subtitle: const Text('动画强度、提醒调试与 iOS 增强能力'),
+                        trailing: const Icon(Icons.chevron_right_rounded),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const DevelopmentDebugScreen(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
