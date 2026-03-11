@@ -97,6 +97,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       PetBreed.goldenRetriever => '金毛',
       PetBreed.beagle => '比格',
       PetBreed.husky => '哈士奇',
+      PetBreed.samoyed => '萨摩耶',
     };
   }
 }

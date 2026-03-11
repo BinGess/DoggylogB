@@ -146,13 +146,14 @@ class _FallbackPetAvatar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final motion = ref.watch(appStateProvider.select((state) => state.motion));
     final palette = switch (breed) {
-      PetBreed.shiba => [const Color(0xFFF4A261), const Color(0xFFE76F51)],
+      PetBreed.shiba => [const Color(0xFFF05D56), const Color(0xFF3DBA89)],
       PetBreed.goldenRetriever => [
-        const Color(0xFFF6BD60),
-        const Color(0xFFF7E0A3),
+        const Color(0xFF0066FF),
+        const Color(0xFF38BDF8),
       ],
-      PetBreed.beagle => [const Color(0xFFFFE8CC), const Color(0xFFDDA15E)],
-      PetBreed.husky => [const Color(0xFF90E0EF), const Color(0xFF5E60CE)],
+      PetBreed.beagle => [const Color(0xFF6366F1), const Color(0xFFA5B4FC)],
+      PetBreed.husky => [const Color(0xFF4A90D9), const Color(0xFF87CEEB)],
+      PetBreed.samoyed => [const Color(0xFFC96480), const Color(0xFF9B7BBF)],
     };
     final badge = switch (mood) {
       PetMood.excited => Icons.auto_awesome_rounded,

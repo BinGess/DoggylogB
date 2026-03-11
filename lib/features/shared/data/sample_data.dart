@@ -76,6 +76,20 @@ final defaultSkins = <PetBreed, List<PetSkin>>{
       unlockLevel: 5,
     ),
   ],
+  PetBreed.samoyed: const [
+    PetSkin(
+      id: 'cloud-white',
+      name: '云朵雪白',
+      visualTag: 'cloud',
+      unlockLevel: 1,
+    ),
+    PetSkin(
+      id: 'rose-bloom',
+      name: '玫瑰盛放',
+      visualTag: 'rose',
+      unlockLevel: 3,
+    ),
+  ],
 };
 
 const defaultPetCompanions = <DefaultPetCompanion>[
@@ -91,6 +105,7 @@ const defaultPetCompanions = <DefaultPetCompanion>[
     loyaltyPoints: 150,
   ),
   DefaultPetCompanion(name: 'Skye', breed: PetBreed.husky, loyaltyPoints: 220),
+  DefaultPetCompanion(name: 'Luna', breed: PetBreed.samoyed, loyaltyPoints: 160),
 ];
 
 List<GeofencePlace> defaultGeofences() => const [

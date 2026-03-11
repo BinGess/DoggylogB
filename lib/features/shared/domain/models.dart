@@ -13,7 +13,7 @@ enum CalendarCategory {
 
 enum CalendarViewMode { month, week, day, list }
 
-enum PetBreed { shiba, goldenRetriever, beagle, husky }
+enum PetBreed { shiba, goldenRetriever, beagle, husky, samoyed }
 
 enum PetMood { excited, calm, lazy, sad }
 

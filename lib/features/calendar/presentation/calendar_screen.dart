@@ -742,10 +742,11 @@ class _PetGlyph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final background = switch (breed) {
-      PetBreed.husky => const Color(0xFF344E77),
-      PetBreed.goldenRetriever => const Color(0xFFB8843B),
-      PetBreed.beagle => const Color(0xFF8D6A56),
-      PetBreed.shiba || null => const Color(0xFF2E3036),
+      PetBreed.husky => const Color(0xFF2A5C8A),
+      PetBreed.goldenRetriever => const Color(0xFF0050CC),
+      PetBreed.beagle => const Color(0xFF4346C0),
+      PetBreed.samoyed => const Color(0xFF9A3060),
+      PetBreed.shiba || null => const Color(0xFFBF2A25),
     };
     return Container(
       width: 36,
@@ -838,10 +839,11 @@ class _CalendarPetMarker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final background = switch (breed) {
-      PetBreed.husky => const Color(0xFF45648F),
-      PetBreed.goldenRetriever => const Color(0xFFD39C42),
-      PetBreed.beagle => const Color(0xFFA27757),
-      PetBreed.shiba => const Color(0xFF32343B),
+      PetBreed.husky => const Color(0xFF3A7AB8),
+      PetBreed.goldenRetriever => const Color(0xFF0066FF),
+      PetBreed.beagle => const Color(0xFF6366F1),
+      PetBreed.samoyed => const Color(0xFFC96480),
+      PetBreed.shiba => const Color(0xFFF05D56),
     };
     return Container(
       width: 28,

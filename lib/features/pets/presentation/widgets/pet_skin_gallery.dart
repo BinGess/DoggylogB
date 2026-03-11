@@ -294,5 +294,6 @@ String breedLabel(PetBreed breed) {
     PetBreed.goldenRetriever => 'Golden Retriever',
     PetBreed.beagle => 'Beagle',
     PetBreed.husky => 'Husky',
+    PetBreed.samoyed => 'Samoyed',
   };
 }
