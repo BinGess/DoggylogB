@@ -31,8 +31,8 @@ class SettingsScreen extends ConsumerWidget {
             LiquidGlassCard(
               child: ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('切换皮肤'),
-                subtitle: const Text('进入宠物养成页面，切换当前宠物外观'),
+                title: const Text('管理宠物皮肤'),
+                subtitle: const Text('进入页面后切换宠物，对应整套 App 皮肤会立即切换'),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(builder: (_) => const PetsScreen()),

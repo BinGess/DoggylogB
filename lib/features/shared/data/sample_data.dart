@@ -1,5 +1,17 @@
 import 'package:doggylog/features/shared/domain/models.dart';
 
+class DefaultPetCompanion {
+  const DefaultPetCompanion({
+    required this.name,
+    required this.breed,
+    required this.loyaltyPoints,
+  });
+
+  final String name;
+  final PetBreed breed;
+  final int loyaltyPoints;
+}
+
 final defaultTemplates = <TaskTemplate>[
   const TaskTemplate(
     id: 'walk-30',
@@ -65,6 +77,21 @@ final defaultSkins = <PetBreed, List<PetSkin>>{
     ),
   ],
 };
+
+const defaultPetCompanions = <DefaultPetCompanion>[
+  DefaultPetCompanion(name: 'Mochi', breed: PetBreed.shiba, loyaltyPoints: 120),
+  DefaultPetCompanion(
+    name: 'Butters',
+    breed: PetBreed.goldenRetriever,
+    loyaltyPoints: 180,
+  ),
+  DefaultPetCompanion(
+    name: 'Bagel',
+    breed: PetBreed.beagle,
+    loyaltyPoints: 150,
+  ),
+  DefaultPetCompanion(name: 'Skye', breed: PetBreed.husky, loyaltyPoints: 220),
+];
 
 List<GeofencePlace> defaultGeofences() => const [
   GeofencePlace(

@@ -1,7 +1,9 @@
 import 'package:doggylog/features/shared/application/domain_event_bus.dart';
 import 'package:doggylog/features/shared/data/app_database.dart';
 import 'package:doggylog/features/shared/data/app_repository.dart';
+import 'package:doggylog/features/shared/data/sample_data.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
+import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -231,6 +233,45 @@ void main() {
         database.countdownItemsTable,
       )..where((tbl) => tbl.id.equals('countdown-1'))).get();
       expect(remaining, isEmpty);
+    },
+  );
+
+  test('seedIfNeeded creates a pet roster covering all breeds', () async {
+    await repository.seedIfNeeded();
+
+    final pets = await (database.select(
+      database.petProfilesTable,
+    )..orderBy([(tbl) => OrderingTerm(expression: tbl.createdAt)])).get();
+
+    expect(pets.length, greaterThanOrEqualTo(PetBreed.values.length));
+    for (final breed in PetBreed.values) {
+      expect(
+        pets.where((pet) => pet.breed == breed.name),
+        isNotEmpty,
+        reason: 'missing seeded pet for $breed',
+      );
+    }
+    expect(pets.where((pet) => pet.isSelected), hasLength(1));
+  });
+
+  test(
+    'completeOnboarding reuses an existing breed pet instead of duplicating',
+    () async {
+      await repository.seedIfNeeded();
+
+      await repository.completeOnboarding(PetBreed.shiba, 'Akira');
+
+      final pets = await (database.select(
+        database.petProfilesTable,
+      )..where((tbl) => tbl.breed.equals(PetBreed.shiba.name))).get();
+
+      expect(pets, hasLength(1));
+      expect(pets.single.name, 'Akira');
+      expect(
+        pets.single.selectedSkinId,
+        defaultSkins[PetBreed.shiba]!.first.id,
+      );
+      expect(pets.single.isSelected, isTrue);
     },
   );
 }

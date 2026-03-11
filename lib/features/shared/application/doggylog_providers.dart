@@ -123,6 +123,7 @@ class AppStateController extends StateNotifier<AppState> {
   Future<void> _init() async {
     final repository = await _ref.read(repositoryProvider.future);
     await _ref.read(notificationServiceProvider.future);
+    await repository.ensureDefaultPetRoster();
     final preferences = await repository.loadPreferences();
     final suggestions = await repository.loadRecentSuggestions();
     final calendarAvailable = await _ref
@@ -504,6 +505,11 @@ class AppStateController extends StateNotifier<AppState> {
   }
 
   Future<void> selectPet(String petId) async {
+    state = state.copyWith(
+      pets: [
+        for (final pet in state.pets) pet.copyWith(isSelected: pet.id == petId),
+      ],
+    );
     final repository = await _ref.read(repositoryProvider.future);
     await repository.selectPet(petId);
   }

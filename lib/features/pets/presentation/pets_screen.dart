@@ -1,5 +1,7 @@
+import 'package:doggylog/app/theme/app_skin_theme.dart';
+import 'package:doggylog/features/pets/presentation/widgets/pet_skin_gallery.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
-import 'package:doggylog/features/shared/data/sample_data.dart';
+import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +15,11 @@ class PetsScreen extends ConsumerWidget {
     final state = ref.watch(appStateProvider);
     final controller = ref.read(appStateProvider.notifier);
     final activePet = state.selectedPet;
+    final activeSkin = appSkinThemeForBreed(
+      activePet?.breed ?? PetBreed.shiba,
+    ).spec;
     return Scaffold(
-      appBar: AppBar(title: const Text('宠物养成')),
+      appBar: AppBar(title: const Text('管理宠物皮肤')),
       body: SoftBackdrop(
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -34,77 +39,30 @@ class PetsScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('当前陪伴', style: Theme.of(context).textTheme.titleLarge),
+                  Text('当前皮肤', style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 8),
                   Text(
                     activePet == null
                         ? '还没有选中宠物。'
-                        : '${activePet.name} · 忠诚度 ${activePet.loyaltyPoints} · Lv.${activePet.loyaltyLevel}',
+                        : '${activePet.name} · ${breedLabel(activePet.breed)} · ${activeSkin.styleName}',
                     style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    activePet == null
+                        ? '进入下面的卡片后选择任意宠物，即可切换整套 App 视觉皮肤。'
+                        : '切换宠物会同步切换按钮、文字、卡片、导航和背景风格，不再单独做设置页联动。',
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            ...state.pets.map((pet) {
-              final skins = defaultSkins[pet.breed] ?? const [];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: LiquidGlassCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  pet.name,
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  '忠诚度 ${pet.loyaltyPoints} · Lv.${pet.loyaltyLevel}',
-                                ),
-                              ],
-                            ),
-                          ),
-                          ChoiceChip(
-                            label: Text(pet.isSelected ? '当前陪伴' : '切换'),
-                            selected: pet.isSelected,
-                            onSelected: (_) => controller.selectPet(pet.id),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: skins.map((skin) {
-                          final unlocked =
-                              pet.unlockedSkinIds.contains(skin.id) ||
-                              pet.loyaltyLevel >= skin.unlockLevel;
-                          return FilterChip(
-                            label: Text(
-                              unlocked
-                                  ? skin.name
-                                  : '${skin.name} Lv.${skin.unlockLevel}',
-                            ),
-                            selected: pet.selectedSkinId == skin.id,
-                            onSelected: unlocked
-                                ? (_) =>
-                                      controller.updatePetSkin(pet.id, skin.id)
-                                : null,
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
+            PetSkinGallery(
+              pets: state.pets,
+              selectedPetId: activePet?.id,
+              onPetSelected: controller.selectPet,
+            ),
           ],
         ),
       ),

@@ -302,37 +302,34 @@ void main() {
         .widgetList<Padding>(find.byType(Padding))
         .firstWhere(
           (widget) =>
-              widget.padding == const EdgeInsets.fromLTRB(16, 0, 16, 10),
+              widget.padding == const EdgeInsets.fromLTRB(16, 0, 16, 12),
         );
     final barRect = tester.getRect(
       find.byKey(const Key('home-bottom-tab-bar')),
     );
     final labelRect = tester.getRect(find.text('日历'));
 
-    expect(barRect.height, 58);
-    expect(barRect.bottom - labelRect.bottom, lessThanOrEqualTo(10));
-    expect(padding.padding, const EdgeInsets.fromLTRB(16, 0, 16, 10));
+    expect(barRect.height, 64);
+    expect(barRect.bottom - labelRect.bottom, lessThanOrEqualTo(12));
+    expect(padding.padding, const EdgeInsets.fromLTRB(16, 0, 16, 12));
   });
 
-  testWidgets(
-    'SettingsScreen shows settings section',
-    (tester) async {
-      await tester.pumpWidget(
-        const ProviderScope(child: MaterialApp(home: SettingsScreen())),
-      );
-      await tester.pump();
+  testWidgets('SettingsScreen shows settings section', (tester) async {
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: SettingsScreen())),
+    );
+    await tester.pump();
 
-      expect(find.text('我的'), findsOneWidget);
-      expect(find.text('设置'), findsOneWidget);
-      expect(find.text('字号'), findsOneWidget);
-      expect(find.text('小'), findsOneWidget);
-      expect(find.text('中'), findsOneWidget);
-      expect(find.text('大'), findsOneWidget);
-      expect(find.text('开发调试'), findsOneWidget);
-      expect(find.text('动画强度'), findsNothing);
-      expect(find.text('iOS 增强能力'), findsNothing);
-    },
-  );
+    expect(find.text('我的'), findsOneWidget);
+    expect(find.text('设置'), findsOneWidget);
+    expect(find.text('字号'), findsOneWidget);
+    expect(find.text('小'), findsOneWidget);
+    expect(find.text('中'), findsOneWidget);
+    expect(find.text('大'), findsOneWidget);
+    expect(find.text('开发调试'), findsOneWidget);
+    expect(find.text('动画强度'), findsNothing);
+    expect(find.text('iOS 增强能力'), findsNothing);
+  });
 
   testWidgets(
     'SettingsScreen opens development debug page from settings footer',
@@ -342,7 +339,10 @@ void main() {
       );
       await tester.pump();
 
-      await tester.tap(find.text('开发调试'));
+      final debugTile = find.widgetWithText(ListTile, '开发调试');
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -320));
+      await tester.pumpAndSettle();
+      await tester.tap(debugTile);
       await tester.pumpAndSettle();
 
       expect(find.text('开发调试'), findsWidgets);

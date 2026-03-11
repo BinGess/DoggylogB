@@ -23,19 +23,8 @@ class AppRepository {
       return;
     }
     final now = DateTime.now();
-    final pet = PetProfile(
-      id: _uuid.v4(),
-      name: 'Mochi',
-      breed: PetBreed.shiba,
-      loyaltyPoints: 120,
-      selectedSkinId: defaultSkins[PetBreed.shiba]!.first.id,
-      unlockedSkinIds: defaultSkins[PetBreed.shiba]!
-          .map((item) => item.id)
-          .toList(),
-      createdAt: now,
-      isSelected: true,
-    );
-    await _database.into(_database.petProfilesTable).insert(pet.toCompanion());
+    final pets = _buildDefaultPetRoster(now);
+    final selectedPet = pets.firstWhere((pet) => pet.isSelected);
 
     final tasks = [
       CalendarItem(
@@ -45,7 +34,7 @@ class AppRepository {
         startAt: DateTime(now.year, now.month, now.day, 7, 30),
         endAt: DateTime(now.year, now.month, now.day, 8, 0),
         category: CalendarCategory.pet,
-        petId: pet.id,
+        petId: selectedPet.id,
         reminders: const [ReminderPolicy(offsetMinutes: 15)],
         source: SyncSource.localOnly,
         createdAt: now,
@@ -58,7 +47,7 @@ class AppRepository {
         startAt: DateTime(now.year, now.month, now.day, 10, 0),
         endAt: DateTime(now.year, now.month, now.day, 11, 0),
         category: CalendarCategory.work,
-        petId: pet.id,
+        petId: selectedPet.id,
         reminders: const [ReminderPolicy(offsetMinutes: 30)],
         source: SyncSource.localOnly,
         createdAt: now,
@@ -71,7 +60,7 @@ class AppRepository {
         startAt: now.add(const Duration(days: 5, hours: 9)),
         endAt: now.add(const Duration(days: 5, hours: 10)),
         category: CalendarCategory.anniversary,
-        petId: pet.id,
+        petId: selectedPet.id,
         reminders: const [ReminderPolicy(offsetMinutes: 60)],
         source: SyncSource.imported,
         createdAt: now,
@@ -79,6 +68,10 @@ class AppRepository {
       ),
     ];
     await _database.batch((batch) {
+      batch.insertAll(
+        _database.petProfilesTable,
+        pets.map((pet) => pet.toCompanion()).toList(),
+      );
       batch.insertAll(
         _database.calendarEntriesTable,
         tasks.map((item) => item.toCompanion()).toList(),
@@ -89,7 +82,7 @@ class AppRepository {
           title: 'Mochi 生日',
           dueAt: now.add(const Duration(days: 28)),
           createdAt: now.subtract(const Duration(days: 2)),
-          petId: pet.id,
+          petId: selectedPet.id,
           isPinned: true,
         ).toCompanion(),
         CountdownItem(
@@ -97,7 +90,7 @@ class AppRepository {
           title: '年度体检',
           dueAt: now.add(const Duration(days: 41)),
           createdAt: now,
-          petId: pet.id,
+          petId: selectedPet.id,
         ).toCompanion(),
       ]);
       batch.insertAll(
@@ -107,6 +100,43 @@ class AppRepository {
     });
     await savePreferences(const UserPreference.defaults());
     await _prefs.setBool('seeded', true);
+  }
+
+  Future<void> ensureDefaultPetRoster() async {
+    final pets = await (_database.select(
+      _database.petProfilesTable,
+    )..orderBy([(tbl) => OrderingTerm(expression: tbl.createdAt)])).get();
+    final existingBreeds = pets
+        .map((pet) => PetBreed.values.byName(pet.breed))
+        .toSet();
+    final hasSelected = pets.any((pet) => pet.isSelected);
+    final missingCompanions = defaultPetCompanions.where(
+      (companion) => !existingBreeds.contains(companion.breed),
+    );
+    if (missingCompanions.isEmpty && (hasSelected || pets.isEmpty)) {
+      return;
+    }
+
+    await _database.transaction(() async {
+      var insertedSelection = false;
+      for (final companion in missingCompanions) {
+        final profile = _buildPetProfile(
+          companion: companion,
+          createdAt: DateTime.now(),
+          isSelected: !hasSelected && !insertedSelection,
+        );
+        await _database
+            .into(_database.petProfilesTable)
+            .insertOnConflictUpdate(profile.toCompanion());
+        insertedSelection = insertedSelection || profile.isSelected;
+      }
+
+      if (!hasSelected && !insertedSelection && pets.isNotEmpty) {
+        await (_database.update(_database.petProfilesTable)
+              ..where((tbl) => tbl.id.equals(pets.first.id)))
+            .write(const PetProfilesTableCompanion(isSelected: Value(true)));
+      }
+    });
   }
 
   Stream<List<CalendarItem>> watchCalendarItems() {
@@ -376,24 +406,52 @@ class AppRepository {
 
   Future<void> completeOnboarding(PetBreed breed, String petName) async {
     final skin = defaultSkins[breed]!.first;
-    final pet = PetProfile(
-      id: _uuid.v4(),
-      name: petName,
-      breed: breed,
-      loyaltyPoints: 0,
-      selectedSkinId: skin.id,
-      unlockedSkinIds: [skin.id],
-      createdAt: DateTime.now(),
-      isSelected: true,
-    );
+    final existing =
+        await (_database.select(_database.petProfilesTable)
+              ..where((tbl) => tbl.breed.equals(breed.name))
+              ..orderBy([
+                (tbl) => OrderingTerm.desc(tbl.isSelected),
+                (tbl) => OrderingTerm.desc(tbl.createdAt),
+              ]))
+            .getSingleOrNull();
+    final now = DateTime.now();
     await _database.transaction(() async {
       await _database
           .update(_database.petProfilesTable)
           .write(const PetProfilesTableCompanion(isSelected: Value(false)));
-      await _database
-          .into(_database.petProfilesTable)
-          .insertOnConflictUpdate(pet.toCompanion());
+      if (existing == null) {
+        await _database
+            .into(_database.petProfilesTable)
+            .insertOnConflictUpdate(
+              PetProfile(
+                id: _uuid.v4(),
+                name: petName,
+                breed: breed,
+                loyaltyPoints: 0,
+                selectedSkinId: skin.id,
+                unlockedSkinIds: [skin.id],
+                createdAt: now,
+                isSelected: true,
+              ).toCompanion(),
+            );
+      } else {
+        await (_database.update(
+          _database.petProfilesTable,
+        )..where((tbl) => tbl.id.equals(existing.id))).write(
+          PetProfilesTableCompanion(
+            name: Value(petName),
+            selectedSkinId: Value(skin.id),
+            unlockedSkinIdsJson: Value(
+              encodeJsonList([
+                <String, dynamic>{'id': skin.id},
+              ]),
+            ),
+            isSelected: const Value(true),
+          ),
+        );
+      }
     });
+    await ensureDefaultPetRoster();
     final current = await loadPreferences();
     await savePreferences(current.copyWith(hasCompletedOnboarding: true));
   }
@@ -415,6 +473,35 @@ class AppRepository {
           ..where((tbl) => tbl.id.equals(petId)))
         .write(PetProfilesTableCompanion(selectedSkinId: Value(skinId)));
     _bus.fire(PetStateChangedEvent(petId));
+  }
+
+  List<PetProfile> _buildDefaultPetRoster(DateTime now) {
+    return [
+      for (var index = 0; index < defaultPetCompanions.length; index++)
+        _buildPetProfile(
+          companion: defaultPetCompanions[index],
+          createdAt: now.add(Duration(milliseconds: index)),
+          isSelected: index == 0,
+        ),
+    ];
+  }
+
+  PetProfile _buildPetProfile({
+    required DefaultPetCompanion companion,
+    required DateTime createdAt,
+    required bool isSelected,
+  }) {
+    final defaultSkin = defaultSkins[companion.breed]!.first;
+    return PetProfile(
+      id: _uuid.v4(),
+      name: companion.name,
+      breed: companion.breed,
+      loyaltyPoints: companion.loyaltyPoints,
+      selectedSkinId: defaultSkin.id,
+      unlockedSkinIds: [defaultSkin.id],
+      createdAt: createdAt,
+      isSelected: isSelected,
+    );
   }
 
   List<TaskTemplate> templates() => defaultTemplates;

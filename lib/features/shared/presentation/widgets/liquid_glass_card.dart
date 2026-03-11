@@ -1,3 +1,4 @@
+import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:flutter/material.dart';
 
 class LiquidGlassCard extends StatelessWidget {
@@ -21,7 +22,9 @@ class LiquidGlassCard extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    final borderRadius = BorderRadius.circular(radius);
+    final surfaceStyle = theme.extension<AppThemeSurfaceStyle>();
+    final resolvedRadius = surfaceStyle?.cardRadius ?? radius;
+    final borderRadius = BorderRadius.circular(resolvedRadius);
 
     final body = DecoratedBox(
       decoration: BoxDecoration(
@@ -31,22 +34,29 @@ class LiquidGlassCard extends StatelessWidget {
             LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                isDark ? const Color(0xFF213040) : const Color(0xFFFDFEFF),
-                isDark ? const Color(0xFF19232E) : const Color(0xFFF2F6FB),
-                scheme.primary.withValues(alpha: isDark ? 0.08 : 0.05),
-              ],
+              colors:
+                  surfaceStyle?.cardGradientColors ??
+                  [
+                    isDark ? const Color(0xFF213040) : const Color(0xFFFDFEFF),
+                    isDark ? const Color(0xFF19232E) : const Color(0xFFF2F6FB),
+                    scheme.primary.withValues(alpha: isDark ? 0.08 : 0.05),
+                  ],
             ),
         border: Border.all(
-          color: isDark
-              ? scheme.outline.withValues(alpha: 0.4)
-              : Colors.white.withValues(alpha: 0.88),
+          color:
+              surfaceStyle?.cardBorderColor ??
+              (isDark
+                  ? scheme.outline.withValues(alpha: 0.4)
+                  : Colors.white.withValues(alpha: 0.88)),
+          width: surfaceStyle?.cardBorderWidth ?? 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: isDark
-                ? Colors.black.withValues(alpha: 0.22)
-                : const Color(0xFFB8C8D9).withValues(alpha: 0.2),
+            color:
+                surfaceStyle?.cardShadowColor ??
+                (isDark
+                    ? Colors.black.withValues(alpha: 0.22)
+                    : const Color(0xFFB8C8D9).withValues(alpha: 0.2)),
             blurRadius: 18,
             offset: const Offset(8, 10),
           ),
@@ -84,7 +94,9 @@ class LiquidGlassCard extends StatelessWidget {
       child: InkWell(
         borderRadius: borderRadius,
         onTap: onTap,
-        splashColor: scheme.primary.withValues(alpha: 0.08),
+        splashColor:
+            surfaceStyle?.actionColor.withValues(alpha: 0.08) ??
+            scheme.tertiary.withValues(alpha: 0.08),
         highlightColor: Colors.transparent,
         child: body,
       ),

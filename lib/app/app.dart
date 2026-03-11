@@ -1,4 +1,5 @@
 import 'package:doggylog/app/router/app_router.dart';
+import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/app/theme/app_theme.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
@@ -72,12 +73,21 @@ class _DoggyLogAppState extends ConsumerState<DoggyLogApp>
       }
     });
     final state = ref.watch(appStateProvider);
+    final skinTheme = appSkinThemeForBreed(
+      state.selectedPet?.breed ?? PetBreed.shiba,
+    );
     return MaterialApp.router(
       title: 'DoggyLog',
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.system,
-      theme: AppTheme.light(fontScale: state.preferences.fontScale),
-      darkTheme: AppTheme.dark(fontScale: state.preferences.fontScale),
+      theme: AppTheme.light(
+        fontScale: state.preferences.fontScale,
+        skinTheme: skinTheme,
+      ),
+      darkTheme: AppTheme.dark(
+        fontScale: state.preferences.fontScale,
+        skinTheme: skinTheme,
+      ),
       routerConfig: router,
       builder: (context, child) {
         return Stack(
