@@ -22,6 +22,7 @@ struct SnapshotPet: Decodable {
   let mood: String
   let loyaltyLevel: Int
   let sceneMode: String
+  let skinTheme: String?
 }
 
 struct SnapshotCountdown: Decodable {
@@ -107,7 +108,8 @@ enum DoggyLogSharedSnapshotStore {
         breed: "shiba",
         mood: "excited",
         loyaltyLevel: 7,
-        sceneMode: "walking"
+        sceneMode: "walking",
+        skinTheme: "shibaJoy"
       ),
       countdown: SnapshotCountdown(
         title: widgetText("狗狗生日", "Pup birthday", "わんこの誕生日"),

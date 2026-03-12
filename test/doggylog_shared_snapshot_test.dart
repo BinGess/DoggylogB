@@ -90,6 +90,7 @@ void main() {
 
     expect(snapshot.pet.name, 'Mochi');
     expect(snapshot.pet.loyaltyLevel, 3);
+    expect(snapshot.pet.skinTheme, 'shibaJoy');
     expect(snapshot.today.pendingCount, 1);
     expect(snapshot.today.completedCount, 1);
     expect(snapshot.recentTasks.length, 2);

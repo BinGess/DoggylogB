@@ -220,6 +220,12 @@ void main() {
     },
   );
 
+  test('loadPreferences defaults font scale to medium', () async {
+    final loaded = await repository.loadPreferences();
+
+    expect(loaded.fontScale, 1.1);
+  });
+
   test(
     'loadPreferences ignores stale stored onboarding=false values',
     () async {

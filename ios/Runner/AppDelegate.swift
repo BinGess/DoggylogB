@@ -129,8 +129,30 @@ import ActivityKit
 }
 
 final class DoggylogSnapshotStore {
-  private let appGroupIdentifier = "group.com.timmy.doggylog"
-  private let snapshotFileName = "doggylog_widget_snapshot.json"
+  private let appGroupIdentifier: String
+  private let snapshotFileName: String
+  private let containerURLProvider: (String) -> URL?
+  private let reloadTimelines: () -> Void
+
+  init(
+    appGroupIdentifier: String = "group.com.timmy.doggylog",
+    snapshotFileName: String = "doggylog_widget_snapshot.json",
+    containerURLProvider: @escaping (String) -> URL? = {
+      FileManager.default.containerURL(
+        forSecurityApplicationGroupIdentifier: $0
+      )
+    },
+    reloadTimelines: @escaping () -> Void = {
+      if #available(iOS 14.0, *) {
+        WidgetCenter.shared.reloadAllTimelines()
+      }
+    }
+  ) {
+    self.appGroupIdentifier = appGroupIdentifier
+    self.snapshotFileName = snapshotFileName
+    self.containerURLProvider = containerURLProvider
+    self.reloadTimelines = reloadTimelines
+  }
 
   func publish(payloadJson: String) -> Bool {
     guard let data = payloadJson.data(using: .utf8) else {
@@ -142,22 +164,16 @@ final class DoggylogSnapshotStore {
       defaults.synchronize()
     }
 
-    // Always request a timeline reload so the widget reflects the latest data,
-    // even if the shared-file write fails (e.g. App Group not provisioned on
-    // this device/profile). UserDefaults written above is still accessible to
-    // AppDelegate itself; the widget extension reads from the file path below.
-    if #available(iOS 14.0, *) {
-      WidgetCenter.shared.reloadAllTimelines()
-    }
-
     do {
-      let url = try containerDirectory().appendingPathComponent(snapshotFileName)
+      let directory = try storageDirectory()
+      let url = directory.appendingPathComponent(snapshotFileName)
       try FileManager.default.createDirectory(
         at: url.deletingLastPathComponent(),
         withIntermediateDirectories: true,
         attributes: nil
       )
       try data.write(to: url, options: .atomic)
+      reloadTimelines()
       return true
     } catch {
       return false
@@ -169,15 +185,15 @@ final class DoggylogSnapshotStore {
        let snapshot = defaults.string(forKey: "doggylog.widget.snapshot") {
       return snapshot
     }
-    guard let url = try? containerDirectory().appendingPathComponent(snapshotFileName) else {
+    guard let url = try? storageDirectory().appendingPathComponent(snapshotFileName) else {
       return nil
     }
     return try? String(contentsOf: url, encoding: .utf8)
   }
 
-  private func containerDirectory() throws -> URL {
-    if let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier) {
-      return url
+  private func storageDirectory() throws -> URL {
+    if let sharedContainer = sharedContainerDirectory() {
+      return sharedContainer
     }
     let appSupport = try FileManager.default.url(
       for: .applicationSupportDirectory,
@@ -186,6 +202,10 @@ final class DoggylogSnapshotStore {
       create: true
     )
     return appSupport.appendingPathComponent("DoggyLogShared", isDirectory: true)
+  }
+
+  private func sharedContainerDirectory() -> URL? {
+    containerURLProvider(appGroupIdentifier)
   }
 }
 
@@ -209,7 +229,7 @@ final class DoggylogLiveActivityBridge {
         completion(false)
         return
       }
-      guard shouldPresent(snapshot) else {
+      guard DoggylogLiveActivityPresentation.shouldPresent(snapshot) else {
         end(completion: completion)
         return
       }
@@ -251,10 +271,7 @@ final class DoggylogLiveActivityBridge {
   }
 
   private func shouldPresent(_ snapshot: DoggylogActivitySnapshot) -> Bool {
-    snapshot.today.pendingCount > 0 ||
-      snapshot.today.nextTaskTitle != nil ||
-      snapshot.countdown != nil ||
-      !snapshot.recentTasks.isEmpty
+    DoggylogLiveActivityPresentation.shouldPresent(snapshot)
   }
 
   #if canImport(ActivityKit)
@@ -275,8 +292,16 @@ final class DoggylogLiveActivityBridge {
       countdownDaysRemaining: snapshot.countdown?.daysRemaining
     )
 
-    if let activity = currentActivity() {
+    let activities = Activity<DoggyLogLiveActivityAttributes>.activities
+    let selection = DoggylogLiveActivitySelection.resolve(
+      storedId: defaults.string(forKey: activityIdKey),
+      activityIds: activities.map(\.id)
+    )
+
+    if let primaryId = selection.primaryId,
+       let activity = activities.first(where: { $0.id == primaryId }) {
       await update(activity: activity, state: state)
+      await endDuplicateActivities(excluding: primaryId)
       return true
     }
 
@@ -300,6 +325,7 @@ final class DoggylogLiveActivityBridge {
         )
       }
       defaults.set(activity.id, forKey: activityIdKey)
+      await endDuplicateActivities(excluding: activity.id)
       return true
     } catch {
       return false
@@ -324,6 +350,29 @@ final class DoggylogLiveActivityBridge {
   }
 
   @available(iOS 16.1, *)
+  private func endDuplicateActivities(excluding primaryId: String) async {
+    let duplicates = Activity<DoggyLogLiveActivityAttributes>.activities.filter {
+      $0.id != primaryId
+    }
+    guard !duplicates.isEmpty else {
+      defaults.set(primaryId, forKey: activityIdKey)
+      return
+    }
+    for activity in duplicates {
+      if #available(iOS 16.2, *) {
+        let content = ActivityContent(
+          state: activity.content.state,
+          staleDate: Date()
+        )
+        await activity.end(content, dismissalPolicy: .immediate)
+      } else {
+        await activity.end(using: activity.contentState, dismissalPolicy: .immediate)
+      }
+    }
+    defaults.set(primaryId, forKey: activityIdKey)
+  }
+
+  @available(iOS 16.1, *)
   private func endCurrentActivities() async -> Bool {
     let activities = Activity<DoggyLogLiveActivityAttributes>.activities
     guard !activities.isEmpty else {
@@ -344,20 +393,32 @@ final class DoggylogLiveActivityBridge {
     defaults.removeObject(forKey: activityIdKey)
     return true
   }
-
-  @available(iOS 16.1, *)
-  private func currentActivity() -> Activity<DoggyLogLiveActivityAttributes>? {
-    if let storedId = defaults.string(forKey: activityIdKey),
-       let storedActivity = Activity<DoggyLogLiveActivityAttributes>.activities.first(where: { $0.id == storedId }) {
-      return storedActivity
-    }
-    if let existing = Activity<DoggyLogLiveActivityAttributes>.activities.first {
-      defaults.set(existing.id, forKey: activityIdKey)
-      return existing
-    }
-    return nil
-  }
   #endif
+}
+
+struct DoggylogLiveActivityPresentation {
+  static func shouldPresent(_ snapshot: DoggylogActivitySnapshot) -> Bool {
+    snapshot.countdown != nil
+  }
+}
+
+struct DoggylogLiveActivitySelection {
+  let primaryId: String?
+  let staleIds: [String]
+
+  static func resolve(
+    storedId: String?,
+    activityIds: [String]
+  ) -> DoggylogLiveActivitySelection {
+    guard !activityIds.isEmpty else {
+      return DoggylogLiveActivitySelection(primaryId: nil, staleIds: [])
+    }
+    let primaryId = activityIds.first(where: { $0 == storedId }) ?? activityIds.first
+    return DoggylogLiveActivitySelection(
+      primaryId: primaryId,
+      staleIds: activityIds.filter { $0 != primaryId }
+    )
+  }
 }
 
 struct DoggylogActivitySnapshot: Decodable {

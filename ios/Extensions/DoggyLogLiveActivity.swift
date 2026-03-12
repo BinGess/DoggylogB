@@ -30,92 +30,11 @@ struct DoggyLogLiveActivityAttributes: ActivityAttributes {
 struct DoggyLogLiveActivityWidget: Widget {
   var body: some WidgetConfiguration {
     ActivityConfiguration(for: DoggyLogLiveActivityAttributes.self) { context in
-      // 锁屏 / 灵动岛展开下方横幅 — 整体包裹在 VStack 中，modifier 作用于根视图
-      VStack(spacing: 0) {
-        HStack(spacing: 12) {
-          // 左侧：宠物信息
-          VStack(alignment: .leading, spacing: 3) {
-            HStack(spacing: 4) {
-              Image(systemName: "pawprint.fill")
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.8))
-              Text(context.state.petName)
-                .font(.headline)
-            }
-            Text("\(widgetMoodLabel(context.state.petMood)) · \(widgetSceneLabel(context.state.sceneMode))")
-              .font(.caption)
-              .foregroundStyle(.white.opacity(0.65))
-          }
-          Spacer()
-          // 右侧：任务计数
-          VStack(alignment: .trailing, spacing: 3) {
-            HStack(spacing: 4) {
-              Image(systemName: "checkmark.circle")
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.65))
-              Text("\(context.state.completedCount)")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.white.opacity(0.65))
-            }
-            HStack(spacing: 4) {
-              Image(systemName: "circle")
-                .font(.caption)
-              Text("\(context.state.pendingCount) \(widgetText("待办", "to do", "やること"))")
-                .font(.subheadline.weight(.semibold))
-            }
-          }
-        }
-        .padding(.horizontal, 16)
-        .padding(.top, 12)
-
-        // 分隔线
-        Divider().overlay(.white.opacity(0.15))
-          .padding(.horizontal, 16)
-
-        // 下方：下一任务 + 倒计时
-        HStack(alignment: .top, spacing: 0) {
-          if let nextTitle = context.state.nextTaskTitle {
-            VStack(alignment: .leading, spacing: 2) {
-              Text(widgetText("下一件", "Next up", "つぎ"))
-                .font(.caption2)
-                .foregroundStyle(.white.opacity(0.5))
-              Text(nextTitle)
-                .font(.caption.weight(.semibold))
-                .lineLimit(1)
-              if let nextTime = context.state.nextTaskTime {
-                Text(nextTime)
-                  .font(.caption2)
-                  .foregroundStyle(.white.opacity(0.65))
-              }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-          }
-          if let countdownTitle = context.state.countdownTitle,
-             let days = context.state.countdownDaysRemaining {
-            VStack(alignment: .trailing, spacing: 2) {
-              Text(widgetText("倒计时", "Countdown", "カウントダウン"))
-                .font(.caption2)
-                .foregroundStyle(.white.opacity(0.5))
-              Text(widgetDaysLeftLabel(days))
-                .font(.title3.weight(.bold))
-                .foregroundStyle(days <= 3 ? .orange : .white)
-              Text(countdownTitle)
-                .font(.caption2)
-                .lineLimit(1)
-                .foregroundStyle(.white.opacity(0.65))
-            }
-            .frame(maxWidth: .infinity, alignment: .trailing)
-          }
-        }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 12)
-        .padding(.top, 6)
-      }
-      .activityBackgroundTint(.black.opacity(0.92))
+      _LiveActivityLockScreenView(context: context)
+      .activityBackgroundTint(.clear)
       .activitySystemActionForegroundColor(.white)
     } dynamicIsland: { context in
       DynamicIsland {
-        // 展开 Leading：宠物名 + 心情
         DynamicIslandExpandedRegion(.leading) {
           HStack(spacing: 6) {
             Image(systemName: "pawprint.fill")
@@ -125,71 +44,33 @@ struct DoggyLogLiveActivityWidget: Widget {
               Text(context.state.petName)
                 .font(.callout.weight(.semibold))
                 .lineLimit(1)
-              Text(widgetMoodLabel(context.state.petMood))
+              Text(context.state.petBreed)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
             }
           }
         }
-        // 展开 Trailing：任务计数
         DynamicIslandExpandedRegion(.trailing) {
-          VStack(alignment: .trailing, spacing: 2) {
-            HStack(spacing: 3) {
-              Text("\(context.state.pendingCount)")
-                .font(.callout.weight(.bold))
-              Image(systemName: "circle")
+          if let days = context.state.countdownDaysRemaining {
+            VStack(alignment: .trailing, spacing: 2) {
+              Text(widgetText("倒计时", "Countdown", "カウントダウン"))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
+              Text("\(max(0, days))")
+                .font(.title3.weight(.bold))
+                .foregroundStyle(days <= 3 ? .orange : .white)
             }
-            HStack(spacing: 3) {
-              Text("\(context.state.completedCount)")
-                .font(.caption2)
-              Image(systemName: "checkmark.circle.fill")
-                .font(.caption2)
-                .foregroundStyle(.green.opacity(0.8))
-            }
+          } else {
+            _LiveActivityCountSummary(
+              pendingCount: context.state.pendingCount,
+              completedCount: context.state.completedCount
+            )
           }
         }
-        // 展开 Bottom：下一任务 + 倒计时 + 完成按钮
         DynamicIslandExpandedRegion(.bottom) {
-          HStack(alignment: .top) {
-            // 下一任务
-            if let nextTitle = context.state.nextTaskTitle {
-              VStack(alignment: .leading, spacing: 2) {
-                Text(widgetText("下一件", "Next up", "つぎ"))
-                  .font(.caption2)
-                  .foregroundStyle(.secondary)
-                Text(nextTitle)
-                  .font(.caption.weight(.semibold))
-                  .lineLimit(1)
-                if let nextTime = context.state.nextTaskTime {
-                  Text(nextTime)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                }
-              }
+          HStack(alignment: .bottom, spacing: 12) {
+            _LiveActivityIslandCountdown(context: context)
               .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            // 倒计时
-            if let countdownTitle = context.state.countdownTitle,
-               let days = context.state.countdownDaysRemaining {
-              VStack(alignment: .trailing, spacing: 2) {
-                Text(countdownTitle)
-                  .font(.caption2)
-                  .foregroundStyle(.secondary)
-                  .lineLimit(1)
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
-                  Text("\(days)")
-                    .font(.title3.weight(.bold))
-                    .foregroundStyle(days <= 3 ? .orange : .white)
-                  Text(widgetText("天", "d", "日"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                }
-              }
-              .frame(maxWidth: .infinity, alignment: .trailing)
-            }
-            // 完成按钮（iOS 17.0+，有待完成任务时显示）
             if #available(iOSApplicationExtension 17.0, *),
                let taskId = context.state.nextTaskId, !taskId.isEmpty {
               Button(
@@ -204,7 +85,6 @@ struct DoggyLogLiveActivityWidget: Widget {
           }
         }
       } compactLeading: {
-        // 宠物名（最多5字）+ 爪印图标
         HStack(spacing: 3) {
           Image(systemName: "pawprint.fill")
             .font(.caption2)
@@ -215,10 +95,9 @@ struct DoggyLogLiveActivityWidget: Widget {
             .frame(maxWidth: 52)
         }
       } compactTrailing: {
-        // 有倒计时且紧急时显示天数，否则显示待办数
-        if let days = context.state.countdownDaysRemaining, days <= 7 {
+        if let days = context.state.countdownDaysRemaining {
           HStack(spacing: 2) {
-            Text(widgetDaysLeftLabel(days))
+            Text(widgetDaysLeftLabel(max(0, days)))
               .font(.caption.weight(.bold))
               .foregroundStyle(days <= 3 ? .orange : .white)
           }
@@ -232,11 +111,10 @@ struct DoggyLogLiveActivityWidget: Widget {
           }
         }
       } minimal: {
-        // 有紧急倒计时时显示天数徽章，否则显示爪印
-        if let days = context.state.countdownDaysRemaining, days <= 3 {
-          Text("\(days)")
+        if let days = context.state.countdownDaysRemaining {
+          Text("\(max(0, days))")
             .font(.caption2.weight(.bold))
-            .foregroundStyle(.orange)
+            .foregroundStyle(days <= 3 ? .orange : .white)
         } else if context.state.pendingCount > 0 {
           ZStack {
             Image(systemName: "pawprint.fill")
@@ -251,6 +129,167 @@ struct DoggyLogLiveActivityWidget: Widget {
         }
       }
     }
+  }
+}
+
+@available(iOSApplicationExtension 16.1, *)
+private struct _LiveActivityLockScreenView: View {
+  let context: ActivityViewContext<DoggyLogLiveActivityAttributes>
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 20) {
+      HStack(alignment: .center, spacing: 12) {
+        HStack(spacing: 6) {
+          Image(systemName: "pawprint.fill")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.white.opacity(0.86))
+          Text(context.state.petName)
+            .font(.headline.weight(.semibold))
+            .foregroundStyle(.white)
+        }
+        Spacer(minLength: 12)
+
+        _LiveActivityCountSummary(
+          pendingCount: context.state.pendingCount,
+          completedCount: context.state.completedCount
+        )
+      }
+
+      if let countdownTitle = context.state.countdownTitle,
+         let days = context.state.countdownDaysRemaining {
+        HStack(alignment: .top, spacing: 18) {
+          VStack(alignment: .leading, spacing: 12) {
+            Text(widgetText("只保留一个提醒焦点", "One reminder in focus", "ひとつの予定だけに集中"))
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.72))
+            Text(countdownTitle)
+              .font(.title2.weight(.semibold))
+              .foregroundStyle(.white)
+              .lineLimit(2)
+              .layoutPriority(1)
+              .fixedSize(horizontal: false, vertical: true)
+            Text(widgetText("倒计时会持续停留在锁屏中央。", "This countdown stays centered on your lock screen.", "このカウントダウンをロック画面の中心に残します。"))
+              .font(.caption.weight(.medium))
+              .foregroundStyle(.white.opacity(0.58))
+              .lineLimit(2)
+              .fixedSize(horizontal: false, vertical: true)
+          }
+
+          Spacer(minLength: 8)
+
+          VStack(alignment: .trailing, spacing: 10) {
+            Text("\(max(0, days))")
+              .font(.system(size: 54, weight: .bold, design: .rounded))
+              .foregroundStyle(days <= 3 ? .orange : .white)
+            Text(widgetText("天", "days", "日"))
+              .font(.subheadline.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.78))
+            Text(widgetText("倒计时", "Countdown", "カウントダウン"))
+              .font(.caption2.weight(.medium))
+              .foregroundStyle(.white.opacity(0.54))
+              .padding(.horizontal, 10)
+              .padding(.vertical, 6)
+              .background(
+                Capsule(style: .continuous)
+                  .fill(.white.opacity(0.08))
+              )
+              .multilineTextAlignment(.trailing)
+          }
+        }
+      }
+    }
+    .frame(maxWidth: .infinity, minHeight: 148, alignment: .topLeading)
+    .padding(.horizontal, 20)
+    .padding(.vertical, 18)
+    .background {
+      ZStack {
+        RoundedRectangle(cornerRadius: 28, style: .continuous)
+          .fill(
+            LinearGradient(
+              colors: [
+                Color(red: 0.17, green: 0.10, blue: 0.14),
+                Color(red: 0.28, green: 0.16, blue: 0.12),
+                Color(red: 0.40, green: 0.22, blue: 0.14)
+              ],
+              startPoint: .topLeading,
+              endPoint: .bottomTrailing
+            )
+          )
+        RoundedRectangle(cornerRadius: 28, style: .continuous)
+          .fill(.white.opacity(0.06))
+        RoundedRectangle(cornerRadius: 28, style: .continuous)
+          .strokeBorder(.white.opacity(0.14), lineWidth: 1)
+      }
+    }
+  }
+}
+
+@available(iOSApplicationExtension 16.1, *)
+private struct _LiveActivityIslandCountdown: View {
+  let context: ActivityViewContext<DoggyLogLiveActivityAttributes>
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 6) {
+      if let countdownTitle = context.state.countdownTitle,
+         let days = context.state.countdownDaysRemaining {
+        Text(widgetText("只保留一个提醒焦点", "One reminder in focus", "ひとつの予定だけに集中"))
+          .font(.caption2)
+          .foregroundStyle(.secondary)
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+          Text("\(max(0, days))")
+            .font(.title3.weight(.bold))
+            .foregroundStyle(days <= 3 ? .orange : .white)
+          Text(widgetText("天", "days", "日"))
+            .font(.caption2.weight(.medium))
+            .foregroundStyle(.secondary)
+        }
+        Text(countdownTitle)
+          .font(.caption.weight(.semibold))
+          .lineLimit(1)
+      }
+    }
+  }
+}
+
+private struct _LiveActivityCountSummary: View {
+  let pendingCount: Int
+  let completedCount: Int
+
+  var body: some View {
+    HStack(spacing: 8) {
+      _LiveActivityCountPill(
+        icon: "circle",
+        value: pendingCount,
+        tint: .white.opacity(0.92)
+      )
+      _LiveActivityCountPill(
+        icon: "checkmark.circle.fill",
+        value: completedCount,
+        tint: .green.opacity(0.92)
+      )
+    }
+  }
+}
+
+private struct _LiveActivityCountPill: View {
+  let icon: String
+  let value: Int
+  let tint: Color
+
+  var body: some View {
+    HStack(spacing: 5) {
+      Image(systemName: icon)
+        .font(.caption2.weight(.semibold))
+      Text("\(value)")
+        .font(.caption.weight(.semibold))
+    }
+    .foregroundColor(tint)
+    .padding(.horizontal, 10)
+    .padding(.vertical, 6)
+    .background(
+      Capsule(style: .continuous)
+        .fill(.white.opacity(0.08))
+    )
   }
 }
 #endif

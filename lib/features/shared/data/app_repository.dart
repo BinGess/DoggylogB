@@ -194,7 +194,7 @@ class AppRepository {
     return UserPreference(
       hasCompletedOnboarding: true,
       weekStartsOnMonday: values['weekStartsOnMonday'] == 'true',
-      fontScale: double.tryParse(values['fontScale'] ?? '1') ?? 1,
+      fontScale: double.tryParse(values['fontScale'] ?? '1.1') ?? 1.1,
       hapticsEnabled: values['hapticsEnabled'] != 'false',
       animationSpeed: double.tryParse(values['animationSpeed'] ?? '1') ?? 1,
       performanceTier: PerformanceTier.values.firstWhere(

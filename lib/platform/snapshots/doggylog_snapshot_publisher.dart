@@ -19,12 +19,7 @@ class DoggylogSnapshotPublisher {
     final snapshot = DoggylogSharedSnapshot.fromAppState(state, mood: mood);
     final payload = jsonEncode(snapshot.toJson());
     await _platform.publishWidgetSnapshot(payload);
-    final hasLiveActivityContent =
-        snapshot.today.pendingCount > 0 ||
-        snapshot.today.nextTaskTitle != null ||
-        snapshot.countdown != null ||
-        snapshot.recentTasks.isNotEmpty;
-    if (hasLiveActivityContent) {
+    if (snapshot.countdown != null) {
       await _platform.updateDynamicIsland(payload);
     } else {
       await _platform.endDynamicIsland();

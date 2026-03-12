@@ -353,6 +353,22 @@ void main() {
     expect(title.style?.fontSize, theme.textTheme.headlineMedium?.fontSize);
   });
 
+  testWidgets('SettingsScreen defaults font size selection to medium', (
+    tester,
+  ) async {
+    await pumpSettingsScreen(tester);
+
+    final mediumChip = tester.widget<ChoiceChip>(
+      find.widgetWithText(ChoiceChip, '中'),
+    );
+    final smallChip = tester.widget<ChoiceChip>(
+      find.widgetWithText(ChoiceChip, '小'),
+    );
+
+    expect(mediumChip.selected, isTrue);
+    expect(smallChip.selected, isFalse);
+  });
+
   testWidgets('CountdownTile supports swipe actions and tap details', (
     tester,
   ) async {

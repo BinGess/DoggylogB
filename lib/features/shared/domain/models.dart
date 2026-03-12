@@ -363,7 +363,7 @@ class UserPreference {
   const UserPreference.defaults()
     : hasCompletedOnboarding = true,
       weekStartsOnMonday = false,
-      fontScale = 1,
+      fontScale = 1.1,
       hapticsEnabled = true,
       animationSpeed = 1,
       performanceTier = PerformanceTier.balanced,

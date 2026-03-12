@@ -1,4 +1,5 @@
 import 'package:doggylog/app/localization/app_localizations.dart';
+import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:intl/intl.dart';
 
@@ -60,6 +61,9 @@ class DoggylogSharedSnapshot {
         }
         return a.dueAt.compareTo(b.dueAt);
       });
+    final skinTheme = appSkinThemeForBreed(
+      state.selectedPet?.breed ?? PetBreed.shiba,
+    );
 
     return DoggylogSharedSnapshot(
       generatedAt: generatedAt,
@@ -80,6 +84,7 @@ class DoggylogSharedSnapshot {
         mood: mood.name,
         loyaltyLevel: state.selectedPet?.loyaltyLevel ?? 1,
         sceneMode: state.activeScene.name,
+        skinTheme: skinTheme.name,
       ),
       countdown: pinnedCountdown.isEmpty
           ? null
@@ -174,6 +179,7 @@ class SnapshotPet {
     required this.mood,
     required this.loyaltyLevel,
     required this.sceneMode,
+    required this.skinTheme,
   });
 
   final String name;
@@ -181,6 +187,7 @@ class SnapshotPet {
   final String mood;
   final int loyaltyLevel;
   final String sceneMode;
+  final String skinTheme;
 
   Map<String, dynamic> toJson() => {
     'name': name,
@@ -188,6 +195,7 @@ class SnapshotPet {
     'mood': mood,
     'loyaltyLevel': loyaltyLevel,
     'sceneMode': sceneMode,
+    'skinTheme': skinTheme,
   };
 }
 

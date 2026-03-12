@@ -1,15 +1,258 @@
 import SwiftUI
 import WidgetKit
-
-// MARK: - Shared colour palette (mirrors Flutter app theme)
+#if os(macOS)
+import AppKit
+#endif
 
 extension Color {
-  static let doggyTeal       = Color(red: 0.184, green: 0.561, blue: 0.541) // #2F8F8A
-  static let doggyTealLight  = Color(red: 0.447, green: 0.788, blue: 0.757) // #72C9C1
-  static let doggyBg         = Color(red: 0.965, green: 0.976, blue: 0.988) // #F6F9FC
-  static let doggyWarmCard   = Color(red: 0.975, green: 0.971, blue: 0.957)
-  static let doggyWarmTint   = Color(red: 0.84, green: 0.68, blue: 0.58)
-  static let doggyInk        = Color(red: 0.11, green: 0.10, blue: 0.10)
+  init(hex: UInt32, opacity: Double = 1.0) {
+    self.init(
+      .sRGB,
+      red: Double((hex >> 16) & 0xFF) / 255.0,
+      green: Double((hex >> 8) & 0xFF) / 255.0,
+      blue: Double(hex & 0xFF) / 255.0,
+      opacity: opacity
+    )
+  }
+}
+
+struct DoggyWidgetPalette {
+  let cardColors: [Color]
+  let cardBorder: Color
+  let textPrimary: Color
+  let textSecondary: Color
+  let accentPrimary: Color
+  let accentSecondary: Color
+  let focusFill: Color
+  let quietSymbol: Color
+  let borderWidth: CGFloat
+}
+
+enum DoggyWidgetSkinTheme: String {
+  case shibaJoy
+  case goldenBloom
+  case beagleBreeze
+  case huskyFrost
+  case samoyedSpa
+
+  static func resolve(from snapshot: DoggyLogSharedSnapshot?) -> DoggyWidgetSkinTheme {
+    DoggyWidgetSkinTheme(rawValue: snapshot?.pet.skinTheme ?? "") ?? .shibaJoy
+  }
+
+  var dogImageName: String {
+    switch self {
+    case .shibaJoy, .goldenBloom:
+      return "calendar_dog_timeline"
+    case .beagleBreeze:
+      return "calendar_dog1_timeline"
+    case .huskyFrost:
+      return "calendar_dog2_timeline"
+    case .samoyedSpa:
+      return "calendar_dog3_timeline"
+    }
+  }
+
+  var companionScale: CGFloat {
+    switch self {
+    case .shibaJoy, .goldenBloom:
+      return 1.0
+    case .beagleBreeze:
+      return 1.06
+    case .huskyFrost:
+      return 0.94
+    case .samoyedSpa:
+      return 0.92
+    }
+  }
+
+  var companionYOffset: CGFloat {
+    switch self {
+    case .shibaJoy, .goldenBloom:
+      return 0
+    case .beagleBreeze:
+      return -1
+    case .huskyFrost:
+      return 1
+    case .samoyedSpa:
+      return -2
+    }
+  }
+
+  func palette(for colorScheme: ColorScheme) -> DoggyWidgetPalette {
+    switch (self, colorScheme) {
+    case (.shibaJoy, .light):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0xFFFFFE), Color(hex: 0xFFFBF4F1), Color(hex: 0xFFFFF0EC)],
+        cardBorder: Color(hex: 0xF9CCA9),
+        textPrimary: Color(hex: 0x3D1010),
+        textSecondary: Color(hex: 0xC04040),
+        accentPrimary: Color(hex: 0xF05D56),
+        accentSecondary: Color(hex: 0x3DBA89),
+        focusFill: Color(hex: 0xF05D56, opacity: 0.16),
+        quietSymbol: Color(hex: 0x3D1010, opacity: 0.08),
+        borderWidth: 1.2
+      )
+    case (.shibaJoy, .dark):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0x2F1818), Color(hex: 0x251010), Color(hex: 0x3A2020)],
+        cardBorder: Color(hex: 0x703020),
+        textPrimary: Color(hex: 0xFFE8E7),
+        textSecondary: Color(hex: 0xF0A5A0),
+        accentPrimary: Color(hex: 0xFF8A85),
+        accentSecondary: Color(hex: 0x5FDDAA),
+        focusFill: Color(hex: 0xFF8A85, opacity: 0.22),
+        quietSymbol: Color(hex: 0xFFE8E7, opacity: 0.10),
+        borderWidth: 1.2
+      )
+    case (.goldenBloom, .light):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0xFFFEFF), Color(hex: 0xFFF4F8FF), Color(hex: 0xFFEAF2FF)],
+        cardBorder: Color(hex: 0xC0D5FF),
+        textPrimary: Color(hex: 0x0F1B3D),
+        textSecondary: Color(hex: 0x3366BB),
+        accentPrimary: Color(hex: 0x0066FF),
+        accentSecondary: Color(hex: 0x0EA5E9),
+        focusFill: Color(hex: 0x0066FF, opacity: 0.12),
+        quietSymbol: Color(hex: 0x0F1B3D, opacity: 0.08),
+        borderWidth: 1.0
+      )
+    case (.goldenBloom, .dark):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0x0F1F35), Color(hex: 0x0C1A2D), Color(hex: 0x142540)],
+        cardBorder: Color(hex: 0x1E3050),
+        textPrimary: Color(hex: 0xE2EDFF),
+        textSecondary: Color(hex: 0x90C0F8),
+        accentPrimary: Color(hex: 0x60A5FA),
+        accentSecondary: Color(hex: 0x2DD4BF),
+        focusFill: Color(hex: 0x60A5FA, opacity: 0.20),
+        quietSymbol: Color(hex: 0xE2EDFF, opacity: 0.10),
+        borderWidth: 1.0
+      )
+    case (.beagleBreeze, .light):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0xFFFFFFFF), Color(hex: 0xFFF7F4FF), Color(hex: 0xFFF2F3FA)],
+        cardBorder: Color(hex: 0xE0E0F0),
+        textPrimary: Color(hex: 0x111827),
+        textSecondary: Color(hex: 0x4B50D0),
+        accentPrimary: Color(hex: 0x6366F1),
+        accentSecondary: Color(hex: 0x059669),
+        focusFill: Color(hex: 0x6366F1, opacity: 0.12),
+        quietSymbol: Color(hex: 0x111827, opacity: 0.08),
+        borderWidth: 1.0
+      )
+    case (.beagleBreeze, .dark):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0x181828), Color(hex: 0x14142A), Color(hex: 0x1E1E32)],
+        cardBorder: Color(hex: 0x2A2A3A),
+        textPrimary: Color(hex: 0xF9FAFB),
+        textSecondary: Color(hex: 0x9BA5F8),
+        accentPrimary: Color(hex: 0x818CF8),
+        accentSecondary: Color(hex: 0x34D399),
+        focusFill: Color(hex: 0x818CF8, opacity: 0.20),
+        quietSymbol: Color(hex: 0xF9FAFB, opacity: 0.10),
+        borderWidth: 1.0
+      )
+    case (.huskyFrost, .light):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0xFFFCFEFF), Color(hex: 0xFFEFF4F8), Color(hex: 0xFFE7EEF6)],
+        cardBorder: Color(hex: 0xB8D0E8),
+        textPrimary: Color(hex: 0x1A3651),
+        textSecondary: Color(hex: 0x356890),
+        accentPrimary: Color(hex: 0x4A90D9),
+        accentSecondary: Color(hex: 0x4E9E7E),
+        focusFill: Color(hex: 0x4A90D9, opacity: 0.14),
+        quietSymbol: Color(hex: 0x1A3651, opacity: 0.08),
+        borderWidth: 1.0
+      )
+    case (.huskyFrost, .dark):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0x1E2E3E), Color(hex: 0x182838), Color(hex: 0x243240)],
+        cardBorder: Color(hex: 0x243850),
+        textPrimary: Color(hex: 0xD0E8F5),
+        textSecondary: Color(hex: 0x88C0E0),
+        accentPrimary: Color(hex: 0x7BB8E8),
+        accentSecondary: Color(hex: 0x6EC8A0),
+        focusFill: Color(hex: 0x7BB8E8, opacity: 0.20),
+        quietSymbol: Color(hex: 0xD0E8F5, opacity: 0.10),
+        borderWidth: 1.0
+      )
+    case (.samoyedSpa, .light):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0xFFFFFFFF), Color(hex: 0xFFFEF5F8), Color(hex: 0xFFFCEEF4)],
+        cardBorder: Color(hex: 0xF0C0CC),
+        textPrimary: Color(hex: 0x5C1832),
+        textSecondary: Color(hex: 0xAA4060),
+        accentPrimary: Color(hex: 0xC96480),
+        accentSecondary: Color(hex: 0x9B7BBF),
+        focusFill: Color(hex: 0xC96480, opacity: 0.14),
+        quietSymbol: Color(hex: 0x5C1832, opacity: 0.08),
+        borderWidth: 1.0
+      )
+    case (.samoyedSpa, .dark):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0x2F1820), Color(hex: 0x261219), Color(hex: 0x381F2A)],
+        cardBorder: Color(hex: 0x5A2535),
+        textPrimary: Color(hex: 0xFFE0E8),
+        textSecondary: Color(hex: 0xECA0B5),
+        accentPrimary: Color(hex: 0xF0A0B4),
+        accentSecondary: Color(hex: 0xC4A8E8),
+        focusFill: Color(hex: 0xF0A0B4, opacity: 0.22),
+        quietSymbol: Color(hex: 0xFFE0E8, opacity: 0.10),
+        borderWidth: 1.0
+      )
+    @unknown default:
+      return DoggyWidgetSkinTheme.shibaJoy.palette(for: .light)
+    }
+  }
+}
+
+struct DoggyWidgetTheme {
+  let palette: DoggyWidgetPalette
+  let dogImageName: String
+  let companionScale: CGFloat
+  let companionYOffset: CGFloat
+
+  static func resolve(
+    snapshot: DoggyLogSharedSnapshot?,
+    colorScheme: ColorScheme
+  ) -> DoggyWidgetTheme {
+    let skinTheme = DoggyWidgetSkinTheme.resolve(from: snapshot)
+    return DoggyWidgetTheme(
+      palette: skinTheme.palette(for: colorScheme),
+      dogImageName: skinTheme.dogImageName,
+      companionScale: skinTheme.companionScale,
+      companionYOffset: skinTheme.companionYOffset
+    )
+  }
+}
+
+enum DoggyWidgetTypography {
+  static func font(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+    .system(size: size, weight: weight)
+  }
+}
+
+struct DoggyWidgetCardBackground: View {
+  let theme: DoggyWidgetTheme
+  let cornerRadius: CGFloat
+
+  var body: some View {
+    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+      .fill(
+        LinearGradient(
+          colors: theme.palette.cardColors,
+          startPoint: .topLeading,
+          endPoint: .bottomTrailing
+        )
+      )
+      .overlay(
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+          .stroke(
+            theme.palette.cardBorder.opacity(0.72),
+            lineWidth: theme.palette.borderWidth
+          )
+      )
+  }
 }
 
 extension View {
@@ -27,20 +270,12 @@ extension View {
   }
 }
 
-// MARK: - Shared timeline provider (reads the same shared snapshot)
-
 struct DoggyLogCalendarProvider: TimelineProvider {
   func placeholder(in context: Context) -> DoggyLogEntry {
-    // Return immediately; placeholder is always shown fully redacted by WidgetKit
-    // so actual data is irrelevant — and calling load() here can cause I/O delays.
     DoggyLogEntry(date: Date(), snapshot: nil)
   }
 
   func getSnapshot(in context: Context, completion: @escaping (DoggyLogEntry) -> Void) {
-    // Always prefer real data; fall back to preview sample so the widget gallery
-    // never gets stuck showing the grey redacted placeholder (which happens when
-    // both load() and preview() return nil, or when context.isPreview is
-    // unexpectedly false on some iOS versions).
     let snapshot = DoggyLogSharedSnapshotStore.load()
       ?? DoggyLogSharedSnapshotStore.preview()
     completion(DoggyLogEntry(date: Date(), snapshot: snapshot))
@@ -57,8 +292,6 @@ struct DoggyLogCalendarProvider: TimelineProvider {
   }
 }
 
-// MARK: - Large Calendar Widget
-
 struct DoggyLogLargeCalendarWidget: Widget {
   let kind = "DoggyLogLargeCalendarWidget"
 
@@ -71,8 +304,6 @@ struct DoggyLogLargeCalendarWidget: Widget {
     .supportedFamilies([.systemLarge])
   }
 }
-
-// MARK: - Medium Calendar Widget
 
 struct DoggyLogMediumCalendarWidget: Widget {
   let kind = "DoggyLogMediumCalendarWidget"
@@ -87,10 +318,10 @@ struct DoggyLogMediumCalendarWidget: Widget {
   }
 }
 
-// MARK: - Large Calendar View
-
 struct DoggyLogLargeCalendarView: View {
   let entry: DoggyLogEntry
+
+  @Environment(\.colorScheme) private var colorScheme
 
   private let weekdayLabels = [
     widgetText("日", "S", "日"),
@@ -105,6 +336,7 @@ struct DoggyLogLargeCalendarView: View {
 
   var body: some View {
     let snapshot = entry.snapshot
+    let theme = DoggyWidgetTheme.resolve(snapshot: snapshot, colorScheme: colorScheme)
     let monthLabel = _timelineMonthLabel(for: entry.date)
     let petName = snapshot?.pet.name ?? "DoggyLog"
     let days = snapshot?.calendarDays ?? _placeholderDays(for: entry.date)
@@ -113,16 +345,16 @@ struct DoggyLogLargeCalendarView: View {
     VStack(alignment: .leading, spacing: 0) {
       HStack(alignment: .top) {
         Text(monthLabel)
-          .font(.system(size: 26, weight: .regular, design: .rounded))
-          .foregroundColor(.doggyInk)
+          .font(DoggyWidgetTypography.font(size: 26, weight: .regular))
+          .foregroundColor(theme.palette.textPrimary)
         Spacer()
         VStack(alignment: .trailing, spacing: 3) {
           Text(petName)
-            .font(.system(size: 11, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyInk.opacity(0.52))
+            .font(DoggyWidgetTypography.font(size: 11, weight: .medium))
+            .foregroundColor(theme.palette.textSecondary.opacity(0.82))
           Text(widgetText("陪你过今天", "A little sidekick for today", "今日はそっと付き添います"))
-            .font(.system(size: 10, weight: .regular, design: .rounded))
-            .foregroundColor(.doggyWarmTint.opacity(0.90))
+            .font(DoggyWidgetTypography.font(size: 10, weight: .regular))
+            .foregroundColor(theme.palette.accentPrimary.opacity(0.88))
         }
       }
       .padding(.horizontal, 18)
@@ -132,8 +364,8 @@ struct DoggyLogLargeCalendarView: View {
       HStack(spacing: 0) {
         ForEach(weekdayLabels, id: \.self) { label in
           Text(label)
-            .font(.system(size: 11, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyInk.opacity(0.80))
+            .font(DoggyWidgetTypography.font(size: 11, weight: .medium))
+            .foregroundColor(theme.palette.textSecondary.opacity(0.9))
             .frame(maxWidth: .infinity)
         }
       }
@@ -145,7 +377,8 @@ struct DoggyLogLargeCalendarView: View {
           _LargeCalendarDayCell(
             day: day,
             isFocus: idx == focusIndex,
-            showPetOnToday: true
+            showPetOnToday: true,
+            theme: theme
           )
         }
       }
@@ -156,8 +389,8 @@ struct DoggyLogLargeCalendarView: View {
       HStack(alignment: .bottom, spacing: 0) {
         VStack(alignment: .leading, spacing: 6) {
           Text(widgetText("本月节奏", "This month's rhythm", "今月のリズム"))
-            .font(.system(size: 10, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyInk.opacity(0.46))
+            .font(DoggyWidgetTypography.font(size: 10, weight: .medium))
+            .foregroundColor(theme.palette.textSecondary.opacity(0.76))
 
           HStack(spacing: 6) {
             ForEach(0..<6, id: \.self) { index in
@@ -165,8 +398,8 @@ struct DoggyLogLargeCalendarView: View {
                 .font(.system(size: 13, weight: .regular))
                 .foregroundColor(
                   index == 2
-                    ? .doggyWarmTint.opacity(0.40)
-                    : .doggyInk.opacity(0.08)
+                    ? theme.palette.accentPrimary.opacity(0.32)
+                    : theme.palette.quietSymbol
                 )
             }
           }
@@ -174,24 +407,23 @@ struct DoggyLogLargeCalendarView: View {
 
         Spacer()
 
-        _DogCompanionView()
+        _DogCompanionView(theme: theme)
           .frame(width: 76, height: 76)
       }
       .padding(.horizontal, 18)
       .padding(.bottom, 14)
     }
     .doggyWidgetBackground {
-      RoundedRectangle(cornerRadius: 30, style: .continuous)
-        .fill(Color.doggyWarmCard)
+      DoggyWidgetCardBackground(theme: theme, cornerRadius: 30)
     }
     .widgetURL(URL(string: "doggylog://tab/calendar"))
   }
 }
 
-// MARK: - Medium Calendar View
-
 struct DoggyLogMediumCalendarView: View {
   let entry: DoggyLogEntry
+
+  @Environment(\.colorScheme) private var colorScheme
 
   private let weekdayLabels = [
     widgetText("日", "S", "日"),
@@ -205,6 +437,7 @@ struct DoggyLogMediumCalendarView: View {
 
   var body: some View {
     let snapshot = entry.snapshot
+    let theme = DoggyWidgetTheme.resolve(snapshot: snapshot, colorScheme: colorScheme)
     let monthLabel = _timelineMonthLabel(for: entry.date)
     let allDays = snapshot?.calendarDays ?? _placeholderDays(for: entry.date)
     let weekDays = _currentWeekDays(from: allDays, now: entry.date)
@@ -213,64 +446,98 @@ struct DoggyLogMediumCalendarView: View {
     VStack(alignment: .leading, spacing: 0) {
       HStack(alignment: .center) {
         Text(monthLabel)
-          .font(.system(size: 22, weight: .regular, design: .rounded))
-          .foregroundColor(.doggyInk)
+          .font(DoggyWidgetTypography.font(size: 24, weight: .medium))
+          .foregroundColor(theme.palette.textPrimary)
         Spacer()
       }
-      .padding(.horizontal, 18)
-      .padding(.top, 14)
-      .padding(.bottom, 12)
+      .padding(.horizontal, 10)
+      .padding(.top, 13)
+      .padding(.bottom, 11)
 
       HStack(spacing: 0) {
         ForEach(weekdayLabels, id: \.self) { label in
           Text(label)
-            .font(.system(size: 11, weight: .medium, design: .rounded))
-            .foregroundColor(.doggyInk.opacity(0.88))
+            .font(DoggyWidgetTypography.font(size: 10, weight: .medium))
+            .foregroundColor(theme.palette.textSecondary.opacity(0.95))
             .frame(maxWidth: .infinity)
         }
       }
-      .padding(.horizontal, 18)
+      .padding(.horizontal, 10)
       .padding(.bottom, 8)
 
       HStack(spacing: 0) {
         ForEach(Array(weekDays.enumerated()), id: \.offset) { index, day in
-          VStack(spacing: 0) {
+          VStack(spacing: 4) {
             Text(day.isInMonth ? "\(day.day)" : "")
-              .font(.system(size: 15, weight: index == focusIndex ? .semibold : .regular, design: .rounded))
+              .font(DoggyWidgetTypography.font(size: 17, weight: index == focusIndex ? .medium : .regular))
               .foregroundColor(
                 index == focusIndex
-                  ? .doggyInk
+                  ? theme.palette.textPrimary
                   : day.isInMonth
-                    ? .doggyInk.opacity(0.55)
-                    : .doggyInk.opacity(0.18)
+                    ? theme.palette.textSecondary.opacity(0.72)
+                    : theme.palette.textPrimary.opacity(0.18)
               )
-              .frame(height: 22)
+              .frame(width: 30, height: 24)
+              .background(
+                RoundedRectangle(cornerRadius: 11, style: .continuous)
+                  .fill(
+                    index == focusIndex
+                      ? theme.palette.focusFill.opacity(0.9)
+                      : Color.clear
+                  )
+              )
+
+            Circle()
+              .fill(
+                day.taskCount > 0
+                  ? (index == focusIndex
+                    ? theme.palette.accentPrimary.opacity(0.72)
+                    : theme.palette.accentSecondary.opacity(0.8))
+                  : Color.clear
+              )
+              .frame(width: 4, height: 4)
           }
           .frame(maxWidth: .infinity)
         }
       }
-      .padding(.horizontal, 18)
+      .padding(.horizontal, 10)
+      .padding(.top, 2)
 
-      Spacer(minLength: 8)
+      Spacer(minLength: 6)
 
       ZStack(alignment: .bottomLeading) {
+        GeometryReader { geo in
+          let dayWidth = geo.size.width / CGFloat(max(weekDays.count, 1))
+          let dogX = dayWidth * (CGFloat(focusIndex) + 0.5)
+          let focusBandWidth = max(dayWidth - 12, 30)
+
+          RoundedRectangle(cornerRadius: 16, style: .continuous)
+            .fill(theme.palette.focusFill.opacity(0.82))
+            .overlay(
+              RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(theme.palette.cardBorder.opacity(0.6), lineWidth: 1)
+            )
+            .frame(width: focusBandWidth, height: 56)
+            .position(x: dogX, y: 36)
+        }
+
         HStack(spacing: 0) {
           ForEach(Array(weekDays.enumerated()), id: \.offset) { index, day in
             VStack(spacing: 5) {
               Image(systemName: "pawprint.fill")
-                .font(.system(size: 20, weight: .regular))
+                .font(.system(size: 18, weight: .regular))
                 .foregroundColor(
                   index == focusIndex
-                    ? .doggyInk.opacity(0.10)
+                    ? theme.palette.textPrimary.opacity(0.14)
                     : day.taskCount > 0
-                      ? .doggyWarmTint.opacity(0.30)
-                      : .doggyInk.opacity(0.07)
+                      ? theme.palette.accentPrimary.opacity(0.34)
+                      : theme.palette.quietSymbol
                 )
 
               Circle()
                 .fill(
                   day.taskCount > 0
-                    ? Color.doggyTeal.opacity(index == focusIndex ? 0.0 : 0.70)
+                    ? theme.palette.accentSecondary.opacity(index == focusIndex ? 0.0 : 0.82)
                     : Color.clear
                 )
                 .frame(width: 4, height: 4)
@@ -278,72 +545,26 @@ struct DoggyLogMediumCalendarView: View {
             .frame(maxWidth: .infinity)
           }
         }
-        .padding(.horizontal, 6)
-        .padding(.bottom, 4)
+        .padding(.horizontal, 2)
+        .padding(.bottom, 6)
 
         GeometryReader { geo in
           let dayWidth = geo.size.width / CGFloat(max(weekDays.count, 1))
           let dogX = dayWidth * (CGFloat(focusIndex) + 0.5)
 
-          _DogCompanionView()
-            .frame(width: 56, height: 56)
-            .position(x: dogX, y: 26)
+          _DogCompanionView(theme: theme)
+            .frame(width: 48, height: 48)
+            .position(x: dogX, y: 36)
         }
       }
-      .frame(height: 80)
-      .padding(.horizontal, 18)
-      .padding(.bottom, 12)
+      .frame(height: 74)
+      .padding(.horizontal, 10)
+      .padding(.bottom, 10)
     }
     .doggyWidgetBackground {
-      RoundedRectangle(cornerRadius: 28, style: .continuous)
-        .fill(Color.doggyWarmCard)
+      DoggyWidgetCardBackground(theme: theme, cornerRadius: 28)
     }
     .widgetURL(URL(string: "doggylog://tab/calendar"))
-  }
-}
-
-// MARK: - Day Cell (Large calendar)
-
-private struct _DayCell: View {
-  let day: SnapshotCalendarDay
-  let showPetOnToday: Bool
-
-  var body: some View {
-    VStack(spacing: 1) {
-      ZStack {
-        if day.isToday {
-          Circle()
-            .fill(Color.doggyTeal)
-            .frame(width: 26, height: 26)
-        }
-        Text(day.isInMonth ? "\(day.day)" : "")
-          .font(.system(size: 12, weight: .regular, design: .rounded))
-          .foregroundColor(
-            day.isToday
-              ? Color.white
-              : day.isInMonth
-                ? Color.primary
-                : Color.secondary.opacity(0.25)
-          )
-      }
-      .frame(width: 26, height: 26)
-      .overlay(
-        Group {
-          if day.isToday && showPetOnToday {
-            Image(systemName: "pawprint.fill")
-              .font(.system(size: 8, weight: .medium))
-              .foregroundColor(.doggyInk.opacity(0.70))
-              .offset(y: -14)
-          }
-        },
-        alignment: .top
-      )
-
-      Circle()
-        .fill(day.taskCount > 0 && !day.isToday ? Color.doggyTeal.opacity(0.75) : Color.clear)
-        .frame(width: 3.5, height: 3.5)
-    }
-    .frame(height: 40)
   }
 }
 
@@ -351,28 +572,29 @@ private struct _LargeCalendarDayCell: View {
   let day: SnapshotCalendarDay
   let isFocus: Bool
   let showPetOnToday: Bool
+  let theme: DoggyWidgetTheme
 
   var body: some View {
     VStack(spacing: 4) {
       ZStack {
         if isFocus {
           RoundedRectangle(cornerRadius: 12, style: .continuous)
-            .fill(Color.doggyWarmTint.opacity(0.18))
+            .fill(theme.palette.focusFill)
             .frame(width: 30, height: 30)
         } else if day.isToday {
           RoundedRectangle(cornerRadius: 10, style: .continuous)
-            .fill(Color.doggyTeal.opacity(0.88))
+            .fill(theme.palette.accentPrimary.opacity(0.92))
             .frame(width: 27, height: 27)
         }
 
         Text(day.isInMonth ? "\(day.day)" : "")
-          .font(.system(size: 13, weight: isFocus ? .semibold : .regular, design: .rounded))
+          .font(DoggyWidgetTypography.font(size: 13, weight: isFocus ? .medium : .regular))
           .foregroundColor(
             day.isToday
               ? .white
               : day.isInMonth
-                ? .doggyInk.opacity(isFocus ? 0.95 : 0.60)
-                : .doggyInk.opacity(0.18)
+                ? theme.palette.textPrimary.opacity(isFocus ? 0.95 : 0.68)
+                : theme.palette.textPrimary.opacity(0.18)
           )
       }
       .frame(width: 32, height: 32)
@@ -381,7 +603,7 @@ private struct _LargeCalendarDayCell: View {
           if day.isToday && showPetOnToday {
             Image(systemName: "pawprint.fill")
               .font(.system(size: 9, weight: .medium))
-              .foregroundColor(.doggyInk.opacity(0.85))
+              .foregroundColor(theme.palette.textPrimary.opacity(0.8))
               .offset(y: -15)
           }
         },
@@ -389,76 +611,44 @@ private struct _LargeCalendarDayCell: View {
       )
 
       Circle()
-        .fill(day.taskCount > 0 && !day.isToday ? Color.doggyTeal.opacity(0.72) : Color.clear)
+        .fill(
+          day.taskCount > 0 && !day.isToday
+            ? theme.palette.accentSecondary.opacity(0.82)
+            : Color.clear
+        )
         .frame(width: 3.5, height: 3.5)
     }
     .frame(height: 40)
   }
 }
 
-// MARK: - Week Day Cell (Medium calendar)
-
-private struct _WeekDayCell: View {
-  let day: SnapshotCalendarDay
-
-  var body: some View {
-    VStack(spacing: 5) {
-      ZStack {
-        if day.isToday {
-          Circle()
-            .fill(Color.doggyTeal)
-            .frame(width: 24, height: 24)
-        }
-        Text(day.isInMonth ? "\(day.day)" : "")
-          .font(.system(size: 13, weight: .regular, design: .rounded))
-          .foregroundColor(
-            day.isToday
-              ? Color.white
-              : day.isInMonth
-                ? Color.primary
-                : Color.secondary.opacity(0.3)
-          )
-      }
-      .frame(width: 24, height: 24)
-
-      Group {
-        if day.isToday {
-          Image(systemName: "pawprint.fill")
-            .font(.system(size: 13, weight: .medium))
-            .foregroundColor(.doggyTeal.opacity(0.9))
-        } else {
-          Image(systemName: day.taskCount > 0 ? "pawprint.fill" : "pawprint")
-            .font(.system(size: 11, weight: .regular))
-            .foregroundColor(
-              day.taskCount > 0
-                ? Color.doggyTeal
-                : Color.secondary.opacity(0.28)
-            )
-        }
-      }
-      .frame(height: 16)
-    }
-    .frame(maxWidth: .infinity)
-  }
-}
-
-// MARK: - Dog Companion (real image)
-
 struct _DogCompanionView: View {
+  let theme: DoggyWidgetTheme
+
   var body: some View {
-    Image("calendar_dog_timeline")
+    doggyWidgetCompanionImage(named: theme.dogImageName)
       .resizable()
       .scaledToFit()
+      .scaleEffect(theme.companionScale)
+      .offset(y: theme.companionYOffset)
   }
 }
 
-// MARK: - Helpers
+private func doggyWidgetCompanionImage(named name: String) -> Image {
+  #if os(macOS)
+  if let image = NSImage(named: name) {
+    return Image(nsImage: image)
+  }
 
-private func _monthLabel(for date: Date) -> String {
-  let cal = Calendar.current
-  let year = cal.component(.year, from: date)
-  let month = cal.component(.month, from: date)
-  return "\(month)月 \(year)"
+  let fileURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+    .appendingPathComponent("ios/DoggyLogWidgets/Assets.xcassets/\(name).imageset/\(name).png")
+  if let image = NSImage(contentsOf: fileURL) {
+    return Image(nsImage: image)
+  }
+  return Image(systemName: "pawprint.fill")
+  #else
+  return Image(name)
+  #endif
 }
 
 private func _timelineMonthLabel(for date: Date) -> String {
@@ -475,7 +665,6 @@ private func _focusDayIndex(in days: [SnapshotCalendarDay]) -> Int {
   return min(max(days.count / 2, 0), max(days.count - 1, 0))
 }
 
-/// 从 42-cell calendarDays 中提取包含今日的那一周（7天）
 private func _currentWeekDays(
   from days: [SnapshotCalendarDay],
   now: Date
@@ -485,15 +674,15 @@ private func _currentWeekDays(
   let range = weekStart..<min(weekStart + 7, days.count)
   let slice = Array(days[range])
   if slice.count < 7 {
-    let pad = Array(repeating: SnapshotCalendarDay(
-      day: 0, isInMonth: false, isToday: false, taskCount: 0
-    ), count: 7 - slice.count)
+    let pad = Array(
+      repeating: SnapshotCalendarDay(day: 0, isInMonth: false, isToday: false, taskCount: 0),
+      count: 7 - slice.count
+    )
     return slice + pad
   }
   return slice
 }
 
-/// 无 snapshot 时生成当月占位日历格（42 格，周日起始）
 private func _placeholderDays(for date: Date) -> [SnapshotCalendarDay] {
   let cal = Calendar.current
   let year = cal.component(.year, from: date)
@@ -501,11 +690,12 @@ private func _placeholderDays(for date: Date) -> [SnapshotCalendarDay] {
   let todayDay = cal.component(.day, from: date)
 
   var comps = DateComponents()
-  comps.year = year; comps.month = month; comps.day = 1
+  comps.year = year
+  comps.month = month
+  comps.day = 1
   guard let firstDay = cal.date(from: comps) else { return [] }
-  let startOffset = cal.component(.weekday, from: firstDay) - 1 // Sun=1 → 0-based
+  let startOffset = cal.component(.weekday, from: firstDay) - 1
 
-  // cal.range(of:in:for:) safely returns days-in-month without force-unwrap
   guard let dayRange = cal.range(of: .day, in: .month, for: firstDay) else { return [] }
   let lastDay = dayRange.count
 
