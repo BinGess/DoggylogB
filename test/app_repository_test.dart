@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/shared/application/domain_event_bus.dart';
 import 'package:doggylog/features/shared/data/app_database.dart';
 import 'package:doggylog/features/shared/data/app_repository.dart';
@@ -5,6 +6,7 @@ import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -12,8 +14,11 @@ void main() {
 
   late AppDatabase database;
   late AppRepository repository;
+  late String? originalLocale;
 
   setUp(() async {
+    originalLocale = Intl.defaultLocale;
+    Intl.defaultLocale = 'zh_CN';
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
     database = AppDatabase.forTesting(NativeDatabase.memory());
@@ -21,6 +26,7 @@ void main() {
   });
 
   tearDown(() async {
+    Intl.defaultLocale = originalLocale;
     await database.close();
   });
 
@@ -286,4 +292,44 @@ void main() {
     }
     expect(pets.where((pet) => pet.isSelected), hasLength(1));
   });
+
+  test(
+    'seedIfNeeded stores locale-agnostic copy keys for seeded content',
+    () async {
+      Intl.defaultLocale = 'zh_CN';
+
+      await repository.seedIfNeeded();
+
+      final taskRows = await (database.select(
+        database.calendarEntriesTable,
+      )..orderBy([(tbl) => OrderingTerm(expression: tbl.startAt)])).get();
+      final countdownRows = await database
+          .select(database.countdownItemsTable)
+          .get();
+
+      expect(
+        taskRows.map((row) => row.title),
+        contains(SeedCopyKey.taskMorningWalkTitle),
+      );
+      expect(
+        taskRows.map((row) => row.description),
+        contains(SeedCopyKey.taskMorningWalkDescription),
+      );
+      expect(
+        countdownRows.map((row) => row.title),
+        contains(SeedCopyKey.countdownMochiBirthdayTitle),
+      );
+
+      Intl.defaultLocale = 'en_US';
+      final suggestions = await repository.loadRecentSuggestions();
+
+      expect(suggestions, contains('Morning stroll'));
+      expect(
+        AppLocalizations.current().localizedStoredText(
+          SeedCopyKey.countdownMochiBirthdayTitle,
+        ),
+        'Mochi’s birthday',
+      );
+    },
+  );
 }

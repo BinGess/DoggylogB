@@ -56,7 +56,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(selectedPetId, 'pet-2');
-    expect(find.textContaining('Beagle'), findsOneWidget);
+    expect(find.textContaining('比格'), findsOneWidget);
   });
 
   testWidgets('PetSkinGallery keeps card positions fixed after selection', (
@@ -127,7 +127,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(const Key('pet-skin-card-pet-2')),
-        matching: find.text('当前皮肤'),
+        matching: find.text('现在这套'),
       ),
       findsOneWidget,
     );
@@ -189,5 +189,69 @@ void main() {
     expect(find.text('数据透明'), findsNothing);
     expect(find.byKey(const Key('pet-skin-card-pet-1')), findsOneWidget);
     expect(find.byKey(const Key('pet-skin-card-pet-3')), findsOneWidget);
+  });
+
+  testWidgets('PetSkinGallery does not show skin description copy', (
+    tester,
+  ) async {
+    final pets = [
+      PetProfile(
+        id: 'pet-1',
+        name: 'Mochi',
+        breed: PetBreed.shiba,
+        loyaltyPoints: 120,
+        selectedSkinId: 'amber-shiba',
+        unlockedSkinIds: const ['amber-shiba'],
+        createdAt: DateTime(2025),
+        isSelected: true,
+      ),
+      PetProfile(
+        id: 'pet-2',
+        name: 'Buddy',
+        breed: PetBreed.beagle,
+        loyaltyPoints: 240,
+        selectedSkinId: 'ai-buddy',
+        unlockedSkinIds: const ['ai-buddy'],
+        createdAt: DateTime(2025, 2),
+      ),
+      PetProfile(
+        id: 'pet-3',
+        name: 'Luna',
+        breed: PetBreed.husky,
+        loyaltyPoints: 180,
+        selectedSkinId: 'frost-husky',
+        unlockedSkinIds: const ['frost-husky'],
+        createdAt: DateTime(2025, 3),
+      ),
+      PetProfile(
+        id: 'pet-4',
+        name: 'Maru',
+        breed: PetBreed.samoyed,
+        loyaltyPoints: 220,
+        selectedSkinId: 'cloud-samoyed',
+        unlockedSkinIds: const ['cloud-samoyed'],
+        createdAt: DateTime(2025, 4),
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(skinTheme: AppSkinTheme.shibaJoy, fontScale: 1.0),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: PetSkinGallery(
+              pets: pets,
+              selectedPetId: 'pet-1',
+              onPetSelected: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('偏暖、轻快、像课堂便签一样清晰。'), findsNothing);
+    expect(find.text('偏科技感的蓝紫层次，适合持续对话和记录。'), findsNothing);
+    expect(find.text('通透而轻盈，适合健康与日常维护。'), findsNothing);
+    expect(find.text('更柔软的粉白色调，适合陪伴与纪念。'), findsNothing);
   });
 }

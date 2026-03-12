@@ -14,6 +14,7 @@ import 'package:intl/intl.dart';
 
 const _selectedPawAsset = 'assets/images/calendar/paw_badge_selected.png';
 const _idlePawAsset = 'assets/images/calendar/paw_stamp_idle.png';
+
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
 
@@ -339,7 +340,6 @@ class _MonthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
     final first = DateTime(
       state.selectedDate.year,
       state.selectedDate.month,
@@ -366,7 +366,6 @@ class _MonthView extends StatelessWidget {
         final date = days[index];
         final selected = _sameDay(date, state.selectedDate);
         final inMonth = date.month == state.selectedDate.month;
-        final isToday = _sameDay(date, now);
         final dayItems = state.calendarItems
             .where((item) => _sameDay(item.startAt, date))
             .toList();
@@ -621,7 +620,7 @@ class _AgendaItemRow extends StatelessWidget {
                 const SizedBox(width: 14),
                 Expanded(
                   child: Text(
-                    item.title,
+                    context.l10n.localizedStoredText(item.title),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -638,9 +637,10 @@ class _AgendaItemRow extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  DateFormat('HH:mm', context.l10n.localeName).format(
-                    item.startAt,
-                  ),
+                  DateFormat(
+                    'HH:mm',
+                    context.l10n.localeName,
+                  ).format(item.startAt),
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: accent.withValues(alpha: 0.85),
                   ),
@@ -764,14 +764,12 @@ class _PawBadge extends StatelessWidget {
     required this.day,
     this.size = 50,
     this.dayTop = 30,
-    this.imageScale = 1.00,
     this.dayStyle,
   });
 
   final int day;
   final double size;
   final double dayTop;
-  final double imageScale;
   final TextStyle? dayStyle;
 
   @override
@@ -783,15 +781,12 @@ class _PawBadge extends StatelessWidget {
         clipBehavior: Clip.none,
         alignment: Alignment.center,
         children: [
-          Transform.scale(
-            scale: imageScale,
-            child: Image.asset(
-              _selectedPawAsset,
-              width: size,
-              height: size,
-              fit: BoxFit.contain,
-              filterQuality: FilterQuality.medium,
-            ),
+          Image.asset(
+            _selectedPawAsset,
+            width: size,
+            height: size,
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.medium,
           ),
           Positioned(
             top: dayTop,
@@ -829,39 +824,6 @@ class _PawStamp extends StatelessWidget {
           filterQuality: FilterQuality.low,
         ),
       ),
-    );
-  }
-}
-
-class _CalendarPetMarker extends StatelessWidget {
-  const _CalendarPetMarker({required this.breed});
-
-  final PetBreed breed;
-
-  @override
-  Widget build(BuildContext context) {
-    final background = switch (breed) {
-      PetBreed.husky => const Color(0xFF3A7AB8),
-      PetBreed.goldenRetriever => const Color(0xFF0066FF),
-      PetBreed.beagle => const Color(0xFF6366F1),
-      PetBreed.samoyed => const Color(0xFFC96480),
-      PetBreed.shiba => const Color(0xFFF05D56),
-    };
-    return Container(
-      width: 28,
-      height: 28,
-      decoration: BoxDecoration(
-        color: background,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: background.withValues(alpha: 0.28),
-            blurRadius: 10,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: const Icon(Icons.pets_rounded, size: 15, color: Colors.white),
     );
   }
 }

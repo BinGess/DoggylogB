@@ -10,8 +10,8 @@ struct DoggyLogCountdownWidget: Widget {
     StaticConfiguration(kind: kind, provider: DoggyLogCalendarProvider()) { entry in
       DoggyLogCountdownWidgetView(entry: entry)
     }
-    .configurationDisplayName("倒计时")
-    .description("用更醒目的节奏卡片显示最近一个倒计时。")
+    .configurationDisplayName(widgetText("倒计时", "Countdown", "カウントダウン"))
+    .description(widgetText("用更醒目的节奏卡片显示最近一个倒计时。", "Show your nearest countdown in a bolder little card.", "いちばん近いカウントダウンを、少し目立つカードで表示します。"))
     .supportedFamilies([.systemSmall, .systemMedium])
   }
 }
@@ -40,7 +40,7 @@ struct DoggyLogCountdownSmallView: View {
     let petName = snapshot?.pet.name ?? "DoggyLog"
 
     VStack(alignment: .leading, spacing: 0) {
-      Text("Countdown")
+      Text(widgetText("倒计时", "Countdown", "カウントダウン"))
         .font(.system(size: 10, weight: .medium, design: .rounded))
         .foregroundColor(.doggyWarmTint.opacity(0.92))
 
@@ -58,7 +58,7 @@ struct DoggyLogCountdownSmallView: View {
             .font(.system(size: 44, weight: .medium, design: .rounded))
             .foregroundColor(.doggyInk)
 
-          Text("天")
+          Text(widgetText("天", "d", "日"))
             .font(.system(size: 13, weight: .medium, design: .rounded))
             .foregroundColor(.doggyInk.opacity(0.55))
         }
@@ -73,11 +73,11 @@ struct DoggyLogCountdownSmallView: View {
           .foregroundColor(.doggyWarmTint.opacity(0.90))
           .padding(.top, 2)
       } else {
-        Text("暂无倒计时")
+        Text(widgetText("暂无倒计时", "No countdown yet", "まだカウントダウンはありません"))
           .font(.system(size: 14, weight: .semibold, design: .rounded))
           .foregroundColor(.doggyInk)
 
-        Text("打开 App 添加一个目标吧")
+        Text(widgetText("打开 App 添加一个目标吧", "Open the app and add one sweet little goal.", "アプリを開いて、楽しみをひとつ入れてみましょう。"))
           .font(.system(size: 10, weight: .medium, design: .rounded))
           .foregroundColor(.doggyInk.opacity(0.48))
           .padding(.top, 4)
@@ -113,7 +113,7 @@ struct DoggyLogCountdownMediumView: View {
     VStack(alignment: .leading, spacing: 0) {
       HStack(alignment: .top) {
         VStack(alignment: .leading, spacing: 3) {
-          Text("Countdown")
+          Text(widgetText("倒计时", "Countdown", "カウントダウン"))
             .font(.system(size: 11, weight: .medium, design: .rounded))
             .foregroundColor(.doggyWarmTint.opacity(0.92))
 
@@ -125,7 +125,7 @@ struct DoggyLogCountdownMediumView: View {
 
         Spacer()
 
-        Text("陪你守住目标")
+        Text(widgetText("陪你守住目标", "Keeping this goal close", "この目標をそっと見守ります"))
           .font(.system(size: 10, weight: .medium, design: .rounded))
           .foregroundColor(.doggyInk.opacity(0.40))
       }
@@ -140,7 +140,7 @@ struct DoggyLogCountdownMediumView: View {
                 .font(.system(size: 52, weight: .medium, design: .rounded))
                 .foregroundColor(.doggyInk)
 
-              Text("天")
+              Text(widgetText("天", "d", "日"))
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundColor(.doggyInk.opacity(0.52))
             }
@@ -162,10 +162,10 @@ struct DoggyLogCountdownMediumView: View {
           .frame(maxWidth: .infinity, alignment: .leading)
         } else {
           VStack(alignment: .leading, spacing: 6) {
-            Text("暂无倒计时")
+            Text(widgetText("暂无倒计时", "No countdown yet", "まだカウントダウンはありません"))
               .font(.system(size: 17, weight: .semibold, design: .rounded))
               .foregroundColor(.doggyInk)
-            Text("前往 App 新建一个小目标，狗狗就会来提醒你。")
+            Text(widgetText("前往 App 新建一个小目标，狗狗就会来提醒你。", "Add a little goal in the app, and your pup will keep an eye on it.", "アプリで小さな目標をひとつ作ると、わんこが見守ってくれます。"))
               .font(.system(size: 11, weight: .medium, design: .rounded))
               .foregroundColor(.doggyInk.opacity(0.50))
               .lineLimit(2)
@@ -240,13 +240,7 @@ private struct _PawRhythmStrip: View {
 }
 
 private func _countdownDueDateLabel(ms: Int) -> String {
-  let date = Date(timeIntervalSince1970: Double(ms) / 1000.0)
-  let cal = Calendar.current
-  let month = cal.component(.month, from: date)
-  let day = cal.component(.day, from: date)
-  let year = cal.component(.year, from: date)
-  let nowYear = cal.component(.year, from: Date())
-  return year == nowYear ? "\(month)月\(day)日截止" : "\(year)年\(month)月\(day)日截止"
+  widgetShortDateLabel(ms: ms)
 }
 
 private func _progress(countdown: SnapshotCountdown) -> Double {

@@ -255,11 +255,8 @@ class _PetSkinCard extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text(
                             '${context.l10n.breedLabel(pet.breed)} · ${context.l10n.localizedSkinStyleName(spec.styleName)}',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.labelMedium?.copyWith(
-                              color: labelColor,
-                            ),
+                            style: Theme.of(context).textTheme.labelMedium
+                                ?.copyWith(color: labelColor),
                           ),
                         ],
                       ),
@@ -274,16 +271,6 @@ class _PetSkinCard extends StatelessWidget {
                       foreground: isSelected ? Colors.white : spec.primaryLight,
                     ),
                   ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  context.l10n.localizedSkinDescription(spec),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: labelColor,
-                    height: 1.45,
-                  ),
                 ),
               ],
             ),

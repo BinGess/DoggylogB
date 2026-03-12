@@ -35,7 +35,7 @@ struct DoggyLogSummaryWidget: Widget {
       DoggyLogSummaryWidgetView(entry: entry)
     }
     .configurationDisplayName("DoggyLog")
-    .description("Show today's pet mood, next task, and countdown.")
+    .description(widgetText("看看今天的宠物状态、下一件事和倒计时。", "See today's pet vibe, next task, and countdown.", "今日のわんこ状態、次の予定、カウントダウンを表示します。"))
     .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
   }
 }
@@ -64,11 +64,11 @@ private struct DoggyLogSummarySmallView: View {
     let snapshot = entry.snapshot
 
     VStack(alignment: .leading, spacing: 0) {
-      _SummaryHeader(snapshot: snapshot, subtitle: "Today")
+      _SummaryHeader(snapshot: snapshot, subtitle: widgetText("今天", "Today", "きょう"))
 
       Spacer(minLength: 8)
 
-      Text(snapshot?.today.nextTaskTitle ?? "今天还没有下一项任务")
+      Text(snapshot?.today.nextTaskTitle ?? widgetText("今天还没有下一项任务", "Nothing is lined up next yet", "まだ次の予定は入っていません"))
         .font(.system(size: 14, weight: .semibold, design: .rounded))
         .foregroundColor(.doggyInk)
         .lineLimit(3)
@@ -81,7 +81,7 @@ private struct DoggyLogSummarySmallView: View {
       Spacer(minLength: 8)
 
       HStack(alignment: .bottom, spacing: 0) {
-        _SummaryStatPill(value: "\(snapshot?.today.pendingCount ?? 0)", label: "待办")
+        _SummaryStatPill(value: "\(snapshot?.today.pendingCount ?? 0)", label: widgetText("待办", "To do", "やること"))
         Spacer(minLength: 8)
         _DogCompanionView()
           .frame(width: 64, height: 64)
@@ -105,14 +105,14 @@ private struct DoggyLogSummaryMediumView: View {
 
     VStack(alignment: .leading, spacing: 0) {
       HStack(alignment: .top) {
-        _SummaryHeader(snapshot: snapshot, subtitle: "Today")
+        _SummaryHeader(snapshot: snapshot, subtitle: widgetText("今天", "Today", "きょう"))
         Spacer()
         VStack(alignment: .trailing, spacing: 3) {
-          Text(snapshot?.pet.mood ?? "Calm")
+          Text(widgetMoodLabel(snapshot?.pet.mood ?? "calm"))
             .font(.system(size: 11, weight: .semibold, design: .rounded))
             .foregroundColor(.doggyWarmTint.opacity(0.95))
 
-          Text("陪你过好今天")
+          Text(widgetText("陪你过好今天", "A soft little sidekick for today", "今日はやさしく付き添います"))
             .font(.system(size: 10, weight: .medium, design: .rounded))
             .foregroundColor(.doggyInk.opacity(0.40))
         }
@@ -123,13 +123,13 @@ private struct DoggyLogSummaryMediumView: View {
       HStack(alignment: .top, spacing: 12) {
         VStack(alignment: .leading, spacing: 8) {
           _SummaryMetricTile(
-            title: "待办",
+            title: widgetText("待办", "To do", "やること"),
             value: "\(snapshot?.today.pendingCount ?? 0)",
             accent: .doggyWarmTint.opacity(0.92)
           )
 
           _SummaryMetricTile(
-            title: "完成",
+            title: widgetText("完成", "Done", "できた"),
             value: "\(snapshot?.today.completedCount ?? 0)",
             accent: .doggyTeal.opacity(0.92)
           )
@@ -137,19 +137,19 @@ private struct DoggyLogSummaryMediumView: View {
         .frame(width: 74)
 
         VStack(alignment: .leading, spacing: 7) {
-          Text(snapshot?.today.nextTaskTitle ?? "今天还没有下一项任务")
+          Text(snapshot?.today.nextTaskTitle ?? widgetText("今天还没有下一项任务", "Nothing is lined up next yet", "まだ次の予定は入っていません"))
             .font(.system(size: 15, weight: .semibold, design: .rounded))
             .foregroundColor(.doggyInk)
             .lineLimit(2)
 
           if let time = snapshot?.today.nextTaskTime, !time.isEmpty {
-            Text("下一项 · \(time)")
+            Text("\(widgetText("下一项", "Next up", "つぎ")) · \(time)")
               .font(.system(size: 10, weight: .medium, design: .rounded))
               .foregroundColor(.doggyWarmTint.opacity(0.92))
           }
 
           if let countdown = snapshot?.countdown {
-            Text("\(countdown.title) · 还有 \(max(0, countdown.daysRemaining)) 天")
+            Text("\(countdown.title) · \(widgetText("还有", "", "あと")) \(widgetDaysLeftLabel(max(0, countdown.daysRemaining)))")
               .font(.system(size: 11, weight: .medium, design: .rounded))
               .foregroundColor(.doggyInk.opacity(0.55))
               .lineLimit(1)
@@ -187,16 +187,16 @@ private struct DoggyLogSummaryLargeView: View {
 
     VStack(alignment: .leading, spacing: 0) {
       HStack(alignment: .top) {
-        _SummaryHeader(snapshot: snapshot, subtitle: "Daily Summary")
+        _SummaryHeader(snapshot: snapshot, subtitle: widgetText("今日小结", "Daily Summary", "今日のまとめ"))
 
         Spacer()
 
         VStack(alignment: .trailing, spacing: 5) {
-          Text(snapshot?.pet.breed ?? "Companion")
+          Text(widgetBreedLabel(snapshot?.pet.breed ?? widgetText("陪伴犬", "Companion", "相棒")))
             .font(.system(size: 11, weight: .medium, design: .rounded))
             .foregroundColor(.doggyInk.opacity(0.42))
 
-          Text(snapshot?.pet.mood ?? "Happy")
+          Text(widgetMoodLabel(snapshot?.pet.mood ?? "excited"))
             .font(.system(size: 13, weight: .semibold, design: .rounded))
             .foregroundColor(.doggyWarmTint.opacity(0.95))
         }
@@ -206,23 +206,23 @@ private struct DoggyLogSummaryLargeView: View {
 
       HStack(alignment: .top, spacing: 10) {
         _SummaryMetricTile(
-          title: "待办",
+          title: widgetText("待办", "To do", "やること"),
           value: "\(snapshot?.today.pendingCount ?? 0)",
           accent: .doggyWarmTint.opacity(0.92)
         )
 
         _SummaryMetricTile(
-          title: "完成",
+          title: widgetText("完成", "Done", "できた"),
           value: "\(snapshot?.today.completedCount ?? 0)",
           accent: .doggyTeal.opacity(0.92)
         )
 
         VStack(alignment: .leading, spacing: 7) {
-          Text("下一项")
+          Text(widgetText("下一项", "Next up", "つぎ"))
             .font(.system(size: 10, weight: .medium, design: .rounded))
             .foregroundColor(.doggyInk.opacity(0.40))
 
-          Text(snapshot?.today.nextTaskTitle ?? "今天还没有下一项任务")
+          Text(snapshot?.today.nextTaskTitle ?? widgetText("今天还没有下一项任务", "Nothing is lined up next yet", "まだ次の予定は入っていません"))
             .font(.system(size: 17, weight: .semibold, design: .rounded))
             .foregroundColor(.doggyInk)
             .lineLimit(2)
@@ -240,12 +240,12 @@ private struct DoggyLogSummaryLargeView: View {
 
       HStack(alignment: .top, spacing: 12) {
         VStack(alignment: .leading, spacing: 8) {
-          Text("今日节奏")
+          Text(widgetText("今日节奏", "Today's rhythm", "きょうのリズム"))
             .font(.system(size: 10, weight: .medium, design: .rounded))
             .foregroundColor(.doggyInk.opacity(0.40))
 
           if recentTasks.isEmpty {
-            Text("今天还没有记录任务，去 App 里安排一下吧。")
+            Text(widgetText("今天还没有记录任务，去 App 里安排一下吧。", "No tasks logged yet. Pop into the app and add one.", "まだ記録された予定はありません。アプリでひとつ入れてみましょう。"))
               .font(.system(size: 12, weight: .medium, design: .rounded))
               .foregroundColor(.doggyInk.opacity(0.54))
               .lineLimit(2)
@@ -272,7 +272,7 @@ private struct DoggyLogSummaryLargeView: View {
           }
 
           if let countdown = snapshot?.countdown {
-            Text("\(countdown.title) · 还有 \(max(0, countdown.daysRemaining)) 天")
+            Text("\(countdown.title) · \(widgetText("还有", "", "あと")) \(widgetDaysLeftLabel(max(0, countdown.daysRemaining)))")
               .font(.system(size: 11, weight: .medium, design: .rounded))
               .foregroundColor(.doggyWarmTint.opacity(0.95))
               .padding(.top, 3)
@@ -386,7 +386,7 @@ private func _summaryMetaLine(snapshot: DoggyLogSharedSnapshot?) -> String {
   let pending = snapshot?.today.pendingCount ?? 0
   let completed = snapshot?.today.completedCount ?? 0
   if let time = snapshot?.today.nextTaskTime, !time.isEmpty {
-    return "待办 \(pending) · 已完成 \(completed) · \(time)"
+    return "\(widgetText("待办", "To do", "やること")) \(pending) · \(widgetText("已完成", "Done", "できた")) \(completed) · \(time)"
   }
-  return "待办 \(pending) · 已完成 \(completed)"
+  return "\(widgetText("待办", "To do", "やること")) \(pending) · \(widgetText("已完成", "Done", "できた")) \(completed)"
 }

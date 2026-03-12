@@ -63,8 +63,8 @@ struct DoggyLogLargeCalendarWidget: Widget {
     StaticConfiguration(kind: kind, provider: DoggyLogCalendarProvider()) { entry in
       DoggyLogLargeCalendarView(entry: entry)
     }
-    .configurationDisplayName("日历（大）")
-    .description("查看本月完整日历，带宠物标记和任务提示。")
+    .configurationDisplayName(widgetText("日历（大）", "Calendar (Large)", "カレンダー（大）"))
+    .description(widgetText("查看本月完整日历，带宠物标记和任务提示。", "See the full month with pup marks and task hints.", "今月のカレンダーを、わんこマークと予定ヒントつきで表示します。"))
     .supportedFamilies([.systemLarge])
   }
 }
@@ -78,8 +78,8 @@ struct DoggyLogMediumCalendarWidget: Widget {
     StaticConfiguration(kind: kind, provider: DoggyLogCalendarProvider()) { entry in
       DoggyLogMediumCalendarView(entry: entry)
     }
-    .configurationDisplayName("日历（周）")
-    .description("显示本周日历，爪印标记有任务的日期。")
+    .configurationDisplayName(widgetText("日历（周）", "Calendar (Week)", "カレンダー（週）"))
+    .description(widgetText("显示本周日历，爪印标记有任务的日期。", "See this week's dates with paw marks on busy days.", "今週の日付を、予定のある日に肉球マークつきで表示します。"))
     .supportedFamilies([.systemMedium])
   }
 }
@@ -89,7 +89,15 @@ struct DoggyLogMediumCalendarWidget: Widget {
 struct DoggyLogLargeCalendarView: View {
   let entry: DoggyLogEntry
 
-  private let weekdayLabels = ["日", "一", "二", "三", "四", "五", "六"]
+  private let weekdayLabels = [
+    widgetText("日", "S", "日"),
+    widgetText("一", "M", "月"),
+    widgetText("二", "T", "火"),
+    widgetText("三", "W", "水"),
+    widgetText("四", "T", "木"),
+    widgetText("五", "F", "金"),
+    widgetText("六", "S", "土")
+  ]
   private let columns = Array(repeating: GridItem(.flexible(), spacing: 0), count: 7)
 
   var body: some View {
@@ -109,7 +117,7 @@ struct DoggyLogLargeCalendarView: View {
           Text(petName)
             .font(.system(size: 11, weight: .medium, design: .rounded))
             .foregroundColor(.doggyInk.opacity(0.52))
-          Text("陪你过今天")
+          Text(widgetText("陪你过今天", "A little sidekick for today", "今日はそっと付き添います"))
             .font(.system(size: 10, weight: .regular, design: .rounded))
             .foregroundColor(.doggyWarmTint.opacity(0.90))
         }
@@ -144,7 +152,7 @@ struct DoggyLogLargeCalendarView: View {
 
       HStack(alignment: .bottom, spacing: 0) {
         VStack(alignment: .leading, spacing: 6) {
-          Text("本月节奏")
+          Text(widgetText("本月节奏", "This month's rhythm", "今月のリズム"))
             .font(.system(size: 10, weight: .medium, design: .rounded))
             .foregroundColor(.doggyInk.opacity(0.46))
 
@@ -182,7 +190,15 @@ struct DoggyLogLargeCalendarView: View {
 struct DoggyLogMediumCalendarView: View {
   let entry: DoggyLogEntry
 
-  private let weekdayLabels = ["日", "一", "二", "三", "四", "五", "六"]
+  private let weekdayLabels = [
+    widgetText("日", "S", "日"),
+    widgetText("一", "M", "月"),
+    widgetText("二", "T", "火"),
+    widgetText("三", "W", "水"),
+    widgetText("四", "T", "木"),
+    widgetText("五", "F", "金"),
+    widgetText("六", "S", "土")
+  ]
 
   var body: some View {
     let snapshot = entry.snapshot
@@ -443,10 +459,7 @@ private func _monthLabel(for date: Date) -> String {
 }
 
 private func _timelineMonthLabel(for date: Date) -> String {
-  let cal = Calendar.current
-  let year = cal.component(.year, from: date)
-  let month = cal.component(.month, from: date)
-  return String(format: "%04d 年 %02d 月", year, month)
+  widgetMonthLabel(for: date)
 }
 
 private func _focusDayIndex(in days: [SnapshotCalendarDay]) -> Int {

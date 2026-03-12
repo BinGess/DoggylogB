@@ -99,26 +99,26 @@ enum DoggyLogSharedSnapshotStore {
       today: SnapshotToday(
         pendingCount: 3,
         completedCount: 2,
-        nextTaskTitle: "下午遛狗",
+        nextTaskTitle: widgetText("下午遛狗", "Afternoon walk", "午後のおさんぽ"),
         nextTaskTime: "15:00"
       ),
       pet: SnapshotPet(
-        name: "小白",
-        breed: "柯基",
-        mood: "开心",
+        name: widgetText("小白", "Mochi", "Mochi"),
+        breed: "shiba",
+        mood: "excited",
         loyaltyLevel: 7,
-        sceneMode: "sunny"
+        sceneMode: "walking"
       ),
       countdown: SnapshotCountdown(
-        title: "狗狗生日",
+        title: widgetText("狗狗生日", "Pup birthday", "わんこの誕生日"),
         dueAt: Int(now.addingTimeInterval(12 * 86400).timeIntervalSince1970 * 1000),
         daysRemaining: 12,
         startAt: Int(now.addingTimeInterval(-30 * 86400).timeIntervalSince1970 * 1000)
       ),
       recentTasks: [
-        SnapshotTask(title: "晨跑 30 分钟", time: "07:00", category: "exercise", completed: true),
-        SnapshotTask(title: "宠物检查", time: "10:00", category: "vet", completed: true),
-        SnapshotTask(title: "下午遛狗", time: "15:00", category: "walk", completed: false)
+        SnapshotTask(title: widgetText("晨跑 30 分钟", "Morning stretch", "朝のストレッチ"), time: "07:00", category: "exercise", completed: true),
+        SnapshotTask(title: widgetText("宠物检查", "Vet check", "病院チェック"), time: "10:00", category: "vet", completed: true),
+        SnapshotTask(title: widgetText("下午遛狗", "Afternoon walk", "午後のおさんぽ"), time: "15:00", category: "walk", completed: false)
       ],
       calendarDays: calendarDays
     )

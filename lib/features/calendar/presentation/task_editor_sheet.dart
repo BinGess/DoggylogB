@@ -45,7 +45,9 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
     final item = widget.item;
     final draft = widget.draft;
     _titleController = TextEditingController(
-      text: item?.title ?? draft?.title ?? '',
+      text: item == null
+          ? draft?.title ?? ''
+          : AppLocalizations.current().localizedStoredText(item.title),
     );
     _startAt = item?.startAt ?? draft?.startAt ?? DateTime.now();
     _endAt =
@@ -105,7 +107,10 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
                 onChanged: (value) => setState(() => _endAt = value),
               ),
               const SizedBox(height: 16),
-              Text(l10n.reminderTime, style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                l10n.reminderTime,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: 10),
               DropdownButtonFormField<int>(
                 initialValue: _selectedOffset,

@@ -76,9 +76,9 @@ void main() {
     expect(find.text('日常'), findsNothing);
     expect(find.text('工作'), findsNothing);
     expect(find.text('纪念日'), findsNothing);
-    expect(find.text('宠物相关'), findsNothing);
+    expect(find.text('毛孩子'), findsNothing);
     expect(find.text('提醒时间'), findsOneWidget);
-    expect(find.text('15 分钟前'), findsOneWidget);
+    expect(find.text('提前 15 分钟'), findsOneWidget);
     expect(find.text('5 分钟前'), findsNothing);
     expect(find.text('30 分钟前'), findsNothing);
     expect(find.text('60 分钟前'), findsNothing);

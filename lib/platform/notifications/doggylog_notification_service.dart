@@ -21,33 +21,89 @@ class DoggylogNotificationService {
   final FlutterLocalNotificationsPlugin _plugin;
 
   Future<void> initialize() async {
-    const initializationSettings = InitializationSettings(
-      iOS: DarwinInitializationSettings(
-        requestAlertPermission: false,
-        requestBadgePermission: false,
-        requestSoundPermission: false,
-      ),
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-    );
-    await _plugin.initialize(initializationSettings);
-    await _configureTimezone();
-    await _createAndroidChannel();
+    try {
+      const initializationSettings = InitializationSettings(
+        iOS: DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestBadgePermission: false,
+          requestSoundPermission: false,
+        ),
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      );
+      await _plugin.initialize(initializationSettings);
+      await _configureTimezone();
+      await _createAndroidChannel();
+    } catch (_) {
+      // Widget tests and unsupported shells may not register the plugin.
+    }
+  }
+
+  Future<bool> arePermissionsGranted() async {
+    try {
+      final ios = _plugin
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >();
+      final macos = _plugin
+          .resolvePlatformSpecificImplementation<
+            MacOSFlutterLocalNotificationsPlugin
+          >();
+      final android = _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+      if (ios != null) {
+        return (await ios.checkPermissions())?.isEnabled ?? false;
+      }
+      if (macos != null) {
+        return (await macos.checkPermissions())?.isEnabled ?? false;
+      }
+      if (android != null) {
+        return await android.areNotificationsEnabled() ?? false;
+      }
+    } catch (_) {
+      return false;
+    }
+    return false;
   }
 
   Future<bool> requestPermissions() async {
-    final ios = _plugin
-        .resolvePlatformSpecificImplementation<
-          IOSFlutterLocalNotificationsPlugin
-        >();
-    final android = _plugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
-    final iosGranted =
-        await ios?.requestPermissions(alert: true, badge: true, sound: true) ??
-        false;
-    await android?.requestNotificationsPermission();
-    return iosGranted;
+    try {
+      final ios = _plugin
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >();
+      final macos = _plugin
+          .resolvePlatformSpecificImplementation<
+            MacOSFlutterLocalNotificationsPlugin
+          >();
+      final android = _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+      if (ios != null) {
+        return await ios.requestPermissions(
+              alert: true,
+              badge: true,
+              sound: true,
+            ) ??
+            false;
+      }
+      if (macos != null) {
+        return await macos.requestPermissions(
+              alert: true,
+              badge: true,
+              sound: true,
+            ) ??
+            false;
+      }
+      if (android != null) {
+        return await android.requestNotificationsPermission() ?? false;
+      }
+    } catch (_) {
+      return false;
+    }
+    return false;
   }
 
   Future<void> syncTaskReminders(Iterable<CalendarItem> items) async {
@@ -71,24 +127,24 @@ class DoggylogNotificationService {
     bool fireNowForDebug = false,
   }) async {
     final l10n = AppLocalizations.current();
+    final localizedTitle = l10n.localizedStoredText(item.title);
+    final localizedDescription = l10n.localizedStoredText(item.description);
     await cancelTask(item.id);
     if (item.isDeleted || item.isCompleted) {
       return;
     }
-    if (
-      shouldFireDebugReminderPreview(
-        debugImmediateReminders: fireNowForDebug,
-        item: item,
-      )
-    ) {
+    if (shouldFireDebugReminderPreview(
+      debugImmediateReminders: fireNowForDebug,
+      item: item,
+    )) {
       for (final reminder in item.reminders) {
         await _plugin.show(
           _debugPreviewNotificationId(item.id, reminder.offsetMinutes),
-          l10n.notificationDebugTitle(item.title),
-          item.description.isEmpty
+          l10n.notificationDebugTitle(localizedTitle),
+          localizedDescription.isEmpty
               ? l10n.notificationDebugBody(reminder.offsetMinutes)
               : l10n.notificationDebugBodyWithDescription(
-                  item.description,
+                  localizedDescription,
                   reminder.offsetMinutes,
                 ),
           NotificationDetails(
@@ -119,10 +175,10 @@ class DoggylogNotificationService {
       }
       await _plugin.zonedSchedule(
         _notificationId(item.id, reminder.offsetMinutes),
-        item.title,
-        item.description.isEmpty
+        localizedTitle,
+        localizedDescription.isEmpty
             ? l10n.notificationStartingSoon(item.category)
-            : item.description,
+            : localizedDescription,
         tz.TZDateTime.from(fireAt, tz.local),
         NotificationDetails(
           iOS: const DarwinNotificationDetails(

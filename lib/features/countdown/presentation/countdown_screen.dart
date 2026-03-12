@@ -9,7 +9,6 @@ import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop.dart
 import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop_page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 class CountdownScreen extends ConsumerWidget {
   const CountdownScreen({super.key});
@@ -68,7 +67,7 @@ class CountdownScreen extends ConsumerWidget {
                         Text(
                           nearest == null
                               ? l10n.noCountdownYet
-                              : '${nearest.first.title} · ${DateFormat('M 月 d 日', l10n.localeName).format(nearest.first.dueAt)}',
+                              : '${l10n.localizedStoredText(nearest.first.title)} · ${l10n.shortDate(nearest.first.dueAt)}',
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                         const SizedBox(height: 16),
@@ -148,7 +147,9 @@ class CountdownTile extends StatelessWidget {
       background: _swipeAction(
         context,
         icon: item.hasCelebrated ? Icons.undo_rounded : Icons.check_rounded,
-        label: item.hasCelebrated ? context.l10n.restore : context.l10n.complete,
+        label: item.hasCelebrated
+            ? context.l10n.restore
+            : context.l10n.complete,
         color: Theme.of(context).colorScheme.primary,
         alignment: Alignment.centerLeft,
       ),
@@ -176,7 +177,7 @@ class CountdownTile extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    item.title,
+                    context.l10n.localizedStoredText(item.title),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       decoration: item.hasCelebrated
                           ? TextDecoration.lineThrough
@@ -213,7 +214,7 @@ class CountdownTile extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  _remainingLabel(item, now),
+                  _remainingLabel(context, item, now),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const Spacer(),
@@ -267,18 +268,21 @@ class CountdownTile extends StatelessWidget {
     );
   }
 
-  static String _remainingLabel(CountdownItem item, DateTime now) {
+  static String _remainingLabel(
+    BuildContext context,
+    CountdownItem item,
+    DateTime now,
+  ) {
+    final l10n = context.l10n;
     if (item.hasCelebrated) {
-      return AppLocalizations.current().completed;
+      return l10n.completed;
     }
     final hours = item.dueAt.difference(now).inHours;
     if (hours < 0) {
-      return AppLocalizations.current().overdueHoursLabel(
-        hours.abs().ceil(),
-      );
+      return l10n.overdueHoursLabel(hours.abs().ceil());
     }
     final days = (hours / 24).ceil();
-    return AppLocalizations.current().remainingDaysLabel(days);
+    return l10n.remainingDaysLabel(days);
   }
 }
 

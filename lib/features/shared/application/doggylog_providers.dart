@@ -60,7 +60,11 @@ final notificationServiceProvider = FutureProvider<DoggylogNotificationService>(
     final service = DoggylogNotificationService(
       FlutterLocalNotificationsPlugin(),
     );
-    await service.initialize();
+    try {
+      await service.initialize();
+    } catch (_) {
+      // Widget tests and unsupported hosts may not register the plugin.
+    }
     return service;
   },
 );
@@ -124,10 +128,15 @@ class AppStateController extends StateNotifier<AppState> {
 
   Future<void> _init() async {
     final repository = await _ref.read(repositoryProvider.future);
-    await _ref.read(notificationServiceProvider.future);
+    final notificationService = await _ref.read(
+      notificationServiceProvider.future,
+    );
     await repository.ensureDefaultPetRoster();
     final preferences = await repository.loadPreferences();
+    syncGlobalLocale(preferences.languageMode);
     final suggestions = await repository.loadRecentSuggestions();
+    final notificationPermissionGranted = await notificationService
+        .arePermissionsGranted();
     final calendarAvailable = await _ref
         .read(iosCalendarSyncServiceProvider)
         .isAvailable();
@@ -142,6 +151,7 @@ class AppStateController extends StateNotifier<AppState> {
       calendarView: preferences.selectedCalendarView,
       templates: repository.templates(),
       recentSuggestions: suggestions,
+      notificationPermissionGranted: notificationPermissionGranted,
       calendarPermissionGranted: calendarAvailable,
       biometricAvailable: biometricAvailable,
       locationPermissionGranted: locationPermissionGranted,
@@ -149,10 +159,11 @@ class AppStateController extends StateNotifier<AppState> {
       // that cannot actually complete biometric auth.
       appUnlocked: true,
       lastSyncMessage: preferences.faceIdEnabled && !biometricAvailable
-          ? AppLocalizations.current(mode: preferences.languageMode).messageBiometricUnsupportedSkipped
+          ? AppLocalizations.current(
+              mode: preferences.languageMode,
+            ).messageBiometricUnsupportedSkipped
           : state.lastSyncMessage,
     );
-    syncGlobalLocale(preferences.languageMode);
     if (calendarAvailable) {
       unawaited(_performIncrementalCalendarSync());
     }
@@ -231,9 +242,9 @@ class AppStateController extends StateNotifier<AppState> {
     if (!available) {
       state = state.copyWith(
         biometricAvailable: false,
-        lastSyncMessage:
-            AppLocalizations.current(mode: state.preferences.languageMode)
-                .messageBiometricUnsupported,
+        lastSyncMessage: AppLocalizations.current(
+          mode: state.preferences.languageMode,
+        ).messageBiometricUnsupported,
       );
       return;
     }
@@ -243,9 +254,9 @@ class AppStateController extends StateNotifier<AppState> {
       if (!authenticated) {
         state = state.copyWith(
           biometricAvailable: true,
-          lastSyncMessage:
-              AppLocalizations.current(mode: state.preferences.languageMode)
-                  .messageBiometricFailed,
+          lastSyncMessage: AppLocalizations.current(
+            mode: state.preferences.languageMode,
+          ).messageBiometricFailed,
         );
         return;
       }
@@ -256,10 +267,12 @@ class AppStateController extends StateNotifier<AppState> {
       biometricAvailable: true,
       appUnlocked: !enabled || authenticated,
       lastSyncMessage: enabled
-          ? AppLocalizations.current(mode: state.preferences.languageMode)
-              .messageBiometricEnabled
-          : AppLocalizations.current(mode: state.preferences.languageMode)
-              .messageBiometricDisabled,
+          ? AppLocalizations.current(
+              mode: state.preferences.languageMode,
+            ).messageBiometricEnabled
+          : AppLocalizations.current(
+              mode: state.preferences.languageMode,
+            ).messageBiometricDisabled,
     );
   }
 
@@ -278,9 +291,9 @@ class AppStateController extends StateNotifier<AppState> {
     if (!state.biometricAvailable) {
       state = state.copyWith(
         appUnlocked: true,
-        lastSyncMessage:
-            AppLocalizations.current(mode: state.preferences.languageMode)
-                .messageBiometricUnsupportedSkipped,
+        lastSyncMessage: AppLocalizations.current(
+          mode: state.preferences.languageMode,
+        ).messageBiometricUnsupportedSkipped,
       );
       return;
     }
@@ -290,10 +303,12 @@ class AppStateController extends StateNotifier<AppState> {
     state = state.copyWith(
       appUnlocked: authenticated,
       lastSyncMessage: authenticated
-          ? AppLocalizations.current(mode: state.preferences.languageMode)
-              .messageUnlocked
-          : AppLocalizations.current(mode: state.preferences.languageMode)
-              .messageUnlockFailed,
+          ? AppLocalizations.current(
+              mode: state.preferences.languageMode,
+            ).messageUnlocked
+          : AppLocalizations.current(
+              mode: state.preferences.languageMode,
+            ).messageUnlockFailed,
     );
   }
 
@@ -303,10 +318,12 @@ class AppStateController extends StateNotifier<AppState> {
     state = state.copyWith(
       locationPermissionGranted: granted,
       lastSyncMessage: granted
-          ? AppLocalizations.current(mode: state.preferences.languageMode)
-              .messageLocationPermissionEnabled
-          : AppLocalizations.current(mode: state.preferences.languageMode)
-              .messageLocationPermissionDenied,
+          ? AppLocalizations.current(
+              mode: state.preferences.languageMode,
+            ).messageLocationPermissionEnabled
+          : AppLocalizations.current(
+              mode: state.preferences.languageMode,
+            ).messageLocationPermissionDenied,
     );
     if (granted) {
       await _startGeofenceMonitoring(state.geofences);
@@ -333,6 +350,10 @@ class AppStateController extends StateNotifier<AppState> {
     final notificationService = await _ref.read(
       notificationServiceProvider.future,
     );
+    final shouldRequestNotificationPermission =
+        id == null &&
+        !state.notificationPermissionGranted &&
+        !await repository.hasPromptedNotificationPermission();
     final existing = state.calendarItems.firstWhere(
       (item) => item.id == id,
       orElse: () => CalendarItem(
@@ -360,8 +381,9 @@ class AppStateController extends StateNotifier<AppState> {
       updatedAt: DateTime.now(),
     );
     await repository.upsertCalendarItem(updated);
-    final notificationGranted = await notificationService.requestPermissions();
-    state = state.copyWith(notificationPermissionGranted: notificationGranted);
+    if (shouldRequestNotificationPermission) {
+      await requestNotificationPermissions();
+    }
     await notificationService.scheduleTask(
       updated,
       fireNowForDebug: state.preferences.debugImmediateReminders,
@@ -374,9 +396,9 @@ class AppStateController extends StateNotifier<AppState> {
       await repository.upsertCalendarItem(updated);
       state = state.copyWith(
         calendarPermissionGranted: true,
-        lastSyncMessage:
-            AppLocalizations.current(mode: state.preferences.languageMode)
-                .messageSyncedToIosCalendar,
+        lastSyncMessage: AppLocalizations.current(
+          mode: state.preferences.languageMode,
+        ).messageSyncedToIosCalendar,
       );
     }
   }
@@ -402,16 +424,20 @@ class AppStateController extends StateNotifier<AppState> {
   }
 
   Future<void> requestNotificationPermissions() async {
+    final repository = await _ref.read(repositoryProvider.future);
     final granted = await _ref
         .read(notificationServiceProvider.future)
         .then((service) => service.requestPermissions());
+    await repository.markNotificationPermissionPrompted();
     state = state.copyWith(
       notificationPermissionGranted: granted,
       lastSyncMessage: granted
-          ? AppLocalizations.current(mode: state.preferences.languageMode)
-              .messageNotificationPermissionOn
-          : AppLocalizations.current(mode: state.preferences.languageMode)
-              .messageNotificationPermissionOff,
+          ? AppLocalizations.current(
+              mode: state.preferences.languageMode,
+            ).messageNotificationPermissionOn
+          : AppLocalizations.current(
+              mode: state.preferences.languageMode,
+            ).messageNotificationPermissionOff,
     );
   }
 
@@ -419,9 +445,9 @@ class AppStateController extends StateNotifier<AppState> {
     await _performIncrementalCalendarSync(
       forceFull: true,
       updateMessage: true,
-      messagePrefix:
-          AppLocalizations.current(mode: state.preferences.languageMode)
-              .messagePrefixImportedSystemCalendarSnapshot(),
+      messagePrefix: AppLocalizations.current(
+        mode: state.preferences.languageMode,
+      ).messagePrefixImportedSystemCalendarSnapshot(),
     );
   }
 
@@ -431,9 +457,9 @@ class AppStateController extends StateNotifier<AppState> {
     if (!granted) {
       state = state.copyWith(
         calendarPermissionGranted: false,
-        lastSyncMessage:
-            AppLocalizations.current(mode: state.preferences.languageMode)
-                .messageCalendarPermissionDenied,
+        lastSyncMessage: AppLocalizations.current(
+          mode: state.preferences.languageMode,
+        ).messageCalendarPermissionDenied,
       );
       return;
     }
@@ -452,9 +478,9 @@ class AppStateController extends StateNotifier<AppState> {
     }
     state = state.copyWith(
       calendarPermissionGranted: true,
-      lastSyncMessage:
-          AppLocalizations.current(mode: state.preferences.languageMode)
-              .messageSyncedTasksToIosCalendar(synced),
+      lastSyncMessage: AppLocalizations.current(
+        mode: state.preferences.languageMode,
+      ).messageSyncedTasksToIosCalendar(synced),
     );
     await _performIncrementalCalendarSync();
   }
@@ -465,9 +491,9 @@ class AppStateController extends StateNotifier<AppState> {
     if (!granted) {
       state = state.copyWith(
         calendarPermissionGranted: false,
-        lastSyncMessage:
-            AppLocalizations.current(mode: state.preferences.languageMode)
-                .messageCalendarPermissionDenied,
+        lastSyncMessage: AppLocalizations.current(
+          mode: state.preferences.languageMode,
+        ).messageCalendarPermissionDenied,
       );
       return const [];
     }
@@ -489,9 +515,9 @@ class AppStateController extends StateNotifier<AppState> {
     await _performIncrementalCalendarSync(
       forceFull: true,
       updateMessage: true,
-      messagePrefix:
-          AppLocalizations.current(mode: state.preferences.languageMode)
-              .messagePrefixSystemCalendarScopeUpdated(),
+      messagePrefix: AppLocalizations.current(
+        mode: state.preferences.languageMode,
+      ).messagePrefixSystemCalendarScopeUpdated(),
     );
   }
 
@@ -560,9 +586,12 @@ class AppStateController extends StateNotifier<AppState> {
     final previousTier = state.preferences.performanceTier;
     await repository.savePreferences(preferences);
     syncGlobalLocale(preferences.languageMode);
+    final suggestions = await repository.loadRecentSuggestions();
     state = state.copyWith(
       preferences: preferences,
       calendarView: preferences.selectedCalendarView,
+      templates: repository.templates(),
+      recentSuggestions: suggestions,
     );
     if (previousTier != preferences.performanceTier) {
       await _configureSensorStream(preferences.performanceTier);
@@ -607,13 +636,12 @@ class AppStateController extends StateNotifier<AppState> {
         activeScene: update.sceneMode,
         activeGeofenceName: update.placeName,
         lastSyncMessage: update.placeName == null
-            ? AppLocalizations.current(mode: state.preferences.languageMode)
-                .messageLocationOutsideGeofence
-            : AppLocalizations.current(mode: state.preferences.languageMode)
-                .messageEnteredGeofence(
-                  update.placeName!,
-                  update.sceneMode,
-                ),
+            ? AppLocalizations.current(
+                mode: state.preferences.languageMode,
+              ).messageLocationOutsideGeofence
+            : AppLocalizations.current(
+                mode: state.preferences.languageMode,
+              ).messageEnteredGeofence(update.placeName!, update.sceneMode),
       );
       state = nextState;
       unawaited(_publishSnapshot(nextState));
@@ -630,9 +658,9 @@ class AppStateController extends StateNotifier<AppState> {
     if (!granted) {
       state = state.copyWith(
         calendarPermissionGranted: false,
-        lastSyncMessage:
-            AppLocalizations.current(mode: state.preferences.languageMode)
-                .messageCalendarPermissionDenied,
+        lastSyncMessage: AppLocalizations.current(
+          mode: state.preferences.languageMode,
+        ).messageCalendarPermissionDenied,
       );
       return;
     }
@@ -646,9 +674,9 @@ class AppStateController extends StateNotifier<AppState> {
     if (delta == null) {
       state = state.copyWith(
         calendarPermissionGranted: true,
-        lastSyncMessage:
-            AppLocalizations.current(mode: state.preferences.languageMode)
-                .messageIncrementalCalendarSyncFailed,
+        lastSyncMessage: AppLocalizations.current(
+          mode: state.preferences.languageMode,
+        ).messageIncrementalCalendarSyncFailed,
       );
       return;
     }
@@ -656,7 +684,9 @@ class AppStateController extends StateNotifier<AppState> {
     await repository.reconcileCalendarDelta(delta);
     await repository.saveCalendarSyncCursor(delta.syncedAt);
     if (updateMessage) {
-      final l10n = AppLocalizations.current(mode: state.preferences.languageMode);
+      final l10n = AppLocalizations.current(
+        mode: state.preferences.languageMode,
+      );
       final prefix = messagePrefix ?? l10n.messageIncrementalCalendarSyncPrefix;
       state = state.copyWith(
         calendarPermissionGranted: true,

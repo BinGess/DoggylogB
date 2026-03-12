@@ -5,7 +5,6 @@ import 'package:doggylog/features/shared/presentation/widgets/compact_date_time_
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 Future<void> showCountdownDetailSheet(
   BuildContext context,
@@ -38,7 +37,9 @@ class _CountdownDetailSheetState extends ConsumerState<CountdownDetailSheet> {
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.item.title);
+    _titleController = TextEditingController(
+      text: AppLocalizations.current().localizedStoredText(widget.item.title),
+    );
     _dueAt = widget.item.dueAt;
     _isPinned = widget.item.isPinned;
     _hasCelebrated = widget.item.hasCelebrated;
@@ -70,7 +71,10 @@ class _CountdownDetailSheetState extends ConsumerState<CountdownDetailSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(l10n.countdownDetail, style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                l10n.countdownDetail,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 18),
               TextField(
                 controller: _titleController,
@@ -91,19 +95,14 @@ class _CountdownDetailSheetState extends ConsumerState<CountdownDetailSheet> {
                       label: l10n.remaining,
                       value: _hasCelebrated
                           ? l10n.completed
-                          : l10n.daysLabel(
-                              remainingDays.ceil().clamp(0, 999),
-                            ),
+                          : l10n.daysLabel(remainingDays.ceil().clamp(0, 999)),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _CountdownMetaChip(
                       label: l10n.createdOn,
-                      value: DateFormat(
-                        'M月d日',
-                        l10n.localeName,
-                      ).format(widget.item.createdAt),
+                      value: l10n.shortDate(widget.item.createdAt),
                     ),
                   ),
                 ],

@@ -66,13 +66,12 @@ void main() {
       final surfaceStyle = theme.extension<AppThemeSurfaceStyle>()!;
 
       for (final color in surfaceStyle.cardGradientColors) {
-        final darkestChannel = math.min(
-          color.red,
-          math.min(color.green, color.blue),
-        );
+        final red = (color.r * 255).round();
+        final green = (color.g * 255).round();
+        final blue = (color.b * 255).round();
+        final darkestChannel = math.min(red, math.min(green, blue));
         final channelSpread =
-            math.max(color.red, math.max(color.green, color.blue)) -
-            darkestChannel;
+            math.max(red, math.max(green, blue)) - darkestChannel;
 
         expect(
           color.computeLuminance(),
@@ -94,12 +93,12 @@ void main() {
       }
 
       expect(
-        surfaceStyle.cardBorderColor.alpha,
+        (surfaceStyle.cardBorderColor.a * 255).round(),
         lessThanOrEqualTo(96),
         reason: '$skinTheme card border should stay subtle in light mode.',
       );
       expect(
-        surfaceStyle.cardShadowColor.alpha,
+        (surfaceStyle.cardShadowColor.a * 255).round(),
         lessThanOrEqualTo(24),
         reason: '$skinTheme card shadow should stay restrained in light mode.',
       );

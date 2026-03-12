@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:intl/intl.dart';
 
@@ -31,21 +32,25 @@ class DoggylogSharedSnapshot {
     AppState state, {
     required PetMood mood,
   }) {
-    final now = DateTime.now();
+    final l10n = AppLocalizations.current();
+    final generatedAt = DateTime.now();
+    final referenceDate = state.selectedDate;
     final todayTasks =
         state.calendarItems
             .where(
               (item) =>
                   !item.isDeleted &&
-                  item.startAt.year == now.year &&
-                  item.startAt.month == now.month &&
-                  item.startAt.day == now.day,
+                  item.startAt.year == referenceDate.year &&
+                  item.startAt.month == referenceDate.month &&
+                  item.startAt.day == referenceDate.day,
             )
             .toList()
           ..sort((a, b) => a.startAt.compareTo(b.startAt));
     final nextTask =
         state.calendarItems
-            .where((item) => !item.isDeleted && item.startAt.isAfter(now))
+            .where(
+              (item) => !item.isDeleted && item.startAt.isAfter(referenceDate),
+            )
             .toList()
           ..sort((a, b) => a.startAt.compareTo(b.startAt));
     final pinnedCountdown = [...state.countdowns]
@@ -57,11 +62,13 @@ class DoggylogSharedSnapshot {
       });
 
     return DoggylogSharedSnapshot(
-      generatedAt: now,
+      generatedAt: generatedAt,
       today: SnapshotToday(
         pendingCount: todayTasks.where((item) => !item.isCompleted).length,
         completedCount: todayTasks.where((item) => item.isCompleted).length,
-        nextTaskTitle: nextTask.isEmpty ? null : nextTask.first.title,
+        nextTaskTitle: nextTask.isEmpty
+            ? null
+            : l10n.localizedStoredText(nextTask.first.title),
         nextTaskTime: nextTask.isEmpty
             ? null
             : DateFormat('HH:mm').format(nextTask.first.startAt),
@@ -69,7 +76,7 @@ class DoggylogSharedSnapshot {
       ),
       pet: SnapshotPet(
         name: state.selectedPet?.name ?? 'DoggyLog',
-        breed: state.selectedPet?.breed.name ?? PetBreed.shiba.name,
+        breed: l10n.breedLabel(state.selectedPet?.breed ?? PetBreed.shiba),
         mood: mood.name,
         loyaltyLevel: state.selectedPet?.loyaltyLevel ?? 1,
         sceneMode: state.activeScene.name,
@@ -77,24 +84,25 @@ class DoggylogSharedSnapshot {
       countdown: pinnedCountdown.isEmpty
           ? null
           : SnapshotCountdown(
-              title: pinnedCountdown.first.title,
+              title: l10n.localizedStoredText(pinnedCountdown.first.title),
               dueAt: pinnedCountdown.first.dueAt.millisecondsSinceEpoch,
               daysRemaining:
-                  pinnedCountdown.first.dueAt.difference(now).inDays + 1,
+                  pinnedCountdown.first.dueAt.difference(referenceDate).inDays +
+                  1,
               startAt: pinnedCountdown.first.createdAt.millisecondsSinceEpoch,
             ),
       recentTasks: todayTasks
           .take(3)
           .map(
             (item) => SnapshotTask(
-              title: item.title,
+              title: l10n.localizedStoredText(item.title),
               time: DateFormat('HH:mm').format(item.startAt),
               category: item.category.name,
               completed: item.isCompleted,
             ),
           )
           .toList(),
-      calendarDays: _buildCalendarDays(state, now),
+      calendarDays: _buildCalendarDays(state, referenceDate),
     );
   }
 
@@ -233,7 +241,7 @@ class SnapshotCalendarDay {
     required this.taskCount,
   });
 
-  final int day;        // 1-31；非当月填充格为 0
+  final int day; // 1-31；非当月填充格为 0
   final bool isInMonth;
   final bool isToday;
   final int taskCount;
@@ -245,4 +253,3 @@ class SnapshotCalendarDay {
     'taskCount': taskCount,
   };
 }
-

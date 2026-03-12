@@ -1,3 +1,4 @@
+import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/app/theme/app_theme.dart';
 import 'package:doggylog/features/calendar/presentation/calendar_theme_assets.dart';
@@ -13,6 +14,7 @@ import 'package:doggylog/features/countdown/presentation/countdown_screen.dart';
 import 'package:doggylog/features/settings/presentation/settings_screen.dart';
 import 'package:doggylog/features/shared/presentation/widgets/task_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -20,7 +22,36 @@ import 'package:intl/date_symbol_data_local.dart';
 void main() {
   setUpAll(() async {
     await initializeDateFormatting('zh_CN');
+    await initializeDateFormatting('en_US');
+    await initializeDateFormatting('ja_JP');
   });
+
+  Future<void> pumpSettingsScreen(
+    WidgetTester tester, {
+    Locale? locale,
+    ThemeData? theme,
+  }) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme:
+              theme ??
+              AppTheme.light(fontScale: 1.0, skinTheme: AppSkinTheme.shibaJoy),
+          locale: locale ?? const Locale('zh'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: const SettingsScreen(),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 120));
+  }
 
   testWidgets('TaskTile renders title and category label', (tester) async {
     final now = DateTime(2026, 3, 8, 9);
@@ -53,7 +84,7 @@ void main() {
     );
 
     expect(find.text('晨间遛弯'), findsOneWidget);
-    expect(find.text('宠物相关'), findsOneWidget);
+    expect(find.text('毛孩子'), findsOneWidget);
   });
 
   testWidgets('CalendarScreen empty agenda shows dog image and new copy', (
@@ -66,7 +97,7 @@ void main() {
       const ProviderScope(child: MaterialApp(home: CalendarScreen())),
     );
 
-    expect(find.text('今日还没安排哦，点击右上角创建'), findsOneWidget);
+    expect(find.text('今天还空空的，点右上角记一件吧'), findsOneWidget);
 
     final image = tester.widget<Image>(
       find.byWidgetPredicate(
@@ -144,7 +175,7 @@ void main() {
     await tester.tap(find.text('12:00').first);
     await tester.pumpAndSettle();
 
-    expect(find.text('选择时间'), findsOneWidget);
+    expect(find.text('选个时间'), findsOneWidget);
 
     await tester.tap(find.text('完成'));
     await tester.pumpAndSettle();
@@ -152,7 +183,7 @@ void main() {
     await tester.tap(find.textContaining('年').first);
     await tester.pumpAndSettle();
 
-    expect(find.text('选择日期'), findsOneWidget);
+    expect(find.text('选个日期'), findsOneWidget);
   });
 
   testWidgets('CompactDateTimeField renders split date and time chips', (
@@ -274,9 +305,12 @@ void main() {
     final border = outer.border! as Border;
 
     expect(outerGradient.colors.last.computeLuminance(), greaterThan(0.94));
-    expect(border.top.color.alpha, lessThanOrEqualTo(96));
-    expect(outer.boxShadow!.first.color.alpha, lessThanOrEqualTo(24));
-    expect(innerGradient.colors.first.alpha, lessThanOrEqualTo(28));
+    expect((border.top.color.a * 255).round(), lessThanOrEqualTo(96));
+    expect(
+      (outer.boxShadow!.first.color.a * 255).round(),
+      lessThanOrEqualTo(24),
+    );
+    expect((innerGradient.colors.first.a * 255).round(), lessThanOrEqualTo(28));
   });
 
   testWidgets('CountdownScreen renders title inline without AppBar', (
@@ -310,11 +344,7 @@ void main() {
       skinTheme: AppSkinTheme.shibaJoy,
     );
 
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(theme: theme, home: const SettingsScreen()),
-      ),
-    );
+    await pumpSettingsScreen(tester, theme: theme);
 
     expect(find.byType(AppBar), findsNothing);
     expect(find.text('我的'), findsOneWidget);
@@ -458,38 +488,69 @@ void main() {
   });
 
   testWidgets('SettingsScreen shows settings section', (tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(child: MaterialApp(home: SettingsScreen())),
-    );
-    await tester.pump();
+    await pumpSettingsScreen(tester);
 
     expect(find.text('我的'), findsOneWidget);
     expect(find.text('设置'), findsOneWidget);
-    expect(find.text('字号'), findsOneWidget);
+    expect(find.text('字体大小'), findsOneWidget);
     expect(find.text('小'), findsOneWidget);
     expect(find.text('中'), findsOneWidget);
     expect(find.text('大'), findsOneWidget);
     expect(find.text('开发调试'), findsOneWidget);
-    expect(find.text('动画强度'), findsNothing);
+    expect(find.text('动效强度'), findsNothing);
     expect(find.text('iOS 增强能力'), findsNothing);
+  });
+
+  testWidgets('SettingsScreen opens language picker modal and updates choice', (
+    tester,
+  ) async {
+    await pumpSettingsScreen(tester);
+
+    expect(find.byKey(const Key('settings-language-tile')), findsOneWidget);
+    expect(find.byKey(const Key('language-picker-sheet')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('settings-language-tile')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.byKey(const Key('language-picker-sheet')), findsOneWidget);
+    expect(find.text('跟随系统'), findsWidgets);
+    expect(find.text('中文'), findsOneWidget);
+    expect(find.text('English'), findsWidgets);
+    expect(find.text('日语'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('language-option-en')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 800));
+
+    expect(find.byKey(const Key('language-picker-sheet')), findsNothing);
+    expect(find.byKey(const Key('settings-language-tile')), findsOneWidget);
+  });
+
+  testWidgets('SettingsScreen localizes the biometric toggle label', (
+    tester,
+  ) async {
+    await pumpSettingsScreen(tester, locale: const Locale('en'));
+    await tester.pump();
+
+    expect(find.text('Biometric unlock'), findsOneWidget);
+    expect(find.text('Face ID / Touch ID'), findsNothing);
   });
 
   testWidgets(
     'SettingsScreen opens development debug page from settings footer',
     (tester) async {
-      await tester.pumpWidget(
-        const ProviderScope(child: MaterialApp(home: SettingsScreen())),
-      );
-      await tester.pump();
+      await pumpSettingsScreen(tester);
 
       final debugTile = find.widgetWithText(ListTile, '开发调试');
-      await tester.drag(find.byType(Scrollable).first, const Offset(0, -320));
-      await tester.pumpAndSettle();
-      await tester.tap(debugTile);
-      await tester.pumpAndSettle();
+      await tester.ensureVisible(debugTile);
+      await tester.pump();
+      await tester.tap(debugTile, warnIfMissed: false);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.text('开发调试'), findsWidgets);
-      expect(find.text('动画强度'), findsOneWidget);
+      expect(find.text('动效强度'), findsOneWidget);
       expect(find.text('iOS 增强能力'), findsOneWidget);
     },
   );

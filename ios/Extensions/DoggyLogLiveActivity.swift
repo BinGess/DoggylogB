@@ -41,7 +41,7 @@ struct DoggyLogLiveActivityWidget: Widget {
             Text(context.state.petName)
               .font(.headline)
           }
-          Text("\(context.state.petMood) · \(context.state.sceneMode)")
+          Text("\(widgetMoodLabel(context.state.petMood)) · \(widgetSceneLabel(context.state.sceneMode))")
             .font(.caption)
             .foregroundStyle(.white.opacity(0.65))
         }
@@ -59,7 +59,7 @@ struct DoggyLogLiveActivityWidget: Widget {
           HStack(spacing: 4) {
             Image(systemName: "circle")
               .font(.caption)
-            Text("\(context.state.pendingCount) 待办")
+            Text("\(context.state.pendingCount) \(widgetText("待办", "to do", "やること"))")
               .font(.subheadline.weight(.semibold))
           }
         }
@@ -75,7 +75,7 @@ struct DoggyLogLiveActivityWidget: Widget {
       HStack(alignment: .top, spacing: 0) {
         if let nextTitle = context.state.nextTaskTitle {
           VStack(alignment: .leading, spacing: 2) {
-            Text("下一件")
+            Text(widgetText("下一件", "Next up", "つぎ"))
               .font(.caption2)
               .foregroundStyle(.white.opacity(0.5))
             Text(nextTitle)
@@ -92,10 +92,10 @@ struct DoggyLogLiveActivityWidget: Widget {
         if let countdownTitle = context.state.countdownTitle,
            let days = context.state.countdownDaysRemaining {
           VStack(alignment: .trailing, spacing: 2) {
-            Text("倒计时")
+            Text(widgetText("倒计时", "Countdown", "カウントダウン"))
               .font(.caption2)
               .foregroundStyle(.white.opacity(0.5))
-            Text("\(days) 天")
+            Text(widgetDaysLeftLabel(days))
               .font(.title3.weight(.bold))
               .foregroundStyle(days <= 3 ? .orange : .white)
             Text(countdownTitle)
@@ -123,7 +123,7 @@ struct DoggyLogLiveActivityWidget: Widget {
               Text(context.state.petName)
                 .font(.callout.weight(.semibold))
                 .lineLimit(1)
-              Text(context.state.petMood)
+              Text(widgetMoodLabel(context.state.petMood))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
             }
@@ -154,7 +154,7 @@ struct DoggyLogLiveActivityWidget: Widget {
             // 下一任务
             if let nextTitle = context.state.nextTaskTitle {
               VStack(alignment: .leading, spacing: 2) {
-                Text("下一件")
+                Text(widgetText("下一件", "Next up", "つぎ"))
                   .font(.caption2)
                   .foregroundStyle(.secondary)
                 Text(nextTitle)
@@ -180,7 +180,7 @@ struct DoggyLogLiveActivityWidget: Widget {
                   Text("\(days)")
                     .font(.title3.weight(.bold))
                     .foregroundStyle(days <= 3 ? .orange : .white)
-                  Text("天")
+                  Text(widgetText("天", "d", "日"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                 }
@@ -216,7 +216,7 @@ struct DoggyLogLiveActivityWidget: Widget {
         // 有倒计时且紧急时显示天数，否则显示待办数
         if let days = context.state.countdownDaysRemaining, days <= 7 {
           HStack(spacing: 2) {
-            Text("\(days)天")
+            Text(widgetDaysLeftLabel(days))
               .font(.caption.weight(.bold))
               .foregroundStyle(days <= 3 ? .orange : .white)
           }

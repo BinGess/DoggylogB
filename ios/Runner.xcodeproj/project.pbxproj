@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0E8D9BF4B516125AA1AFB735 /* DoggyLogCountdownWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5AECC64F0994FF1208550F /* DoggyLogCountdownWidget.swift */; };
+		118A0C9D2E3F4A5B6C7D8E9F /* DoggyLogWidgetStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B6C7D8E9F0A1B2C3D4E5F60 /* DoggyLogWidgetStrings.swift */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		2F748881100D285B8FC5DA9F /* DoggyLogSummaryWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FA6FCFD7482E06256C0699 /* DoggyLogSummaryWidget.swift */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
@@ -83,6 +84,7 @@
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		48E2928054291FEF9CE6A9D9 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E5AECC64F0994FF1208550F /* DoggyLogCountdownWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DoggyLogCountdownWidget.swift; sourceTree = "<group>"; };
+		5B6C7D8E9F0A1B2C3D4E5F60 /* DoggyLogWidgetStrings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DoggyLogWidgetStrings.swift; sourceTree = "<group>"; };
 		51E43C6066B960CA8A0CA7D9 /* DoggyLogWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DoggyLogWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		60173334DE24695E2BDAB254 /* DoggyLogWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DoggyLogWidgetBundle.swift; sourceTree = "<group>"; };
 		6228B32F8C0C30E7021C6F63 /* Pods_DoggyLogWidgets.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DoggyLogWidgets.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -251,6 +253,7 @@
 			children = (
 				27ABAA5CA40B546C7186CA34 /* DoggyLogCalendarWidget.swift */,
 				4E5AECC64F0994FF1208550F /* DoggyLogCountdownWidget.swift */,
+				5B6C7D8E9F0A1B2C3D4E5F60 /* DoggyLogWidgetStrings.swift */,
 				68CCCAA0921EF2F89D49B2AE /* DoggyLogLiveActivity.swift */,
 				CA1234570947EA7AF65CE0F1 /* DoggyLogWidgetIntent.swift */,
 				89FF445A009F6F5AE4F187F6 /* DoggyLogSharedSnapshotStore.swift */,
@@ -534,6 +537,7 @@
 			files = (
 				651BDEC24BE982AD096724B1 /* DoggyLogCalendarWidget.swift in Sources */,
 				0E8D9BF4B516125AA1AFB735 /* DoggyLogCountdownWidget.swift in Sources */,
+				118A0C9D2E3F4A5B6C7D8E9F /* DoggyLogWidgetStrings.swift in Sources */,
 				BBAF9FFF0947EA7AF65CE0E5 /* DoggyLogLiveActivity.swift in Sources */,
 				CA1234560947EA7AF65CE0F1 /* DoggyLogWidgetIntent.swift in Sources */,
 				75BF8DF82CC7FDFF2D960B0B /* DoggyLogSharedSnapshotStore.swift in Sources */,

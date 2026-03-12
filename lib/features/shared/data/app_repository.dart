@@ -13,26 +13,29 @@ import 'package:uuid/uuid.dart';
 class AppRepository {
   AppRepository(this._database, this._prefs, this._bus);
 
+  static const _seededKey = 'seeded';
+  static const _notificationPermissionPromptedKey =
+      'notificationPermissionPrompted';
+
   final AppDatabase _database;
   final SharedPreferences _prefs;
   final DomainEventBus _bus;
   final _uuid = const Uuid();
 
   Future<void> seedIfNeeded() async {
-    final seeded = _prefs.getBool('seeded') ?? false;
+    final seeded = _prefs.getBool(_seededKey) ?? false;
     if (seeded) {
       return;
     }
     final now = DateTime.now();
-    final l10n = AppLocalizations.current();
     final pets = _buildDefaultPetRoster(now);
     final selectedPet = pets.firstWhere((pet) => pet.isSelected);
 
     final tasks = [
       CalendarItem(
         id: _uuid.v4(),
-        title: l10n.text('晨间遛弯', 'Morning walk', '朝の散歩'),
-        description: l10n.text('带 Mochi 出门散步，顺手补充饮水。', 'Take Mochi out for a walk and refill water on the way.', 'Mochi を散歩に連れ出し、そのついでに水を補充します。'),
+        title: SeedCopyKey.taskMorningWalkTitle,
+        description: SeedCopyKey.taskMorningWalkDescription,
         startAt: DateTime(now.year, now.month, now.day, 7, 30),
         endAt: DateTime(now.year, now.month, now.day, 8, 0),
         category: CalendarCategory.pet,
@@ -44,8 +47,8 @@ class AppRepository {
       ),
       CalendarItem(
         id: _uuid.v4(),
-        title: l10n.text('产品评审', 'Product review', 'プロダクトレビュー'),
-        description: l10n.text('确认 DoggyLog 首屏交互和 Widget 数据源。', 'Review DoggyLog home interactions and widget data sources.', 'DoggyLog のホーム画面操作とウィジェットデータソースを確認します。'),
+        title: SeedCopyKey.taskProductReviewTitle,
+        description: SeedCopyKey.taskProductReviewDescription,
         startAt: DateTime(now.year, now.month, now.day, 10, 0),
         endAt: DateTime(now.year, now.month, now.day, 11, 0),
         category: CalendarCategory.work,
@@ -57,8 +60,8 @@ class AppRepository {
       ),
       CalendarItem(
         id: _uuid.v4(),
-        title: l10n.text('疫苗到期提醒', 'Vaccine due reminder', 'ワクチン期限リマインダー'),
-        description: l10n.text('确认宠物医院预约时间。', 'Confirm the veterinary appointment time.', '動物病院の予約時刻を確認します。'),
+        title: SeedCopyKey.taskVaccineDueTitle,
+        description: SeedCopyKey.taskVaccineDueDescription,
         startAt: now.add(const Duration(days: 5, hours: 9)),
         endAt: now.add(const Duration(days: 5, hours: 10)),
         category: CalendarCategory.anniversary,
@@ -81,7 +84,7 @@ class AppRepository {
       batch.insertAll(_database.countdownItemsTable, [
         CountdownItem(
           id: _uuid.v4(),
-          title: l10n.text('Mochi 生日', 'Mochi Birthday', 'Mochi の誕生日'),
+          title: SeedCopyKey.countdownMochiBirthdayTitle,
           dueAt: now.add(const Duration(days: 28)),
           createdAt: now.subtract(const Duration(days: 2)),
           petId: selectedPet.id,
@@ -89,7 +92,7 @@ class AppRepository {
         ).toCompanion(),
         CountdownItem(
           id: _uuid.v4(),
-          title: l10n.text('年度体检', 'Annual checkup', '年次健診'),
+          title: SeedCopyKey.countdownAnnualCheckupTitle,
           dueAt: now.add(const Duration(days: 41)),
           createdAt: now,
           petId: selectedPet.id,
@@ -101,7 +104,15 @@ class AppRepository {
       );
     });
     await savePreferences(const UserPreference.defaults());
-    await _prefs.setBool('seeded', true);
+    await _prefs.setBool(_seededKey, true);
+  }
+
+  Future<bool> hasPromptedNotificationPermission() async {
+    return _prefs.getBool(_notificationPermissionPromptedKey) ?? false;
+  }
+
+  Future<void> markNotificationPermissionPrompted() async {
+    await _prefs.setBool(_notificationPermissionPromptedKey, true);
   }
 
   Future<void> ensureDefaultPetRoster() async {
@@ -261,12 +272,16 @@ class AppRepository {
   }
 
   Future<List<String>> loadRecentSuggestions() async {
+    final l10n = AppLocalizations.current();
     final query = _database.select(_database.calendarEntriesTable)
       ..where((tbl) => tbl.isDeleted.equals(false))
       ..orderBy([(tbl) => OrderingTerm.desc(tbl.updatedAt)])
       ..limit(5);
     final rows = await query.get();
-    return rows.map((item) => item.title).toSet().toList();
+    return rows
+        .map((item) => l10n.localizedStoredText(item.title))
+        .toSet()
+        .toList();
   }
 
   Future<void> upsertCalendarItem(CalendarItem item) async {
@@ -459,7 +474,19 @@ class AppRepository {
     );
   }
 
-  List<TaskTemplate> templates() => defaultTemplates;
+  List<TaskTemplate> templates() {
+    final l10n = AppLocalizations.current();
+    return defaultTemplates
+        .map(
+          (template) => TaskTemplate(
+            id: template.id,
+            title: l10n.localizedStoredText(template.title),
+            category: template.category,
+            durationMinutes: template.durationMinutes,
+          ),
+        )
+        .toList(growable: false);
+  }
 
   int _calculateStreak(List<CalendarItem> items) {
     if (items.isEmpty) return 0;

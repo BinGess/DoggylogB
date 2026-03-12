@@ -58,7 +58,7 @@ class TaskTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    item.title,
+                    context.l10n.localizedStoredText(item.title),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       decoration: item.isCompleted
                           ? TextDecoration.lineThrough
@@ -73,7 +73,7 @@ class TaskTile extends StatelessWidget {
                   if (item.description.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
-                      item.description,
+                      context.l10n.localizedStoredText(item.description),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall,

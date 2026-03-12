@@ -1,5 +1,6 @@
 import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/pets/presentation/pets_screen.dart';
+import 'package:doggylog/features/settings/presentation/widgets/language_picker_bottom_sheet.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
@@ -13,6 +14,38 @@ const _fontScaleOptions = <({double value})>[
   (value: 1.1),
   (value: 1.2),
 ];
+
+class NotificationPermissionSwitchTile extends StatelessWidget {
+  const NotificationPermissionSwitchTile({
+    super.key,
+    required this.isGranted,
+    required this.onRequestPermission,
+  });
+
+  final bool isGranted;
+  final VoidCallback onRequestPermission;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return SwitchListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(l10n.notificationReminders),
+      subtitle: Text(
+        isGranted
+            ? l10n.notificationPermissionGranted
+            : l10n.notificationPermissionDenied,
+      ),
+      value: isGranted,
+      onChanged: (value) {
+        if (!value) {
+          return;
+        }
+        onRequestPermission();
+      },
+    );
+  }
+}
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -32,9 +65,8 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               SoftBackdropPageHeader(
                 title: l10n.settingsHeaderTitle,
-                titleStyle: Theme.of(
-                  context,
-                ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
+                titleStyle: Theme.of(context).textTheme.headlineMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
                 //subtitle: '管理宠物、偏好设置和设备能力。',
               ),
               const SizedBox(height: 24),
@@ -52,7 +84,7 @@ class SettingsScreen extends ConsumerWidget {
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text(l10n.managePetSkins),
-                   // subtitle: const Text('进入页面后切换宠物，对应整套 App 皮肤会立即切换'),
+                    // subtitle: const Text('进入页面后切换宠物，对应整套 App 皮肤会立即切换'),
                     trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
@@ -96,48 +128,33 @@ class SettingsScreen extends ConsumerWidget {
                           );
                         },
                       ),
+                      NotificationPermissionSwitchTile(
+                        isGranted: state.notificationPermissionGranted,
+                        onRequestPermission:
+                            controller.requestNotificationPermissions,
+                      ),
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('Face ID / Touch ID'),
+                        title: Text(l10n.biometricUnlock),
                         value: preferences.faceIdEnabled,
                         onChanged: controller.setFaceIdEnabled,
                       ),
                       const Divider(height: 24),
                       ListTile(
+                        key: const Key('settings-language-tile'),
                         contentPadding: EdgeInsets.zero,
                         title: Text(l10n.language),
                         subtitle: Text(
                           l10n.languageCurrentLabel(preferences.languageMode),
                         ),
-                        trailing: DropdownButtonHideUnderline(
-                          child: DropdownButton<AppLanguageMode>(
-                            value: preferences.languageMode,
-                            items: [
-                              DropdownMenuItem(
-                                value: AppLanguageMode.system,
-                                child: Text(l10n.languageSystem),
-                              ),
-                              DropdownMenuItem(
-                                value: AppLanguageMode.zh,
-                                child: Text(l10n.languageChinese),
-                              ),
-                              DropdownMenuItem(
-                                value: AppLanguageMode.en,
-                                child: Text(l10n.languageEnglish),
-                              ),
-                              DropdownMenuItem(
-                                value: AppLanguageMode.ja,
-                                child: Text(l10n.languageJapanese),
-                              ),
-                            ],
-                            onChanged: (value) {
-                              if (value == null) return;
-                              controller.updatePreferences(
-                                preferences.copyWith(languageMode: value),
-                              );
-                            },
+                        trailing: _LanguagePreferencePill(
+                          label: l10n.languageCurrentLabel(
+                            preferences.languageMode,
                           ),
                         ),
+                        onTap: () {
+                          _showLanguagePicker(context, controller, preferences);
+                        },
                       ),
                       const Divider(height: 24),
                       ListTile(
@@ -196,6 +213,65 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+Future<void> _showLanguagePicker(
+  BuildContext context,
+  AppStateController controller,
+  UserPreference preferences,
+) async {
+  final mode = await showLanguagePickerBottomSheet(
+    context,
+    selectedMode: preferences.languageMode,
+  );
+  if (mode == null || mode == preferences.languageMode) {
+    return;
+  }
+  await controller.updatePreferences(preferences.copyWith(languageMode: mode));
+}
+
+class _LanguagePreferencePill extends StatelessWidget {
+  const _LanguagePreferencePill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            scheme.tertiary.withValues(alpha: 0.16),
+            scheme.primary.withValues(alpha: 0.08),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: scheme.tertiary.withValues(alpha: 0.22)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: scheme.tertiary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Icon(Icons.expand_more_rounded, size: 18, color: scheme.tertiary),
+          ],
         ),
       ),
     );
@@ -532,7 +608,10 @@ class DevelopmentDebugScreen extends ConsumerWidget {
                     },
                   ),
                   const SizedBox(height: 8),
-                  Text(l10n.renderTier, style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    l10n.renderTier,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
