@@ -162,12 +162,6 @@ Future<DateTime?> showCompactDatePickerSheet(
                           ),
                         ],
                       ),
-                      Text(
-                        context.l10n.datePickerHint,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
                       const SizedBox(height: 12),
                       CalendarDatePicker(
                         initialDate: initialDate,
@@ -227,13 +221,6 @@ Future<TimeOfDay?> showCompactTimePickerSheet(
                     Text(
                       context.l10n.chooseTime,
                       style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      context.l10n.timePickerHint,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
                     ),
                     const SizedBox(height: 12),
                     Expanded(

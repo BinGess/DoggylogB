@@ -422,17 +422,7 @@ class AppLocalizations {
 
   String get chooseDate => _t('选个日期', 'Pick a date', '日付を選ぶ');
   String get today => _t('今天', 'Today', '今日');
-  String get datePickerHint => _t(
-    '直接点日期就好，比系统双弹窗更省一步。',
-    'Tap a date directly for a quicker flow than the system double sheet.',
-    '日付をそのままタップできるので、システムの二段表示よりひと手間少なく済みます。',
-  );
   String get chooseTime => _t('选个时间', 'Pick a time', '時間を選ぶ');
-  String get timePickerHint => _t(
-    '滚轮调时间更顺手，单手也能快快改好。',
-    'The wheel picker makes quick one-handed tweaks feel easy.',
-    'ホイールだと、片手でも時間をさっと合わせやすいです。',
-  );
 
   String get calendarEmptyAgenda => _t(
     '今天还空空的，点右上角记一件吧',
