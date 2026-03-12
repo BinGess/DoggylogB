@@ -14,9 +14,10 @@ struct DoggyLogProvider: TimelineProvider {
   }
 
   func getSnapshot(in context: Context, completion: @escaping (DoggyLogEntry) -> Void) {
-    let snapshot = context.isPreview
-      ? DoggyLogSharedSnapshotStore.preview()
-      : DoggyLogSharedSnapshotStore.load()
+    // Always prefer real data; fall back to preview sample so the widget gallery
+    // never gets stuck showing the grey redacted placeholder.
+    let snapshot = DoggyLogSharedSnapshotStore.load()
+      ?? DoggyLogSharedSnapshotStore.preview()
     completion(DoggyLogEntry(date: Date(), snapshot: snapshot))
   }
 

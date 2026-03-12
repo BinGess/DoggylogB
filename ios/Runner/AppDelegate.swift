@@ -142,6 +142,14 @@ final class DoggylogSnapshotStore {
       defaults.synchronize()
     }
 
+    // Always request a timeline reload so the widget reflects the latest data,
+    // even if the shared-file write fails (e.g. App Group not provisioned on
+    // this device/profile). UserDefaults written above is still accessible to
+    // AppDelegate itself; the widget extension reads from the file path below.
+    if #available(iOS 14.0, *) {
+      WidgetCenter.shared.reloadAllTimelines()
+    }
+
     do {
       let url = try containerDirectory().appendingPathComponent(snapshotFileName)
       try FileManager.default.createDirectory(
@@ -150,9 +158,6 @@ final class DoggylogSnapshotStore {
         attributes: nil
       )
       try data.write(to: url, options: .atomic)
-      if #available(iOS 14.0, *) {
-        WidgetCenter.shared.reloadAllTimelines()
-      }
       return true
     } catch {
       return false
