@@ -30,85 +30,87 @@ struct DoggyLogLiveActivityAttributes: ActivityAttributes {
 struct DoggyLogLiveActivityWidget: Widget {
   var body: some WidgetConfiguration {
     ActivityConfiguration(for: DoggyLogLiveActivityAttributes.self) { context in
-      // 锁屏 / 灵动岛展开下方横幅
-      HStack(spacing: 12) {
-        // 左侧：宠物信息
-        VStack(alignment: .leading, spacing: 3) {
-          HStack(spacing: 4) {
-            Image(systemName: "pawprint.fill")
-              .font(.caption)
-              .foregroundStyle(.white.opacity(0.8))
-            Text(context.state.petName)
-              .font(.headline)
-          }
-          Text("\(context.state.petMood) · \(context.state.sceneMode)")
-            .font(.caption)
-            .foregroundStyle(.white.opacity(0.65))
-        }
-        Spacer()
-        // 右侧：任务计数
-        VStack(alignment: .trailing, spacing: 3) {
-          HStack(spacing: 4) {
-            Image(systemName: "checkmark.circle")
+      // 锁屏 / 灵动岛展开下方横幅 — 整体包裹在 VStack 中，modifier 作用于根视图
+      VStack(spacing: 0) {
+        HStack(spacing: 12) {
+          // 左侧：宠物信息
+          VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 4) {
+              Image(systemName: "pawprint.fill")
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.8))
+              Text(context.state.petName)
+                .font(.headline)
+            }
+            Text("\(context.state.petMood) · \(context.state.sceneMode)")
               .font(.caption)
               .foregroundStyle(.white.opacity(0.65))
-            Text("\(context.state.completedCount)")
-              .font(.caption.weight(.medium))
-              .foregroundStyle(.white.opacity(0.65))
           }
-          HStack(spacing: 4) {
-            Image(systemName: "circle")
-              .font(.caption)
-            Text("\(context.state.pendingCount) 待办")
-              .font(.subheadline.weight(.semibold))
-          }
-        }
-      }
-      .padding(.horizontal, 16)
-      .padding(.top, 12)
-
-      // 分隔线
-      Divider().overlay(.white.opacity(0.15))
-        .padding(.horizontal, 16)
-
-      // 下方：下一任务 + 倒计时
-      HStack(alignment: .top, spacing: 0) {
-        if let nextTitle = context.state.nextTaskTitle {
-          VStack(alignment: .leading, spacing: 2) {
-            Text("下一件")
-              .font(.caption2)
-              .foregroundStyle(.white.opacity(0.5))
-            Text(nextTitle)
-              .font(.caption.weight(.semibold))
-              .lineLimit(1)
-            if let nextTime = context.state.nextTaskTime {
-              Text(nextTime)
-                .font(.caption2)
+          Spacer()
+          // 右侧：任务计数
+          VStack(alignment: .trailing, spacing: 3) {
+            HStack(spacing: 4) {
+              Image(systemName: "checkmark.circle")
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.65))
+              Text("\(context.state.completedCount)")
+                .font(.caption.weight(.medium))
                 .foregroundStyle(.white.opacity(0.65))
             }
+            HStack(spacing: 4) {
+              Image(systemName: "circle")
+                .font(.caption)
+              Text("\(context.state.pendingCount) 待办")
+                .font(.subheadline.weight(.semibold))
+            }
           }
-          .frame(maxWidth: .infinity, alignment: .leading)
         }
-        if let countdownTitle = context.state.countdownTitle,
-           let days = context.state.countdownDaysRemaining {
-          VStack(alignment: .trailing, spacing: 2) {
-            Text("倒计时")
-              .font(.caption2)
-              .foregroundStyle(.white.opacity(0.5))
-            Text("\(days) 天")
-              .font(.title3.weight(.bold))
-              .foregroundStyle(days <= 3 ? .orange : .white)
-            Text(countdownTitle)
-              .font(.caption2)
-              .lineLimit(1)
-              .foregroundStyle(.white.opacity(0.65))
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+
+        // 分隔线
+        Divider().overlay(.white.opacity(0.15))
+          .padding(.horizontal, 16)
+
+        // 下方：下一任务 + 倒计时
+        HStack(alignment: .top, spacing: 0) {
+          if let nextTitle = context.state.nextTaskTitle {
+            VStack(alignment: .leading, spacing: 2) {
+              Text("下一件")
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.5))
+              Text(nextTitle)
+                .font(.caption.weight(.semibold))
+                .lineLimit(1)
+              if let nextTime = context.state.nextTaskTime {
+                Text(nextTime)
+                  .font(.caption2)
+                  .foregroundStyle(.white.opacity(0.65))
+              }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
           }
-          .frame(maxWidth: .infinity, alignment: .trailing)
+          if let countdownTitle = context.state.countdownTitle,
+             let days = context.state.countdownDaysRemaining {
+            VStack(alignment: .trailing, spacing: 2) {
+              Text("倒计时")
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.5))
+              Text("\(days) 天")
+                .font(.title3.weight(.bold))
+                .foregroundStyle(days <= 3 ? .orange : .white)
+              Text(countdownTitle)
+                .font(.caption2)
+                .lineLimit(1)
+                .foregroundStyle(.white.opacity(0.65))
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+          }
         }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 12)
+        .padding(.top, 6)
       }
-      .padding(.horizontal, 16)
-      .padding(.bottom, 12)
-      .padding(.top, 6)
       .activityBackgroundTint(.black.opacity(0.92))
       .activitySystemActionForegroundColor(.white)
     } dynamicIsland: { context in

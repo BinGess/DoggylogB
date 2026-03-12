@@ -255,8 +255,8 @@ final class DoggylogLiveActivityBridge {
   #if canImport(ActivityKit)
   @available(iOS 16.1, *)
   private func startOrUpdate(snapshot: DoggylogActivitySnapshot) async -> Bool {
-    let attributes = DoggylogLiveActivityAttributes(title: "DoggyLog")
-    let state = DoggylogLiveActivityAttributes.ContentState(
+    let attributes = DoggyLogLiveActivityAttributes(title: "DoggyLog")
+    let state = DoggyLogLiveActivityAttributes.ContentState(
       petName: snapshot.pet.name,
       petBreed: snapshot.pet.breed,
       petMood: snapshot.pet.mood,
@@ -265,6 +265,7 @@ final class DoggylogLiveActivityBridge {
       completedCount: snapshot.today.completedCount,
       nextTaskTitle: snapshot.today.nextTaskTitle,
       nextTaskTime: snapshot.today.nextTaskTime,
+      nextTaskId: snapshot.today.nextTaskId,
       countdownTitle: snapshot.countdown?.title,
       countdownDaysRemaining: snapshot.countdown?.daysRemaining
     )
@@ -275,7 +276,7 @@ final class DoggylogLiveActivityBridge {
     }
 
     do {
-      let activity: Activity<DoggylogLiveActivityAttributes>
+      let activity: Activity<DoggyLogLiveActivityAttributes>
       if #available(iOS 16.2, *) {
         let content = ActivityContent(
           state: state,
@@ -302,8 +303,8 @@ final class DoggylogLiveActivityBridge {
 
   @available(iOS 16.1, *)
   private func update(
-    activity: Activity<DoggylogLiveActivityAttributes>,
-    state: DoggylogLiveActivityAttributes.ContentState
+    activity: Activity<DoggyLogLiveActivityAttributes>,
+    state: DoggyLogLiveActivityAttributes.ContentState
   ) async {
     if #available(iOS 16.2, *) {
       let content = ActivityContent(
@@ -319,7 +320,7 @@ final class DoggylogLiveActivityBridge {
 
   @available(iOS 16.1, *)
   private func endCurrentActivities() async -> Bool {
-    let activities = Activity<DoggylogLiveActivityAttributes>.activities
+    let activities = Activity<DoggyLogLiveActivityAttributes>.activities
     guard !activities.isEmpty else {
       defaults.removeObject(forKey: activityIdKey)
       return true
@@ -340,12 +341,12 @@ final class DoggylogLiveActivityBridge {
   }
 
   @available(iOS 16.1, *)
-  private func currentActivity() -> Activity<DoggylogLiveActivityAttributes>? {
+  private func currentActivity() -> Activity<DoggyLogLiveActivityAttributes>? {
     if let storedId = defaults.string(forKey: activityIdKey),
-       let storedActivity = Activity<DoggylogLiveActivityAttributes>.activities.first(where: { $0.id == storedId }) {
+       let storedActivity = Activity<DoggyLogLiveActivityAttributes>.activities.first(where: { $0.id == storedId }) {
       return storedActivity
     }
-    if let existing = Activity<DoggylogLiveActivityAttributes>.activities.first {
+    if let existing = Activity<DoggyLogLiveActivityAttributes>.activities.first {
       defaults.set(existing.id, forKey: activityIdKey)
       return existing
     }
@@ -367,6 +368,7 @@ struct DoggylogActivityToday: Decodable {
   let completedCount: Int
   let nextTaskTitle: String?
   let nextTaskTime: String?
+  let nextTaskId: String?
 }
 
 struct DoggylogActivityPet: Decodable {
@@ -392,7 +394,7 @@ struct DoggylogActivityTask: Decodable {
 
 #if canImport(ActivityKit)
 @available(iOS 16.1, *)
-struct DoggylogLiveActivityAttributes: ActivityAttributes {
+struct DoggyLogLiveActivityAttributes: ActivityAttributes {
   public struct ContentState: Codable, Hashable {
     var petName: String
     var petBreed: String
@@ -402,6 +404,7 @@ struct DoggylogLiveActivityAttributes: ActivityAttributes {
     var completedCount: Int
     var nextTaskTitle: String?
     var nextTaskTime: String?
+    var nextTaskId: String?
     var countdownTitle: String?
     var countdownDaysRemaining: Int?
   }
