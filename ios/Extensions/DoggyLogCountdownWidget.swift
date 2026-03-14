@@ -38,7 +38,7 @@ struct DoggyLogCountdownSmallView: View {
     let snapshot = entry.snapshot
     let theme = DoggyWidgetTheme.resolve(snapshot: snapshot, colorScheme: colorScheme)
     let countdown = snapshot?.countdown
-    let petName = snapshot?.pet.name ?? "DoggyLog"
+    let petName = snapshot?.pet.name ?? widgetText("狗狗日历", "DoggyDays", "ワンカレ")
 
     VStack(alignment: .leading, spacing: 0) {
       Text(widgetText("倒计时", "Countdown", "カウントダウン"))
@@ -117,7 +117,7 @@ struct DoggyLogCountdownMediumView: View {
     let snapshot = entry.snapshot
     let theme = DoggyWidgetTheme.resolve(snapshot: snapshot, colorScheme: colorScheme)
     let countdown = snapshot?.countdown
-    let petName = snapshot?.pet.name ?? "DoggyLog"
+    let petName = snapshot?.pet.name ?? widgetText("狗狗日历", "DoggyDays", "ワンカレ")
 
     VStack(alignment: .leading, spacing: 0) {
       HStack(alignment: .top) {

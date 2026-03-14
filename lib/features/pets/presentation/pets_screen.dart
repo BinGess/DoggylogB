@@ -57,12 +57,28 @@ class PetsScreen extends ConsumerWidget {
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 8),
-                  // Text(
-                  // activePet == null
-                  // ? '进入下面的卡片后选择任意宠物，即可切换整套 App 视觉皮肤。'
-                  //   : '切换宠物会同步切换按钮、文字、卡片、导航和背景风格，不再单独做设置页联动。',
-                  //style: Theme.of(context).textTheme.bodyMedium,
-                  //),
+                  Text(
+                    l10n.premiumSkinLockedHint,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          state.premiumSkinStore.storeAvailable
+                              ? l10n.premiumSkinPurchaseBlurb
+                              : l10n.premiumSkinUnavailable,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      OutlinedButton(
+                        onPressed: controller.restorePremiumSkinPurchases,
+                        child: Text(l10n.restorePurchases),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -71,6 +87,7 @@ class PetsScreen extends ConsumerWidget {
               pets: state.pets,
               selectedPetId: activePet?.id,
               onPetSelected: controller.selectPet,
+              premiumSkinStore: state.premiumSkinStore,
             ),
           ],
         ),

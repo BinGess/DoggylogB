@@ -16,11 +16,13 @@ class PetSkinGallery extends StatelessWidget {
     required this.pets,
     required this.selectedPetId,
     required this.onPetSelected,
+    required this.premiumSkinStore,
   });
 
   final List<PetProfile> pets;
   final String? selectedPetId;
   final ValueChanged<String> onPetSelected;
+  final PremiumSkinStoreState premiumSkinStore;
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +61,7 @@ class PetSkinGallery extends StatelessWidget {
               previewAsset:
                   _skinPreviewDogAssets[index % _skinPreviewDogAssets.length],
               isSelected: uniquePets[index].id == selectedPetId,
+              premiumSkinStore: premiumSkinStore,
               onTap: () => onPetSelected(uniquePets[index].id),
             ),
           ),
@@ -72,18 +75,33 @@ class _PetSkinCard extends StatelessWidget {
     required this.pet,
     required this.previewAsset,
     required this.isSelected,
+    required this.premiumSkinStore,
     required this.onTap,
   });
 
   final PetProfile pet;
   final String previewAsset;
   final bool isSelected;
+  final PremiumSkinStoreState premiumSkinStore;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final skinTheme = appSkinThemeForBreed(pet.breed);
+    final config = managedPetSkinConfigForBreed(pet.breed);
     final spec = skinTheme.spec;
+    final premiumProductId = config.premiumProductId;
+    final isPremiumLocked =
+        premiumProductId != null && !premiumSkinStore.owns(premiumProductId);
+    final isPremiumOwned = premiumSkinStore.owns(premiumProductId);
+    final isPurchasing =
+        premiumSkinStore.purchasePendingProductId == premiumProductId;
+    final priceLabel = premiumProductId == null
+        ? ''
+        : premiumSkinStore.priceLabelFor(
+            premiumProductId,
+            config.fallbackPriceLabel ?? '¥3',
+          );
     final borderColor = spec.primaryLight.withValues(
       alpha: isSelected ? 0.75 : 0.24,
     );
@@ -189,11 +207,38 @@ class _PetSkinCard extends StatelessWidget {
                       Positioned(
                         top: 20,
                         right: 16,
-                        child: _PreviewOrb(
-                          size: 42,
-                          color: spec.secondaryLight.withValues(alpha: 0.24),
-                        ),
+                        child: isPremiumLocked
+                            ? _StatusBadge(
+                                label: context.l10n.premiumSkinPriceChip(
+                                  priceLabel,
+                                ),
+                                background: Colors.white.withValues(
+                                  alpha: 0.92,
+                                ),
+                                foreground: spec.onSurfaceLight,
+                                icon: Icons.lock_rounded,
+                              )
+                            : _PreviewOrb(
+                                size: 42,
+                                color: spec.secondaryLight.withValues(
+                                  alpha: 0.24,
+                                ),
+                              ),
                       ),
+                      if (isPremiumOwned)
+                        Positioned(
+                          top: 10,
+                          left: 68,
+                          child: _StatusBadge(
+                            label: context.l10n.premiumSkinOwnedBadge,
+                            background: spec.primaryLight.withValues(
+                              alpha: 0.12,
+                            ),
+                            foreground: spec.primaryLight,
+                            icon: Icons.check_circle_rounded,
+                            compact: true,
+                          ),
+                        ),
                       Positioned(
                         bottom: 8,
                         left: 12,
@@ -211,7 +256,9 @@ class _PetSkinCard extends StatelessWidget {
                           child: Row(
                             children: [
                               Icon(
-                                Icons.pets_rounded,
+                                isPremiumLocked
+                                    ? Icons.workspace_premium_rounded
+                                    : Icons.pets_rounded,
                                 size: 16,
                                 color: spec.primaryLight,
                               ),
@@ -258,18 +305,48 @@ class _PetSkinCard extends StatelessWidget {
                             style: Theme.of(context).textTheme.labelMedium
                                 ?.copyWith(color: labelColor),
                           ),
+                          if (isPremiumLocked) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              context.l10n.premiumSkinPurchaseBlurb,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: spec.onSurfaceVariantLight,
+                                    height: 1.35,
+                                  ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
-                    _StatusBadge(
-                      label: isSelected
-                          ? context.l10n.currentSkinBadge
-                          : context.l10n.tapToSwitchSkin,
-                      background: isSelected
-                          ? spec.primaryLight
-                          : spec.primaryLight.withValues(alpha: 0.10),
-                      foreground: isSelected ? Colors.white : spec.primaryLight,
-                    ),
+                    if (isPremiumLocked)
+                      FilledButton.tonalIcon(
+                        onPressed: isPurchasing ? null : onTap,
+                        icon: Icon(
+                          isPurchasing
+                              ? Icons.hourglass_top_rounded
+                              : Icons.lock_open_rounded,
+                        ),
+                        label: Text(
+                          isPurchasing
+                              ? context.l10n.premiumSkinBadge
+                              : context.l10n.premiumSkinUnlockButton(
+                                  priceLabel,
+                                ),
+                        ),
+                      )
+                    else
+                      _StatusBadge(
+                        label: isSelected
+                            ? context.l10n.currentSkinBadge
+                            : context.l10n.tapToSwitchSkin,
+                        background: isSelected
+                            ? spec.primaryLight
+                            : spec.primaryLight.withValues(alpha: 0.10),
+                        foreground: isSelected
+                            ? Colors.white
+                            : spec.primaryLight,
+                      ),
                   ],
                 ),
               ],
@@ -310,26 +387,42 @@ class _StatusBadge extends StatelessWidget {
     required this.label,
     required this.background,
     required this.foreground,
+    this.icon,
+    this.compact = false,
   });
 
   final String label;
   final Color background;
   final Color foreground;
+  final IconData? icon;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 10 : 12,
+        vertical: compact ? 6 : 8,
+      ),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: foreground,
-          fontWeight: FontWeight.w500,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: compact ? 14 : 16, color: foreground),
+            const SizedBox(width: 4),
+          ],
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: foreground,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }

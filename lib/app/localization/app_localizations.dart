@@ -85,11 +85,12 @@ class AppLocalizations {
   bool get isJapanese => languageCode == 'ja';
   bool get isChinese => !isEnglish && !isJapanese;
 
-  String get appTitle => 'DoggyLog';
+  String get appTitle => appName;
+  String get appName => _t('狗狗日历', 'DoggyDays', 'ワンカレ');
   String get unlockSheetTitle => _t(
-    'DoggyLog 暂时锁住啦',
-    'DoggyLog is taking a tiny lock break',
-    'DoggyLog はちょっとだけロック中です',
+    '$appName 暂时锁住啦',
+    '$appName is taking a tiny lock break',
+    '$appName はちょっとだけロック中です',
   );
   String get unlockSheetSubtitle => _t(
     '用 Face ID / Touch ID 回来继续记吧。',
@@ -98,9 +99,9 @@ class AppLocalizations {
   );
   String get unlockNow => _t('马上解锁', 'Unlock now', '今すぐロック解除');
   String get biometricReason => _t(
-    '使用 Face ID / Touch ID 解锁 DoggyLog',
-    'Use Face ID / Touch ID to unlock DoggyLog',
-    'Face ID / Touch ID で DoggyLog のロックを解除します',
+    '使用 Face ID / Touch ID 解锁$appName',
+    'Use Face ID / Touch ID to unlock $appName',
+    'Face ID / Touch ID で$appNameのロックを解除します',
   );
 
   String get homeTabCountdown => _t('倒计时', 'Countdowns', 'カウントダウン');
@@ -122,6 +123,21 @@ class AppLocalizations {
     '小、中、大三档都备好啦，选你看着最舒服的。',
     'Pick the text size that feels nicest: small, medium, or large.',
     '小・中・大から、いちばん読みやすいサイズを選べます。',
+  );
+  String get about => _t('关于', 'About', 'このアプリについて');
+  String get aboutSubtitle => _t(
+    '看看应用信息、版本号、联系方式和隐私协议。',
+    'See app details, version, contact info, and the privacy policy.',
+    'アプリ情報、バージョン、連絡先、プライバシーポリシーを確認できます。',
+  );
+  String get aboutVersion => _t('版本号', 'Version', 'バージョン');
+  String get aboutVersionLoading => _t('读取中...', 'Loading...', '読み込み中...');
+  String get aboutContact => _t('联系方式', 'Contact', '連絡先');
+  String get aboutPrivacyPolicy => _t('隐私协议', 'Privacy policy', 'プライバシーポリシー');
+  String get aboutCopiedFallback => _t(
+    '当前设备无法直接打开，已经帮你复制到剪贴板。',
+    'This device could not open it, so it has been copied to your clipboard.',
+    'この端末では直接開けないため、クリップボードにコピーしました。',
   );
   String get developmentDebug => _t('开发调试', 'Developer debug', '開発デバッグ');
   String get developmentDebugSubtitle => _t(
@@ -147,9 +163,9 @@ class AppLocalizations {
     'カレンダー権限があるか、表示できるカレンダーが端末にあるか確認してください。',
   );
   String get systemCalendarGuide => _t(
-    '勾选后，这些日历会显示在 DoggyLog 里，也会加入增量同步。',
-    'Selected calendars will show up in DoggyLog and join incremental sync.',
-    '選んだカレンダーは DoggyLog に表示され、差分同期にも入ります。',
+    '勾选后，这些日历会显示在$appName里，也会加入增量同步。',
+    'Selected calendars will show up in $appName and join incremental sync.',
+    '選んだカレンダーは$appNameに表示され、差分同期にも入ります。',
   );
   String get animationIntensity => _t('动效强度', 'Motion intensity', '動きの強さ');
   String get animationIntensitySubtitle => _t(
@@ -168,9 +184,9 @@ class AppLocalizations {
   String get iosCapabilities => _t('iOS 增强能力', 'iOS capabilities', 'iOS 拡張機能');
   String get eventKitSync => _t('EventKit 同步', 'EventKit sync', 'EventKit 同期');
   String get eventKitGranted => _t(
-    '已经拿到日历权限啦，可以导入系统事件，也能把 DoggyLog 任务写回去。',
-    'Calendar access is ready. You can pull in system events and send DoggyLog tasks back out.',
-    'カレンダー権限はばっちりです。システム予定を取り込んだり、DoggyLog のタスクを書き戻したりできます。',
+    '已经拿到日历权限啦，可以导入系统事件，也能把$appName任务写回去。',
+    'Calendar access is ready. You can pull in system events and send $appName tasks back out.',
+    'カレンダー権限はばっちりです。システム予定を取り込んだり、$appNameのタスクを書き戻したりできます。',
   );
   String get calendarPermissionDenied =>
       _t('还没有日历权限', 'Calendar access is still off', 'カレンダー権限はまだオフです');
@@ -500,6 +516,25 @@ class AppLocalizations {
       _t('这套先藏起来啦', 'Tucked away for now', 'いまはちょっと隠しています');
   String get currentSkinBadge => _t('现在这套', 'Wearing now', 'いまはこれ');
   String get tapToSwitchSkin => _t('点一下换装', 'Tap to change', 'タップで着替える');
+  String get premiumSkinBadge => _t('应用内购买', 'In-app purchase', 'アプリ内課金');
+  String get premiumSkinOwnedBadge => _t('已购', 'Owned', '購入済み');
+  String get premiumSkinLockedHint => _t(
+    '前两套可直接使用，第 3 / 4 套需单独购买后解锁。',
+    'The first two skins are free. Skins 3 and 4 unlock after purchase.',
+    '最初の 2 つは無料で使えます。3 つ目と 4 つ目は購入後に解放されます。',
+  );
+  String get premiumSkinPurchaseBlurb => _t(
+    '购买后可永久使用这套皮肤，也支持恢复已购项目。',
+    'Unlock this skin permanently after purchase, and restore purchases anytime.',
+    '購入後はこのスキンをずっと使えます。購入の復元にも対応しています。',
+  );
+  String premiumSkinUnlockButton(String priceLabel) =>
+      _t('$priceLabel 解锁', 'Unlock for $priceLabel', '$priceLabel で解放');
+  String premiumSkinPriceChip(String priceLabel) =>
+      _t('$priceLabel / 套', '$priceLabel each', '$priceLabel / つ');
+  String get restorePurchases => _t('恢复购买', 'Restore purchases', '購入を復元');
+  String get premiumSkinUnavailable =>
+      _t('商店暂时不可用', 'Store unavailable', 'ストアを利用できません');
   String petCompanionTitle(String name) => _t(
     '$name 今天也陪你呀',
     '$name is hanging out with you today',
@@ -593,11 +628,11 @@ class AppLocalizations {
     'もうすぐです · ${categoryLabel(category)}',
   );
   String get notificationChannelName =>
-      _t('DoggyLog 任务提醒', 'DoggyLog Tasks', 'DoggyLog タスク通知');
+      _t('狗狗日历任务提醒', 'DoggyDays Tasks', 'ワンカレ タスク通知');
   String get notificationChannelDescription => _t(
-    'DoggyLog 日历任务的提醒通知。',
-    'Task reminders for DoggyLog calendar entries.',
-    'DoggyLog カレンダー予定の通知です。',
+    '狗狗日历任务的提醒通知。',
+    'Task reminders for DoggyDays calendar entries.',
+    'ワンカレのカレンダー予定の通知です。',
   );
 
   String get messageBiometricUnsupportedSkipped => _t(
@@ -620,13 +655,42 @@ class AppLocalizations {
     'Face ID / Touch ID unlock is on now.',
     'Face ID / Touch ID での解除をオンにしました。',
   );
+  String messagePremiumSkinPurchasePending(String breedName) => _t(
+    '$breedName 皮肤正在发起购买，请在系统弹窗里完成支付。',
+    'Starting the purchase for the $breedName skin. Please finish it in the system sheet.',
+    '$breedName スキンの購入を開始しました。システムの購入シートで完了してください。',
+  );
+  String messagePremiumSkinUnlocked(String breedName) => _t(
+    '$breedName 皮肤已经解锁，可以直接使用了。',
+    'The $breedName skin is unlocked and ready to use.',
+    '$breedName スキンが解放され、すぐ使えるようになりました。',
+  );
+  String get messagePremiumSkinRestoreStarted =>
+      _t('正在恢复已购项目，稍等一下哦。', 'Restoring purchases now.', '購入済みアイテムを復元しています。');
+  String get messagePremiumSkinStoreUnavailable => _t(
+    '应用内购买暂时不可用，请稍后再试。',
+    'In-app purchases are unavailable right now. Please try again later.',
+    'アプリ内課金は現在利用できません。あとでもう一度お試しください。',
+  );
+  String get messagePremiumSkinProductUnavailable => _t(
+    '这套皮肤的商品信息还没准备好。',
+    'This skin product is not available yet.',
+    'このスキンの商品情報はまだ利用できません。',
+  );
+  String get messagePremiumSkinPurchaseFailed => _t(
+    '购买没有成功发起，请稍后再试。',
+    'The purchase could not be started. Please try again.',
+    '購入を開始できませんでした。あとで再度お試しください。',
+  );
+  String get messagePremiumSkinRequiresPurchase => _t(
+    '第 3 / 第 4 套皮肤需要购买后才能使用，已经先切回可免费使用的皮肤。',
+    'Skins 3 and 4 require purchase, so the app switched back to a free skin for now.',
+    '3 つ目と 4 つ目のスキンは購入が必要なため、ひとまず無料スキンに戻しました。',
+  );
   String get messageBiometricDisabled =>
       _t('生物识别解锁已经关闭', 'Biometric unlock is off now.', '生体認証での解除をオフにしました。');
-  String get messageUnlocked => _t(
-    'DoggyLog 已经解锁啦',
-    'DoggyLog is unlocked now.',
-    'DoggyLog のロックを解除しました。',
-  );
+  String get messageUnlocked =>
+      _t('$appName 已经解锁啦', '$appName is unlocked now.', '$appNameのロックを解除しました。');
   String get messageUnlockFailed => _t(
     '解锁失败了，再试一次吧',
     'Unlock did not go through. Please try again.',
@@ -763,13 +827,17 @@ class AppLocalizations {
       'Product review' ||
       'プロダクトレビュー' => _t('产品评审', 'Product check-in', 'プロダクトチェック'),
       SeedCopyKey.taskProductReviewDescription ||
+      '看看狗狗日历首页交互和 Widget 数据有没有都准备好。' ||
+      '确认狗狗日历首屏交互和 Widget 数据源。' ||
+      'Review DoggyDays home interactions and widget data sources.' ||
+      'ワンカレのホーム画面操作とウィジェットデータソースを確認します。' ||
       '看看 DoggyLog 首页交互和 Widget 数据有没有都准备好。' ||
       '确认 DoggyLog 首屏交互和 Widget 数据源。' ||
       'Review DoggyLog home interactions and widget data sources.' ||
       'DoggyLog のホーム画面操作とウィジェットデータソースを確認します。' => _t(
-        '确认 DoggyLog 首屏交互和 Widget 数据源。',
-        'Review DoggyLog home interactions and make sure widget data is all set.',
-        'DoggyLog のホーム操作とウィジェット用データが整っているか確認します。',
+        '确认狗狗日历首屏交互和 Widget 数据源。',
+        'Review DoggyDays home interactions and make sure widget data is all set.',
+        'ワンカレのホーム操作とウィジェット用データが整っているか確認します。',
       ),
       SeedCopyKey.taskVaccineDueTitle ||
       '疫苗补打提醒' ||

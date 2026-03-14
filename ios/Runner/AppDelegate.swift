@@ -9,6 +9,17 @@ import UIKit
 import ActivityKit
 #endif
 
+private func localizedAppName() -> String {
+  let preferred = Locale.preferredLanguages.first ?? Locale.current.identifier
+  if preferred.hasPrefix("ja") {
+    return "ワンカレ"
+  }
+  if preferred.hasPrefix("zh") {
+    return "狗狗日历"
+  }
+  return "DoggyDays"
+}
+
 @main
 @objc class AppDelegate: FlutterAppDelegate {
   private let eventKitService = DoggylogEventKitService()
@@ -277,7 +288,7 @@ final class DoggylogLiveActivityBridge {
   #if canImport(ActivityKit)
   @available(iOS 16.1, *)
   private func startOrUpdate(snapshot: DoggylogActivitySnapshot) async -> Bool {
-    let attributes = DoggyLogLiveActivityAttributes(title: "DoggyLog")
+    let attributes = DoggyLogLiveActivityAttributes(title: localizedAppName())
     let state = DoggyLogLiveActivityAttributes.ContentState(
       petName: snapshot.pet.name,
       petBreed: snapshot.pet.breed,
@@ -638,7 +649,7 @@ final class DoggylogEventKitService {
       let localId = payload["id"] as? String
       let event = self.resolveEvent(systemEntryId: systemEntryId, localId: localId) ?? EKEvent(eventStore: self.eventStore)
       event.calendar = calendar
-      event.title = payload["title"] as? String ?? "DoggyLog 任务"
+      event.title = payload["title"] as? String ?? "\(localizedAppName()) 任务"
 
       let startMs = payload["startAt"] as? Int ?? Int(Date().timeIntervalSince1970 * 1000)
       let endMs = payload["endAt"] as? Int ?? (startMs + 30 * 60 * 1000)
@@ -705,7 +716,7 @@ final class DoggylogEventKitService {
     }
 
     let calendar = EKCalendar(for: .event, eventStore: eventStore)
-    calendar.title = "DoggyLog"
+    calendar.title = localizedAppName()
     calendar.cgColor = UIColor.systemOrange.cgColor
     calendar.source = eventStore.defaultCalendarForNewEvents?.source ?? preferredSource()
     try eventStore.saveCalendar(calendar, commit: true)

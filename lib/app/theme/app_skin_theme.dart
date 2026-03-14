@@ -11,18 +11,81 @@ enum AppSkinTheme {
   samoyedSpa,
 }
 
+class ManagedPetSkinConfig {
+  const ManagedPetSkinConfig({
+    required this.breed,
+    required this.theme,
+    required this.managementOrder,
+    required this.visibleInManagement,
+    this.premiumProductId,
+    this.fallbackPriceLabel,
+  });
+
+  final PetBreed breed;
+  final AppSkinTheme theme;
+  final int managementOrder;
+  final bool visibleInManagement;
+  final String? premiumProductId;
+  final String? fallbackPriceLabel;
+
+  bool get isPremium => premiumProductId != null;
+}
+
+const managedPetSkinConfigs = <ManagedPetSkinConfig>[
+  ManagedPetSkinConfig(
+    breed: PetBreed.shiba,
+    theme: AppSkinTheme.shibaJoy,
+    managementOrder: 1,
+    visibleInManagement: true,
+  ),
+  ManagedPetSkinConfig(
+    breed: PetBreed.goldenRetriever,
+    theme: AppSkinTheme.goldenBloom,
+    managementOrder: 0,
+    visibleInManagement: false,
+  ),
+  ManagedPetSkinConfig(
+    breed: PetBreed.beagle,
+    theme: AppSkinTheme.beagleBreeze,
+    managementOrder: 2,
+    visibleInManagement: true,
+  ),
+  ManagedPetSkinConfig(
+    breed: PetBreed.husky,
+    theme: AppSkinTheme.huskyFrost,
+    managementOrder: 3,
+    visibleInManagement: true,
+    premiumProductId: 'doggylog.skin.soft_wellness',
+    fallbackPriceLabel: '¥3',
+  ),
+  ManagedPetSkinConfig(
+    breed: PetBreed.samoyed,
+    theme: AppSkinTheme.samoyedSpa,
+    managementOrder: 4,
+    visibleInManagement: true,
+    premiumProductId: 'doggylog.skin.cloud_softness',
+    fallbackPriceLabel: '¥3',
+  ),
+];
+
+ManagedPetSkinConfig managedPetSkinConfigForBreed(PetBreed breed) {
+  return managedPetSkinConfigs.firstWhere((config) => config.breed == breed);
+}
+
+String? premiumProductIdForPetBreed(PetBreed breed) {
+  return managedPetSkinConfigForBreed(breed).premiumProductId;
+}
+
+bool isPremiumPetSkin(PetBreed breed) {
+  return managedPetSkinConfigForBreed(breed).isPremium;
+}
+
 AppSkinTheme appSkinThemeForBreed(PetBreed breed) {
-  return switch (breed) {
-    PetBreed.shiba => AppSkinTheme.shibaJoy,
-    PetBreed.goldenRetriever => AppSkinTheme.goldenBloom,
-    PetBreed.beagle => AppSkinTheme.beagleBreeze,
-    PetBreed.husky => AppSkinTheme.huskyFrost,
-    PetBreed.samoyed => AppSkinTheme.samoyedSpa,
-  };
+  return managedPetSkinConfigForBreed(breed).theme;
 }
 
 bool isPetSkinVisibleInManagement(PetBreed breed) {
-  return appSkinThemeForBreed(breed) != AppSkinTheme.goldenBloom;
+  return managedPetSkinConfigForBreed(breed).visibleInManagement;
 }
 
 class AppSkinSpec {

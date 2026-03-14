@@ -506,6 +506,49 @@ class TaskTemplate {
   final int durationMinutes;
 }
 
+class PremiumSkinStoreState {
+  const PremiumSkinStoreState({
+    this.didLoad = false,
+    this.storeAvailable = false,
+    this.ownedProductIds = const [],
+    this.priceLabels = const {},
+    this.purchasePendingProductId,
+  });
+
+  final bool didLoad;
+  final bool storeAvailable;
+  final List<String> ownedProductIds;
+  final Map<String, String> priceLabels;
+  final String? purchasePendingProductId;
+
+  bool owns(String? productId) {
+    return productId != null && ownedProductIds.contains(productId);
+  }
+
+  String priceLabelFor(String productId, String fallback) {
+    return priceLabels[productId] ?? fallback;
+  }
+
+  PremiumSkinStoreState copyWith({
+    bool? didLoad,
+    bool? storeAvailable,
+    List<String>? ownedProductIds,
+    Map<String, String>? priceLabels,
+    String? purchasePendingProductId,
+    bool clearPendingProductId = false,
+  }) {
+    return PremiumSkinStoreState(
+      didLoad: didLoad ?? this.didLoad,
+      storeAvailable: storeAvailable ?? this.storeAvailable,
+      ownedProductIds: ownedProductIds ?? this.ownedProductIds,
+      priceLabels: priceLabels ?? this.priceLabels,
+      purchasePendingProductId: clearPendingProductId
+          ? null
+          : purchasePendingProductId ?? this.purchasePendingProductId,
+    );
+  }
+}
+
 class AppState {
   const AppState({
     required this.preferences,
@@ -528,6 +571,7 @@ class AppState {
     this.lastSyncMessage,
     this.activeScene = SceneMode.home,
     this.fetchingBall = false,
+    this.premiumSkinStore = const PremiumSkinStoreState(),
   });
 
   final UserPreference preferences;
@@ -550,6 +594,7 @@ class AppState {
   final String? lastSyncMessage;
   final SceneMode activeScene;
   final bool fetchingBall;
+  final PremiumSkinStoreState premiumSkinStore;
 
   PetProfile? get selectedPet {
     for (final pet in pets) {
@@ -581,6 +626,7 @@ class AppState {
     String? lastSyncMessage,
     SceneMode? activeScene,
     bool? fetchingBall,
+    PremiumSkinStoreState? premiumSkinStore,
   }) {
     return AppState(
       preferences: preferences ?? this.preferences,
@@ -606,6 +652,7 @@ class AppState {
       lastSyncMessage: lastSyncMessage ?? this.lastSyncMessage,
       activeScene: activeScene ?? this.activeScene,
       fetchingBall: fetchingBall ?? this.fetchingBall,
+      premiumSkinStore: premiumSkinStore ?? this.premiumSkinStore,
     );
   }
 }

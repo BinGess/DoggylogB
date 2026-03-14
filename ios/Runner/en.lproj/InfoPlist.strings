@@ -1,0 +1,8 @@
+"CFBundleDisplayName" = "DoggyDays";
+"CFBundleName" = "DoggyDays";
+"NSCalendarsUsageDescription" = "DoggyDays needs calendar access to keep your tasks and pet reminders together.";
+"NSCalendarsFullAccessUsageDescription" = "DoggyDays needs full calendar access to import your events and sync tasks created in the app.";
+"NSFaceIDUsageDescription" = "DoggyDays uses Face ID / Touch ID to protect your schedule and pet privacy.";
+"NSLocationWhenInUseUsageDescription" = "DoggyDays uses location to trigger geofence scenes like walking mode and vet visit reminders.";
+"NSMotionUsageDescription" = "DoggyDays uses motion sensors to drive parallax and pet motion effects.";
+"NSUserNotificationsUsageDescription" = "DoggyDays uses notifications for walks, feeding, countdowns, and important events.";

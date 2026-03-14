@@ -1,5 +1,6 @@
 import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/pets/presentation/pets_screen.dart';
+import 'package:doggylog/features/settings/presentation/about_screen.dart';
 import 'package:doggylog/features/settings/presentation/widgets/language_picker_bottom_sheet.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
@@ -193,6 +194,18 @@ class SettingsScreen extends ConsumerWidget {
                               ),
                             );
                           }).toList(),
+                        ),
+                      ),
+                      const Divider(height: 24),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l10n.about),
+                        subtitle: Text(l10n.aboutSubtitle),
+                        trailing: const Icon(Icons.chevron_right_rounded),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const AboutScreen(),
+                          ),
                         ),
                       ),
                       const Divider(height: 24),
@@ -683,27 +696,6 @@ class DevelopmentDebugScreen extends ConsumerWidget {
                   FilledButton.tonal(
                     onPressed: controller.requestNotificationPermissions,
                     child: Text(l10n.enableNotificationPermission),
-                  ),
-                  const SizedBox(height: 14),
-                  _CapabilityRow(
-                    title: l10n.geofenceWalkingMode,
-                    subtitle: state.locationPermissionGranted
-                        ? state.activeGeofenceName == null
-                              ? l10n.geofenceInactive
-                              : l10n.geofenceActive(
-                                  state.activeGeofenceName!,
-                                  state.activeScene,
-                                )
-                        : l10n.locationPermissionDenied,
-                  ),
-                  const SizedBox(height: 8),
-                  FilledButton.tonal(
-                    onPressed: controller.enableGeofenceMonitoring,
-                    child: Text(
-                      state.locationPermissionGranted
-                          ? l10n.refreshGeofenceStatus
-                          : l10n.enableLocationPermission,
-                    ),
                   ),
                   const SizedBox(height: 14),
                   _CapabilityRow(

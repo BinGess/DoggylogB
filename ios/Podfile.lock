@@ -7,6 +7,9 @@ PODS:
   - geolocator_apple (1.2.0):
     - Flutter
     - FlutterMacOS
+  - in_app_purchase_storekit (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - local_auth_darwin (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -42,17 +45,21 @@ PODS:
     - sqlite3/perf-threadsafe
     - sqlite3/rtree
     - sqlite3/session
+  - url_launcher_ios (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_timezone (from `.symlinks/plugins/flutter_timezone/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/darwin`)
+  - in_app_purchase_storekit (from `.symlinks/plugins/in_app_purchase_storekit/darwin`)
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - rive_common (from `.symlinks/plugins/rive_common/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/darwin`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 SPEC REPOS:
   trunk:
@@ -67,6 +74,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_timezone/ios"
   geolocator_apple:
     :path: ".symlinks/plugins/geolocator_apple/darwin"
+  in_app_purchase_storekit:
+    :path: ".symlinks/plugins/in_app_purchase_storekit/darwin"
   local_auth_darwin:
     :path: ".symlinks/plugins/local_auth_darwin/darwin"
   package_info_plus:
@@ -77,18 +86,22 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sqlite3_flutter_libs:
     :path: ".symlinks/plugins/sqlite3_flutter_libs/darwin"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
-  flutter_timezone: 7c838e17ffd4645d261e87037e5bebf6d38fe544
-  geolocator_apple: ab36aa0e8b7d7a2d7639b3b4e48308394e8cef5e
-  local_auth_darwin: c3ee6cce0a8d56be34c8ccb66ba31f7f180aaebb
-  package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
-  rive_common: dd421daaf9ae69f0125aa761dd96abd278399952
-  shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
+  flutter_local_notifications: ff50f8405aaa0ccdc7dcfb9022ca192e8ad9688f
+  flutter_timezone: ac3da59ac941ff1c98a2e1f0293420e020120282
+  geolocator_apple: 66b711889fd333205763b83c9dcf0a57a28c7afd
+  in_app_purchase_storekit: 2342c0a5da86593124d08dd13d920f39a52b273a
+  local_auth_darwin: 63c73d6d28cc3e239be2b6aa460ea6e317cd5100
+  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
+  rive_common: 4743dbfd2911c99066547a3c6454681e0fa907df
+  shared_preferences_foundation: 5086985c1d43c5ba4d5e69a4e8083a389e2909e6
   sqlite3: 8d708bc63e9f4ce48f0ad9d6269e478c5ced1d9b
-  sqlite3_flutter_libs: d13b8b3003f18f596e542bcb9482d105577eff41
+  sqlite3_flutter_libs: c7b32a4d17d2cbad19895873ccc815f276b1f125
+  url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
 
 PODFILE CHECKSUM: 1dec43ba9ee8ebe2f7079ca89f9815b2c279e19f
 
