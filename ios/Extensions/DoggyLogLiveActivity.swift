@@ -157,50 +157,41 @@ private struct _LiveActivityLockScreenView: View {
 
       if let countdownTitle = context.state.countdownTitle,
          let days = context.state.countdownDaysRemaining {
-        HStack(alignment: .top, spacing: 18) {
-          VStack(alignment: .leading, spacing: 12) {
-            Text(widgetText("只保留一个提醒焦点", "One reminder in focus", "ひとつの予定だけに集中"))
-              .font(.caption.weight(.semibold))
-              .foregroundStyle(.white.opacity(0.72))
+        HStack(alignment: .center, spacing: 18) {
+          VStack(alignment: .leading, spacing: 8) {
             Text(countdownTitle)
               .font(.title2.weight(.semibold))
               .foregroundStyle(.white)
               .lineLimit(2)
               .layoutPriority(1)
               .fixedSize(horizontal: false, vertical: true)
-            Text(widgetText("倒计时会持续停留在锁屏中央。", "This countdown stays centered on your lock screen.", "このカウントダウンをロック画面の中心に残します。"))
+            Text(widgetText("倒计时", "Countdown", "カウントダウン"))
               .font(.caption.weight(.medium))
-              .foregroundStyle(.white.opacity(0.58))
-              .lineLimit(2)
-              .fixedSize(horizontal: false, vertical: true)
+              .foregroundStyle(.white.opacity(0.56))
           }
 
           Spacer(minLength: 8)
 
-          VStack(alignment: .trailing, spacing: 10) {
+          HStack(alignment: .firstTextBaseline, spacing: 4) {
             Text("\(max(0, days))")
-              .font(.system(size: 54, weight: .bold, design: .rounded))
+              .font(.system(size: 56, weight: .bold, design: .rounded))
               .foregroundStyle(days <= 3 ? .orange : .white)
             Text(widgetText("天", "days", "日"))
-              .font(.subheadline.weight(.semibold))
-              .foregroundStyle(.white.opacity(0.78))
-            Text(widgetText("倒计时", "Countdown", "カウントダウン"))
-              .font(.caption2.weight(.medium))
-              .foregroundStyle(.white.opacity(0.54))
-              .padding(.horizontal, 10)
-              .padding(.vertical, 6)
-              .background(
-                Capsule(style: .continuous)
-                  .fill(.white.opacity(0.08))
-              )
-              .multilineTextAlignment(.trailing)
+              .font(.title3.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.82))
           }
+          .padding(.horizontal, 12)
+          .padding(.vertical, 8)
+          .background(
+            Capsule(style: .continuous)
+              .fill(.white.opacity(0.08))
+          )
         }
       }
     }
-    .frame(maxWidth: .infinity, minHeight: 148, alignment: .topLeading)
+    .frame(maxWidth: .infinity, minHeight: 132, alignment: .topLeading)
     .padding(.horizontal, 20)
-    .padding(.vertical, 18)
+    .padding(.vertical, 16)
     .background {
       ZStack {
         RoundedRectangle(cornerRadius: 28, style: .continuous)
@@ -232,20 +223,20 @@ private struct _LiveActivityIslandCountdown: View {
     VStack(alignment: .leading, spacing: 6) {
       if let countdownTitle = context.state.countdownTitle,
          let days = context.state.countdownDaysRemaining {
-        Text(widgetText("只保留一个提醒焦点", "One reminder in focus", "ひとつの予定だけに集中"))
-          .font(.caption2)
-          .foregroundStyle(.secondary)
-        HStack(alignment: .firstTextBaseline, spacing: 8) {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
           Text("\(max(0, days))")
             .font(.title3.weight(.bold))
             .foregroundStyle(days <= 3 ? .orange : .white)
           Text(widgetText("天", "days", "日"))
-            .font(.caption2.weight(.medium))
+            .font(.caption.weight(.semibold))
             .foregroundStyle(.secondary)
         }
         Text(countdownTitle)
           .font(.caption.weight(.semibold))
           .lineLimit(1)
+        Text(widgetText("倒计时", "Countdown", "カウントダウン"))
+          .font(.caption2)
+          .foregroundStyle(.secondary)
       }
     }
   }
