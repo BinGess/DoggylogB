@@ -230,7 +230,7 @@ class _LanguageOptionCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
-                    _leadingLabel(mode),
+                    context.l10n.languageLeadingBadge(mode),
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: isSelected
@@ -306,12 +306,4 @@ class _LanguageOptionCard extends StatelessWidget {
     );
   }
 
-  String _leadingLabel(AppLanguageMode mode) {
-    return switch (mode) {
-      AppLanguageMode.system => 'A',
-      AppLanguageMode.zh => '中',
-      AppLanguageMode.en => 'EN',
-      AppLanguageMode.ja => '日',
-    };
-  }
 }

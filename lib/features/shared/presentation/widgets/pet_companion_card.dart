@@ -50,7 +50,9 @@ class PetCompanionCard extends StatelessWidget {
                   Text(
                     pet == null
                         ? l10n.pickFirstPup
-                        : l10n.petCompanionTitle(pet.name),
+                        : l10n.petCompanionTitle(
+                            l10n.localizedStoredText(pet.name),
+                          ),
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 6),

@@ -707,7 +707,7 @@ class _EmptyAgenda extends StatelessWidget {
   Widget build(BuildContext context) {
     final assets = calendarTimelineAssetsForBreed(breed);
     return Padding(
-      padding: const EdgeInsets.only(top: 44, bottom: 20),
+      padding: const EdgeInsets.only(top: 76, bottom: 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

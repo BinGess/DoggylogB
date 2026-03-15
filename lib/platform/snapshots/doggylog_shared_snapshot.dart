@@ -79,7 +79,9 @@ class DoggylogSharedSnapshot {
         nextTaskId: nextTask.isEmpty ? null : nextTask.first.id,
       ),
       pet: SnapshotPet(
-        name: state.selectedPet?.name ?? 'DoggyLog',
+        name: state.selectedPet == null
+            ? l10n.appName
+            : l10n.localizedStoredText(state.selectedPet!.name),
         breed: l10n.breedLabel(state.selectedPet?.breed ?? PetBreed.shiba),
         mood: mood.name,
         loyaltyLevel: state.selectedPet?.loyaltyLevel ?? 1,

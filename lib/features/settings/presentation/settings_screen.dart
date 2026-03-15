@@ -200,23 +200,10 @@ class SettingsScreen extends ConsumerWidget {
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(l10n.about),
-                        subtitle: Text(l10n.aboutSubtitle),
                         trailing: const Icon(Icons.chevron_right_rounded),
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute<void>(
                             builder: (_) => const AboutScreen(),
-                          ),
-                        ),
-                      ),
-                      const Divider(height: 24),
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(l10n.developmentDebug),
-                        subtitle: Text(l10n.developmentDebugSubtitle),
-                        trailing: const Icon(Icons.chevron_right_rounded),
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => const DevelopmentDebugScreen(),
                           ),
                         ),
                       ),
@@ -383,7 +370,12 @@ class _SystemCalendarSettingsScreenState
             }
             final grouped = <String, List<SystemCalendar>>{};
             for (final calendar in calendars) {
-              grouped.putIfAbsent(calendar.sourceTitle, () => []).add(calendar);
+              grouped
+                  .putIfAbsent(
+                    _displayCalendarSource(context, calendar.sourceTitle),
+                    () => [],
+                  )
+                  .add(calendar);
             }
             final groups = grouped.entries.toList()
               ..sort((a, b) => a.key.compareTo(b.key));
@@ -523,7 +515,7 @@ class _SystemCalendarTile extends StatelessWidget {
             ? const Icon(Icons.check_rounded, size: 12, color: Colors.white)
             : null,
       ),
-      title: Text(calendar.title),
+      title: Text(_displayCalendarTitle(context, calendar.title)),
       subtitle: calendar.allowsContentModifications
           ? null
           : Text(context.l10n.readOnlyCalendar),
@@ -568,6 +560,20 @@ class _EmptySystemCalendarState extends StatelessWidget {
       ),
     );
   }
+}
+
+String _displayCalendarTitle(BuildContext context, String title) {
+  if (title.trim().isEmpty) {
+    return context.l10n.fallbackCalendarTitle();
+  }
+  return title;
+}
+
+String _displayCalendarSource(BuildContext context, String sourceTitle) {
+  if (sourceTitle.trim().isEmpty) {
+    return context.l10n.fallbackCalendarSource();
+  }
+  return sourceTitle;
 }
 
 Color _parseColor(String colorHex) {

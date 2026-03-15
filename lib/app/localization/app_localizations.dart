@@ -18,6 +18,21 @@ abstract final class SeedCopyKey {
       'seed.countdown.mochi_birthday.title';
   static const countdownAnnualCheckupTitle =
       'seed.countdown.annual_checkup.title';
+  static const petMochiName = 'seed.pet.mochi.name';
+  static const petButtersName = 'seed.pet.butters.name';
+  static const petBagelName = 'seed.pet.bagel.name';
+  static const petSkyeName = 'seed.pet.skye.name';
+  static const petLunaName = 'seed.pet.luna.name';
+  static const skinAmberShibaName = 'seed.skin.amber_shiba.name';
+  static const skinSunriseShibaName = 'seed.skin.sunrise_shiba.name';
+  static const skinGoldenDawnName = 'seed.skin.golden_dawn.name';
+  static const skinHoneyWaveName = 'seed.skin.honey_wave.name';
+  static const skinMilkJellyName = 'seed.skin.milk_jelly.name';
+  static const skinMintJellyName = 'seed.skin.mint_jelly.name';
+  static const skinIceCrystalName = 'seed.skin.ice_crystal.name';
+  static const skinAuroraHuskyName = 'seed.skin.aurora_husky.name';
+  static const skinCloudWhiteName = 'seed.skin.cloud_white.name';
+  static const skinRoseBloomName = 'seed.skin.rose_bloom.name';
   static const templateWalk30Title = 'seed.template.walk_30.title';
   static const templateFeedTitle = 'seed.template.feed.title';
   static const templateGroomingTitle = 'seed.template.grooming.title';
@@ -196,9 +211,9 @@ class AppLocalizations {
       _t('同步到 iOS 日历', 'Sync to iOS Calendar', 'iOS カレンダーへ同期');
   String get notificationReminders => _t('通知提醒', 'Notifications', '通知');
   String get notificationPermissionGranted => _t(
-    '通知权限已经打开，保存任务后会自动安排提醒。',
-    'Notifications are on. Reminders will be lined up automatically when you save.',
-    '通知はオンです。保存したタスクのリマインドが自動でセットされます。',
+    '保存任务后会自动安排提醒。',
+    'Reminders will be lined up automatically when you save.',
+    '保存したタスクのリマインドが自動でセットされます。',
   );
   String get notificationPermissionDenied =>
       _t('还没有通知权限', 'Notifications are still off', '通知権限はまだオフです');
@@ -287,6 +302,12 @@ class AppLocalizations {
     AppLanguageMode.zh => '简体中文',
     AppLanguageMode.en => 'English',
     AppLanguageMode.ja => '日本語',
+  };
+  String languageLeadingBadge(AppLanguageMode mode) => switch (mode) {
+    AppLanguageMode.system => _t('跟随', 'Auto', '自動'),
+    AppLanguageMode.zh => '中',
+    AppLanguageMode.en => 'EN',
+    AppLanguageMode.ja => '日',
   };
   String languageOptionDescription(AppLanguageMode mode) => switch (mode) {
     AppLanguageMode.system => _t(
@@ -519,9 +540,9 @@ class AppLocalizations {
   String get premiumSkinBadge => _t('应用内购买', 'In-app purchase', 'アプリ内課金');
   String get premiumSkinOwnedBadge => _t('已购', 'Owned', '購入済み');
   String get premiumSkinLockedHint => _t(
-    '前两套可直接使用，第 3 / 4 套需单独购买后解锁。',
-    'The first two skins are free. Skins 3 and 4 unlock after purchase.',
-    '最初の 2 つは無料で使えます。3 つ目と 4 つ目は購入後に解放されます。',
+    '前两套可免费使用，其余需购买解锁。',
+    'The first two are free; the rest unlock after purchase.',
+    '最初の2つは無料。それ以外は購入で解放。',
   );
   String get premiumSkinPurchaseBlurb => _t(
     '购买后可永久使用这套皮肤，也支持恢复已购项目。',
@@ -866,6 +887,61 @@ class AppLocalizations {
       '年度体检' ||
       'Annual checkup' ||
       '年次健診' => _t('年度体检', 'Annual wellness check', '年に一度の健診'),
+      SeedCopyKey.petMochiName || 'Mochi' => _t('麻薯', 'Mochi', 'もち'),
+      SeedCopyKey.petButtersName || 'Butters' => _t('黄油', 'Butters', 'バターズ'),
+      SeedCopyKey.petBagelName || 'Bagel' => _t('贝果', 'Bagel', 'ベーグル'),
+      SeedCopyKey.petSkyeName || 'Skye' => _t('小空', 'Skye', 'スカイ'),
+      SeedCopyKey.petLunaName || 'Luna' => _t('露娜', 'Luna', 'ルナ'),
+      SeedCopyKey.skinAmberShibaName || '暖棕琥珀' => _t(
+        '暖棕琥珀',
+        'Amber Toffee',
+        'アンバートフィー',
+      ),
+      SeedCopyKey.skinSunriseShibaName || '朝霞糖霜' => _t(
+        '朝霞糖霜',
+        'Sunrise Frost',
+        '朝焼けフロスト',
+      ),
+      SeedCopyKey.skinGoldenDawnName || '暖金奶油' => _t(
+        '暖金奶油',
+        'Golden Cream',
+        'ゴールデンクリーム',
+      ),
+      SeedCopyKey.skinHoneyWaveName || '蜂蜜小卷' => _t(
+        '蜂蜜小卷',
+        'Honey Swirl',
+        'ハニースワール',
+      ),
+      SeedCopyKey.skinMilkJellyName || '奶白果冻' => _t(
+        '奶白果冻',
+        'Milk Jelly',
+        'ミルクゼリー',
+      ),
+      SeedCopyKey.skinMintJellyName || '薄荷果冻' => _t(
+        '薄荷果冻',
+        'Mint Jelly',
+        'ミントゼリー',
+      ),
+      SeedCopyKey.skinIceCrystalName || '冰晶果冻' => _t(
+        '冰晶果冻',
+        'Ice Jelly',
+        'アイスゼリー',
+      ),
+      SeedCopyKey.skinAuroraHuskyName || '极光糖霜' => _t(
+        '极光糖霜',
+        'Aurora Frost',
+        'オーロラフロスト',
+      ),
+      SeedCopyKey.skinCloudWhiteName || '云朵棉花' => _t(
+        '云朵棉花',
+        'Cloud Cotton',
+        'くものわた',
+      ),
+      SeedCopyKey.skinRoseBloomName || '玫瑰奶霜' => _t(
+        '玫瑰奶霜',
+        'Rose Cream',
+        'ローズクリーム',
+      ),
       SeedCopyKey.templateWalk30Title ||
       '遛遛 30 分钟' ||
       '遛弯 30 分钟' ||

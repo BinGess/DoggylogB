@@ -204,27 +204,17 @@ class _PetSkinCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Positioned(
-                        top: 20,
-                        right: 16,
-                        child: isPremiumLocked
-                            ? _StatusBadge(
-                                label: context.l10n.premiumSkinPriceChip(
-                                  priceLabel,
-                                ),
-                                background: Colors.white.withValues(
-                                  alpha: 0.92,
-                                ),
-                                foreground: spec.onSurfaceLight,
-                                icon: Icons.lock_rounded,
-                              )
-                            : _PreviewOrb(
-                                size: 42,
-                                color: spec.secondaryLight.withValues(
-                                  alpha: 0.24,
-                                ),
-                              ),
-                      ),
+                      if (!isPremiumLocked)
+                        Positioned(
+                          top: 20,
+                          right: 16,
+                          child: _PreviewOrb(
+                            size: 42,
+                            color: spec.secondaryLight.withValues(
+                              alpha: 0.24,
+                            ),
+                          ),
+                        ),
                       if (isPremiumOwned)
                         Positioned(
                           top: 10,
@@ -292,7 +282,7 @@ class _PetSkinCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            pet.name,
+                            context.l10n.localizedStoredText(pet.name),
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(
                                   color: spec.onSurfaceVariantLight,

@@ -22,6 +22,9 @@ class PetsScreen extends ConsumerWidget {
       activePet?.breed ?? PetBreed.shiba,
     ).spec;
     final l10n = context.l10n;
+    final activePetName = activePet == null
+        ? null
+        : l10n.localizedStoredText(activePet.name);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.managePetSkins)),
       body: SoftBackdrop(
@@ -52,32 +55,14 @@ class PetsScreen extends ConsumerWidget {
                     activePet == null
                         ? l10n.noPetSelected
                         : isHiddenActiveSkin
-                        ? '${activePet.name} · ${l10n.breedLabel(activePet.breed)} · ${l10n.currentHidden}'
-                        : '${activePet.name} · ${l10n.breedLabel(activePet.breed)} · ${l10n.localizedSkinStyleName(activeSkin.styleName)}',
+                        ? '$activePetName · ${l10n.breedLabel(activePet.breed)} · ${l10n.currentHidden}'
+                        : '$activePetName · ${l10n.breedLabel(activePet.breed)} · ${l10n.localizedSkinStyleName(activeSkin.styleName)}',
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     l10n.premiumSkinLockedHint,
                     style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          state.premiumSkinStore.storeAvailable
-                              ? l10n.premiumSkinPurchaseBlurb
-                              : l10n.premiumSkinUnavailable,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      OutlinedButton(
-                        onPressed: controller.restorePremiumSkinPurchases,
-                        child: Text(l10n.restorePurchases),
-                      ),
-                    ],
                   ),
                 ],
               ),

@@ -1,13 +1,12 @@
 import 'dart:convert';
 
 enum CalendarCategory {
-  daily('日常', 'bone'),
-  work('工作', 'folder'),
-  anniversary('纪念日', 'heart'),
-  pet('宠物相关', 'paw');
+  daily('bone'),
+  work('folder'),
+  anniversary('heart'),
+  pet('paw');
 
-  const CalendarCategory(this.label, this.iconToken);
-  final String label;
+  const CalendarCategory(this.iconToken);
   final String iconToken;
 }
 
@@ -483,8 +482,8 @@ class SystemCalendar {
   factory SystemCalendar.fromJson(Map<String, dynamic> json) {
     return SystemCalendar(
       id: json['id'] as String? ?? '',
-      title: json['title'] as String? ?? 'Untitled Calendar',
-      sourceTitle: json['sourceTitle'] as String? ?? 'Other',
+      title: json['title'] as String? ?? '',
+      sourceTitle: json['sourceTitle'] as String? ?? '',
       colorHex: json['colorHex'] as String? ?? '#C7CDD8',
       allowsContentModifications:
           json['allowsContentModifications'] as bool? ?? true,
