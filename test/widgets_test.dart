@@ -1,6 +1,7 @@
 import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/app/theme/app_theme.dart';
+import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/calendar/presentation/calendar_theme_assets.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/calendar/presentation/calendar_screen.dart';
@@ -13,6 +14,7 @@ import 'package:doggylog/features/shared/presentation/widgets/soft_circle_icon_b
 import 'package:doggylog/features/countdown/presentation/countdown_screen.dart';
 import 'package:doggylog/features/settings/presentation/settings_screen.dart';
 import 'package:doggylog/features/shared/presentation/widgets/task_tile.dart';
+import 'package:doggylog/platform/purchases/doggylog_purchase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,9 +32,11 @@ void main() {
     WidgetTester tester, {
     Locale? locale,
     ThemeData? theme,
+    List<Override> overrides = const [],
   }) async {
     await tester.pumpWidget(
       ProviderScope(
+        overrides: overrides,
         child: MaterialApp(
           theme:
               theme ??
@@ -517,6 +521,43 @@ void main() {
     expect(find.text('iOS 增强能力'), findsNothing);
   });
 
+  testWidgets('SettingsScreen shows a dedicated restore purchases entry', (
+    tester,
+  ) async {
+    await pumpSettingsScreen(tester);
+
+    expect(
+      find.byKey(const Key('settings-restore-purchases-tile')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('SettingsScreen restore purchases button triggers restore flow', (
+    tester,
+  ) async {
+    final purchaseService = _FakePurchaseService(
+      RestorePurchasesResult.requested,
+    );
+    await pumpSettingsScreen(
+      tester,
+      overrides: [purchaseServiceProvider.overrideWithValue(purchaseService)],
+    );
+
+    final restoreButton = find.byKey(
+      const Key('settings-restore-purchases-tile'),
+    );
+    await tester.ensureVisible(restoreButton);
+    await tester.pump();
+    await tester.tap(restoreButton, warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    expect(purchaseService.restoreCallCount, 1);
+    expect(
+      find.text('已经向 App Store 发起恢复购买请求啦，如有可恢复项目，系统会继续同步。'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('SettingsScreen opens language picker modal and updates choice', (
     tester,
   ) async {
@@ -570,4 +611,17 @@ void main() {
       expect(find.text('iOS 增强能力'), findsOneWidget);
     },
   );
+}
+
+class _FakePurchaseService implements DoggylogPurchaseService {
+  _FakePurchaseService(this.result);
+
+  final RestorePurchasesResult result;
+  int restoreCallCount = 0;
+
+  @override
+  Future<RestorePurchasesResult> restorePurchases() async {
+    restoreCallCount += 1;
+    return result;
+  }
 }

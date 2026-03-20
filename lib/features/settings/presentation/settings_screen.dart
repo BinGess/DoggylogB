@@ -6,6 +6,7 @@ import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop_page_header.dart';
+import 'package:doggylog/platform/purchases/doggylog_purchase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -196,6 +197,8 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                       ),
                       const Divider(height: 24),
+                      const _RestorePurchasesAction(),
+                      const Divider(height: 24),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(l10n.developmentDebug),
@@ -215,6 +218,76 @@ class SettingsScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _RestorePurchasesAction extends ConsumerStatefulWidget {
+  const _RestorePurchasesAction();
+
+  @override
+  ConsumerState<_RestorePurchasesAction> createState() =>
+      _RestorePurchasesActionState();
+}
+
+class _RestorePurchasesActionState
+    extends ConsumerState<_RestorePurchasesAction> {
+  bool _restoreInFlight = false;
+
+  Future<void> _restorePurchases() async {
+    if (_restoreInFlight) {
+      return;
+    }
+    setState(() {
+      _restoreInFlight = true;
+    });
+    final result = await ref.read(purchaseServiceProvider).restorePurchases();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _restoreInFlight = false;
+    });
+    final l10n = context.l10n;
+    final message = switch (result) {
+      RestorePurchasesResult.requested => l10n.messageRestorePurchasesRequested,
+      RestorePurchasesResult.unavailable =>
+        l10n.messageRestorePurchasesUnavailable,
+      RestorePurchasesResult.failed => l10n.messageRestorePurchasesFailed,
+    };
+    final messenger = ScaffoldMessenger.of(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.restorePurchases),
+          subtitle: Text(l10n.restorePurchasesSubtitle),
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: FilledButton.tonalIcon(
+            key: const Key('settings-restore-purchases-tile'),
+            onPressed: _restoreInFlight ? null : _restorePurchases,
+            icon: _restoreInFlight
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh_rounded),
+            label: Text(l10n.restorePurchases),
+          ),
+        ),
+      ],
     );
   }
 }

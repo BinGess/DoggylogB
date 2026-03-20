@@ -52,6 +52,7 @@ dependencies:
   sqlite3_flutter_libs: 0.5.41
   timezone: ^0.10.1
   uuid: ^4.5.1
+  in_app_purchase: ^3.2.3
 
 dev_dependencies:
   flutter_test:

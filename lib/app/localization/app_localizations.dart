@@ -117,6 +117,12 @@ class AppLocalizations {
   String get systemCalendar => _t('系统日历', 'System calendars', 'システムカレンダー');
   String get language => _t('语言', 'Language', '言語');
   String get biometricUnlock => _t('生物识别解锁', 'Biometric unlock', '生体認証でロック解除');
+  String get restorePurchases => _t('恢复购买', 'Restore Purchases', '購入を復元');
+  String get restorePurchasesSubtitle => _t(
+    '如果你之前已经买过订阅或永久版，可以在这里从 App Store 重新同步。',
+    'If you already bought a subscription or lifetime unlock, sync it again from the App Store here.',
+    '以前購入したサブスクリプションや買い切りの解除があれば、ここから App Store と再同期できます。',
+  );
   String get fontSize => _t('字体大小', 'Text size', '文字サイズ');
   String get fontSizeSubtitle => _t(
     '小、中、大三档都备好啦，选你看着最舒服的。',
@@ -631,6 +637,21 @@ class AppLocalizations {
     '解锁失败了，再试一次吧',
     'Unlock did not go through. Please try again.',
     '解除できませんでした。もう一度試してみてください。',
+  );
+  String get messageRestorePurchasesRequested => _t(
+    '已经向 App Store 发起恢复购买请求啦，如有可恢复项目，系统会继续同步。',
+    'We asked the App Store to restore your purchases. If anything can be restored, iOS will keep syncing it.',
+    'App Store に購入復元を依頼しました。復元できる項目があれば、このまま同期が進みます。',
+  );
+  String get messageRestorePurchasesUnavailable => _t(
+    '这台设备现在连不上 App Store，暂时没法恢复购买。',
+    'The App Store is unavailable on this device right now, so purchases cannot be restored yet.',
+    'この端末では今 App Store を利用できないため、購入を復元できません。',
+  );
+  String get messageRestorePurchasesFailed => _t(
+    '恢复购买暂时没启动成功，稍后再试一次吧。',
+    'Could not start restoring purchases right now. Please try again in a moment.',
+    '購入の復元を今は開始できませんでした。少ししてからもう一度お試しください。',
   );
   String get messageSyncedToIosCalendar =>
       _t('已经同步到 iOS 日历啦', 'Synced to iOS Calendar.', 'iOS カレンダーに同期しました。');

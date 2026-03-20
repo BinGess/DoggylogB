@@ -11,6 +11,7 @@ import 'package:doggylog/platform/calendar/ios_calendar_sync_service.dart';
 import 'package:doggylog/platform/doggylog_platform.dart';
 import 'package:doggylog/platform/geofence/geofence_monitor_service.dart';
 import 'package:doggylog/platform/notifications/doggylog_notification_service.dart';
+import 'package:doggylog/platform/purchases/doggylog_purchase_service.dart';
 import 'package:doggylog/platform/snapshots/doggylog_snapshot_publisher.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -88,6 +89,10 @@ final snapshotPublisherProvider = FutureProvider<DoggylogSnapshotPublisher>((
 ) async {
   final repository = await ref.watch(repositoryProvider.future);
   return DoggylogSnapshotPublisher(ref.watch(appPlatformProvider), repository);
+});
+
+final purchaseServiceProvider = Provider<DoggylogPurchaseService>((ref) {
+  return AppStorePurchaseService();
 });
 
 final appStateProvider = StateNotifierProvider<AppStateController, AppState>((
