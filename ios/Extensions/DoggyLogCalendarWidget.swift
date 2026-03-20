@@ -338,7 +338,6 @@ struct DoggyLogLargeCalendarView: View {
     let snapshot = entry.snapshot
     let theme = DoggyWidgetTheme.resolve(snapshot: snapshot, colorScheme: colorScheme)
     let monthLabel = _timelineMonthLabel(for: entry.date)
-    let petName = snapshot?.pet.name ?? "DoggyLog"
     let days = snapshot?.calendarDays ?? _placeholderDays(for: entry.date)
     let focusIndex = _focusDayIndex(in: days)
 
@@ -348,18 +347,10 @@ struct DoggyLogLargeCalendarView: View {
           .font(DoggyWidgetTypography.font(size: 26, weight: .regular))
           .foregroundColor(theme.palette.textPrimary)
         Spacer()
-        VStack(alignment: .trailing, spacing: 3) {
-          Text(petName)
-            .font(DoggyWidgetTypography.font(size: 11, weight: .medium))
-            .foregroundColor(theme.palette.textSecondary.opacity(0.82))
-          Text(widgetText("陪你过今天", "A little sidekick for today", "今日はそっと付き添います"))
-            .font(DoggyWidgetTypography.font(size: 10, weight: .regular))
-            .foregroundColor(theme.palette.accentPrimary.opacity(0.88))
-        }
       }
       .padding(.horizontal, 18)
       .padding(.top, 16)
-      .padding(.bottom, 12)
+      .padding(.bottom, 10)
 
       HStack(spacing: 0) {
         ForEach(weekdayLabels, id: \.self) { label in
@@ -384,18 +375,18 @@ struct DoggyLogLargeCalendarView: View {
       }
       .padding(.horizontal, 12)
 
-      Spacer(minLength: 8)
+      Spacer(minLength: 4)
 
       HStack(alignment: .bottom, spacing: 0) {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 4) {
           Text(widgetText("本月节奏", "This month's rhythm", "今月のリズム"))
-            .font(DoggyWidgetTypography.font(size: 10, weight: .medium))
+            .font(DoggyWidgetTypography.font(size: 9, weight: .medium))
             .foregroundColor(theme.palette.textSecondary.opacity(0.76))
 
           HStack(spacing: 6) {
             ForEach(0..<6, id: \.self) { index in
               Image(systemName: "pawprint.fill")
-                .font(.system(size: 13, weight: .regular))
+                .font(.system(size: 12, weight: .regular))
                 .foregroundColor(
                   index == 2
                     ? theme.palette.accentPrimary.opacity(0.32)
@@ -407,11 +398,11 @@ struct DoggyLogLargeCalendarView: View {
 
         Spacer()
 
-        _DogCompanionView(theme: theme)
-          .frame(width: 76, height: 76)
+        _DogCompanionView(theme: theme, baseScale: 0.74, yOffsetAdjustment: -4)
+          .frame(width: 52, height: 52)
       }
       .padding(.horizontal, 18)
-      .padding(.bottom, 14)
+      .padding(.bottom, 12)
     }
     .doggyWidgetBackground {
       DoggyWidgetCardBackground(theme: theme, cornerRadius: 30)
@@ -596,6 +587,7 @@ private struct _LargeCalendarDayCell: View {
                 ? theme.palette.textPrimary.opacity(isFocus ? 0.95 : 0.68)
                 : theme.palette.textPrimary.opacity(0.18)
           )
+          .offset(y: day.isToday ? 2 : 0)
       }
       .frame(width: 32, height: 32)
       .overlay(
@@ -624,13 +616,15 @@ private struct _LargeCalendarDayCell: View {
 
 struct _DogCompanionView: View {
   let theme: DoggyWidgetTheme
+  var baseScale: CGFloat = 1
+  var yOffsetAdjustment: CGFloat = 0
 
   var body: some View {
     doggyWidgetCompanionImage(named: theme.dogImageName)
       .resizable()
       .scaledToFit()
-      .scaleEffect(theme.companionScale)
-      .offset(y: theme.companionYOffset)
+      .scaleEffect(theme.companionScale * baseScale)
+      .offset(y: theme.companionYOffset + yOffsetAdjustment)
   }
 }
 

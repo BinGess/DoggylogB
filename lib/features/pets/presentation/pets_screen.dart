@@ -22,6 +22,9 @@ class PetsScreen extends ConsumerWidget {
       activePet?.breed ?? PetBreed.shiba,
     ).spec;
     final l10n = context.l10n;
+    final activePetName = activePet == null
+        ? null
+        : l10n.localizedStoredText(activePet.name);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.managePetSkins)),
       body: SoftBackdrop(
@@ -52,17 +55,15 @@ class PetsScreen extends ConsumerWidget {
                     activePet == null
                         ? l10n.noPetSelected
                         : isHiddenActiveSkin
-                        ? '${activePet.name} · ${l10n.breedLabel(activePet.breed)} · ${l10n.currentHidden}'
-                        : '${activePet.name} · ${l10n.breedLabel(activePet.breed)} · ${l10n.localizedSkinStyleName(activeSkin.styleName)}',
+                        ? '$activePetName · ${l10n.breedLabel(activePet.breed)} · ${l10n.currentHidden}'
+                        : '$activePetName · ${l10n.breedLabel(activePet.breed)} · ${l10n.localizedSkinStyleName(activeSkin.styleName)}',
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 8),
-                  // Text(
-                  // activePet == null
-                  // ? '进入下面的卡片后选择任意宠物，即可切换整套 App 视觉皮肤。'
-                  //   : '切换宠物会同步切换按钮、文字、卡片、导航和背景风格，不再单独做设置页联动。',
-                  //style: Theme.of(context).textTheme.bodyMedium,
-                  //),
+                  Text(
+                    l10n.premiumSkinLockedHint,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 ],
               ),
             ),
@@ -71,6 +72,7 @@ class PetsScreen extends ConsumerWidget {
               pets: state.pets,
               selectedPetId: activePet?.id,
               onPetSelected: controller.selectPet,
+              premiumSkinStore: state.premiumSkinStore,
             ),
           ],
         ),

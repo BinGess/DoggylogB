@@ -1,13 +1,12 @@
 import 'dart:convert';
 
 enum CalendarCategory {
-  daily('日常', 'bone'),
-  work('工作', 'folder'),
-  anniversary('纪念日', 'heart'),
-  pet('宠物相关', 'paw');
+  daily('bone'),
+  work('folder'),
+  anniversary('heart'),
+  pet('paw');
 
-  const CalendarCategory(this.label, this.iconToken);
-  final String label;
+  const CalendarCategory(this.iconToken);
   final String iconToken;
 }
 
@@ -483,8 +482,8 @@ class SystemCalendar {
   factory SystemCalendar.fromJson(Map<String, dynamic> json) {
     return SystemCalendar(
       id: json['id'] as String? ?? '',
-      title: json['title'] as String? ?? 'Untitled Calendar',
-      sourceTitle: json['sourceTitle'] as String? ?? 'Other',
+      title: json['title'] as String? ?? '',
+      sourceTitle: json['sourceTitle'] as String? ?? '',
       colorHex: json['colorHex'] as String? ?? '#C7CDD8',
       allowsContentModifications:
           json['allowsContentModifications'] as bool? ?? true,
@@ -504,6 +503,49 @@ class TaskTemplate {
   final String title;
   final CalendarCategory category;
   final int durationMinutes;
+}
+
+class PremiumSkinStoreState {
+  const PremiumSkinStoreState({
+    this.didLoad = false,
+    this.storeAvailable = false,
+    this.ownedProductIds = const [],
+    this.priceLabels = const {},
+    this.purchasePendingProductId,
+  });
+
+  final bool didLoad;
+  final bool storeAvailable;
+  final List<String> ownedProductIds;
+  final Map<String, String> priceLabels;
+  final String? purchasePendingProductId;
+
+  bool owns(String? productId) {
+    return productId != null && ownedProductIds.contains(productId);
+  }
+
+  String priceLabelFor(String productId, String fallback) {
+    return priceLabels[productId] ?? fallback;
+  }
+
+  PremiumSkinStoreState copyWith({
+    bool? didLoad,
+    bool? storeAvailable,
+    List<String>? ownedProductIds,
+    Map<String, String>? priceLabels,
+    String? purchasePendingProductId,
+    bool clearPendingProductId = false,
+  }) {
+    return PremiumSkinStoreState(
+      didLoad: didLoad ?? this.didLoad,
+      storeAvailable: storeAvailable ?? this.storeAvailable,
+      ownedProductIds: ownedProductIds ?? this.ownedProductIds,
+      priceLabels: priceLabels ?? this.priceLabels,
+      purchasePendingProductId: clearPendingProductId
+          ? null
+          : purchasePendingProductId ?? this.purchasePendingProductId,
+    );
+  }
 }
 
 class AppState {
@@ -528,6 +570,7 @@ class AppState {
     this.lastSyncMessage,
     this.activeScene = SceneMode.home,
     this.fetchingBall = false,
+    this.premiumSkinStore = const PremiumSkinStoreState(),
   });
 
   final UserPreference preferences;
@@ -550,6 +593,7 @@ class AppState {
   final String? lastSyncMessage;
   final SceneMode activeScene;
   final bool fetchingBall;
+  final PremiumSkinStoreState premiumSkinStore;
 
   PetProfile? get selectedPet {
     for (final pet in pets) {
@@ -581,6 +625,7 @@ class AppState {
     String? lastSyncMessage,
     SceneMode? activeScene,
     bool? fetchingBall,
+    PremiumSkinStoreState? premiumSkinStore,
   }) {
     return AppState(
       preferences: preferences ?? this.preferences,
@@ -606,6 +651,7 @@ class AppState {
       lastSyncMessage: lastSyncMessage ?? this.lastSyncMessage,
       activeScene: activeScene ?? this.activeScene,
       fetchingBall: fetchingBall ?? this.fetchingBall,
+      premiumSkinStore: premiumSkinStore ?? this.premiumSkinStore,
     );
   }
 }

@@ -46,13 +46,15 @@ dependencies:
   local_auth: ^2.3.0
   path: ^1.9.1
   path_provider: ^2.1.5
+  package_info_plus: ^8.3.1
   google_fonts: ^6.2.1
+  in_app_purchase: ^3.2.2
   rive: ^0.13.20
   shared_preferences: ^2.5.3
   sqlite3_flutter_libs: 0.5.41
   timezone: ^0.10.1
+  url_launcher: ^6.3.2
   uuid: ^4.5.1
-  in_app_purchase: ^3.2.3
 
 dev_dependencies:
   flutter_test:

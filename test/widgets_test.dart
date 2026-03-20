@@ -516,7 +516,7 @@ void main() {
     expect(find.text('小'), findsOneWidget);
     expect(find.text('中'), findsOneWidget);
     expect(find.text('大'), findsOneWidget);
-    expect(find.text('开发调试'), findsOneWidget);
+    expect(find.text('开发调试'), findsNothing);
     expect(find.text('动效强度'), findsNothing);
     expect(find.text('iOS 增强能力'), findsNothing);
   });
@@ -595,16 +595,29 @@ void main() {
   });
 
   testWidgets(
-    'SettingsScreen opens development debug page from settings footer',
+    'DevelopmentDebugScreen shows debug controls',
     (tester) async {
-      await pumpSettingsScreen(tester);
-
-      final debugTile = find.widgetWithText(ListTile, '开发调试');
-      await tester.ensureVisible(debugTile);
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: AppTheme.light(
+              fontScale: 1.0,
+              skinTheme: AppSkinTheme.shibaJoy,
+            ),
+            locale: const Locale('zh'),
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            home: const DevelopmentDebugScreen(),
+          ),
+        ),
+      );
       await tester.pump();
-      await tester.tap(debugTile, warnIfMissed: false);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 120));
 
       expect(find.text('开发调试'), findsWidgets);
       expect(find.text('动效强度'), findsOneWidget);

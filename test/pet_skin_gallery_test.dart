@@ -43,6 +43,7 @@ void main() {
               pets: pets,
               selectedPetId: 'pet-1',
               onPetSelected: (petId) => selectedPetId = petId,
+              premiumSkinStore: const PremiumSkinStoreState(),
             ),
           ),
         ),
@@ -107,6 +108,7 @@ void main() {
                   onPetSelected: (petId) {
                     setState(() => selectedPetId = petId);
                   },
+                  premiumSkinStore: const PremiumSkinStoreState(),
                 ),
               ),
             );
@@ -178,6 +180,7 @@ void main() {
               pets: pets,
               selectedPetId: 'pet-1',
               onPetSelected: (_) {},
+              premiumSkinStore: const PremiumSkinStoreState(),
             ),
           ),
         ),
@@ -243,6 +246,7 @@ void main() {
               pets: pets,
               selectedPetId: 'pet-1',
               onPetSelected: (_) {},
+              premiumSkinStore: const PremiumSkinStoreState(),
             ),
           ),
         ),
@@ -253,5 +257,67 @@ void main() {
     expect(find.text('偏科技感的蓝紫层次，适合持续对话和记录。'), findsNothing);
     expect(find.text('通透而轻盈，适合健康与日常维护。'), findsNothing);
     expect(find.text('更柔软的粉白色调，适合陪伴与纪念。'), findsNothing);
+  });
+
+  testWidgets('PetSkinGallery shows purchase CTA for locked premium skins', (
+    tester,
+  ) async {
+    String? tappedPetId;
+    final pets = [
+      PetProfile(
+        id: 'pet-1',
+        name: 'Mochi',
+        breed: PetBreed.shiba,
+        loyaltyPoints: 120,
+        selectedSkinId: 'amber-shiba',
+        unlockedSkinIds: const ['amber-shiba'],
+        createdAt: DateTime(2025),
+        isSelected: true,
+      ),
+      PetProfile(
+        id: 'pet-3',
+        name: 'Luna',
+        breed: PetBreed.husky,
+        loyaltyPoints: 180,
+        selectedSkinId: 'frost-husky',
+        unlockedSkinIds: const ['frost-husky'],
+        createdAt: DateTime(2025, 3),
+      ),
+      PetProfile(
+        id: 'pet-4',
+        name: 'Maru',
+        breed: PetBreed.samoyed,
+        loyaltyPoints: 220,
+        selectedSkinId: 'cloud-samoyed',
+        unlockedSkinIds: const ['cloud-samoyed'],
+        createdAt: DateTime(2025, 4),
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(skinTheme: AppSkinTheme.shibaJoy, fontScale: 1.0),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: PetSkinGallery(
+              pets: pets,
+              selectedPetId: 'pet-1',
+              onPetSelected: (petId) => tappedPetId = petId,
+              premiumSkinStore: const PremiumSkinStoreState(
+                didLoad: true,
+                storeAvailable: true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('¥3 解锁'), findsNWidgets(2));
+
+    await tester.tap(find.text('¥3 解锁').first);
+    await tester.pumpAndSettle();
+
+    expect(tappedPetId, 'pet-3');
   });
 }

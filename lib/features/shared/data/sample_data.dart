@@ -44,13 +44,13 @@ final defaultSkins = <PetBreed, List<PetSkin>>{
   PetBreed.shiba: const [
     PetSkin(
       id: 'amber-shiba',
-      name: '暖棕琥珀',
+      name: SeedCopyKey.skinAmberShibaName,
       visualTag: 'amber',
       unlockLevel: 1,
     ),
     PetSkin(
       id: 'sunrise-shiba',
-      name: '朝霞糖霜',
+      name: SeedCopyKey.skinSunriseShibaName,
       visualTag: 'sunrise',
       unlockLevel: 3,
     ),
@@ -58,21 +58,41 @@ final defaultSkins = <PetBreed, List<PetSkin>>{
   PetBreed.goldenRetriever: const [
     PetSkin(
       id: 'golden-dawn',
-      name: '暖金奶油',
+      name: SeedCopyKey.skinGoldenDawnName,
       visualTag: 'golden',
       unlockLevel: 1,
     ),
-    PetSkin(id: 'honey-wave', name: '蜂蜜小卷', visualTag: 'honey', unlockLevel: 4),
+    PetSkin(
+      id: 'honey-wave',
+      name: SeedCopyKey.skinHoneyWaveName,
+      visualTag: 'honey',
+      unlockLevel: 4,
+    ),
   ],
   PetBreed.beagle: const [
-    PetSkin(id: 'milk-jelly', name: '奶白果冻', visualTag: 'milk', unlockLevel: 1),
-    PetSkin(id: 'mint-jelly', name: '薄荷果冻', visualTag: 'mint', unlockLevel: 4),
+    PetSkin(
+      id: 'milk-jelly',
+      name: SeedCopyKey.skinMilkJellyName,
+      visualTag: 'milk',
+      unlockLevel: 1,
+    ),
+    PetSkin(
+      id: 'mint-jelly',
+      name: SeedCopyKey.skinMintJellyName,
+      visualTag: 'mint',
+      unlockLevel: 4,
+    ),
   ],
   PetBreed.husky: const [
-    PetSkin(id: 'ice-crystal', name: '冰晶果冻', visualTag: 'ice', unlockLevel: 1),
+    PetSkin(
+      id: 'ice-crystal',
+      name: SeedCopyKey.skinIceCrystalName,
+      visualTag: 'ice',
+      unlockLevel: 1,
+    ),
     PetSkin(
       id: 'aurora-husky',
-      name: '极光糖霜',
+      name: SeedCopyKey.skinAuroraHuskyName,
       visualTag: 'aurora',
       unlockLevel: 5,
     ),
@@ -80,29 +100,42 @@ final defaultSkins = <PetBreed, List<PetSkin>>{
   PetBreed.samoyed: const [
     PetSkin(
       id: 'cloud-white',
-      name: '云朵棉花',
+      name: SeedCopyKey.skinCloudWhiteName,
       visualTag: 'cloud',
       unlockLevel: 1,
     ),
-    PetSkin(id: 'rose-bloom', name: '玫瑰奶霜', visualTag: 'rose', unlockLevel: 3),
+    PetSkin(
+      id: 'rose-bloom',
+      name: SeedCopyKey.skinRoseBloomName,
+      visualTag: 'rose',
+      unlockLevel: 3,
+    ),
   ],
 };
 
 const defaultPetCompanions = <DefaultPetCompanion>[
-  DefaultPetCompanion(name: 'Mochi', breed: PetBreed.shiba, loyaltyPoints: 120),
   DefaultPetCompanion(
-    name: 'Butters',
+    name: SeedCopyKey.petMochiName,
+    breed: PetBreed.shiba,
+    loyaltyPoints: 120,
+  ),
+  DefaultPetCompanion(
+    name: SeedCopyKey.petButtersName,
     breed: PetBreed.goldenRetriever,
     loyaltyPoints: 180,
   ),
   DefaultPetCompanion(
-    name: 'Bagel',
+    name: SeedCopyKey.petBagelName,
     breed: PetBreed.beagle,
     loyaltyPoints: 150,
   ),
-  DefaultPetCompanion(name: 'Skye', breed: PetBreed.husky, loyaltyPoints: 220),
   DefaultPetCompanion(
-    name: 'Luna',
+    name: SeedCopyKey.petSkyeName,
+    breed: PetBreed.husky,
+    loyaltyPoints: 220,
+  ),
+  DefaultPetCompanion(
+    name: SeedCopyKey.petLunaName,
     breed: PetBreed.samoyed,
     loyaltyPoints: 160,
   ),

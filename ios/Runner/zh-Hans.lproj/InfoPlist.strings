@@ -1,0 +1,8 @@
+"CFBundleDisplayName" = "狗狗日历";
+"CFBundleName" = "狗狗日历";
+"NSCalendarsUsageDescription" = "狗狗日历需要读取和同步系统日历，帮助你统一管理任务与宠物提醒。";
+"NSCalendarsFullAccessUsageDescription" = "狗狗日历需要完整访问系统日历，导入现有事件并同步你在应用内创建的任务。";
+"NSFaceIDUsageDescription" = "狗狗日历使用 Face ID / Touch ID 来保护你的日程与宠物相关隐私。";
+"NSLocationWhenInUseUsageDescription" = "狗狗日历使用位置权限来触发地理围栏场景，例如遛弯模式和到达宠物医院提醒。";
+"NSMotionUsageDescription" = "狗狗日历使用运动传感器来驱动液态玻璃视差效果与宠物动态反馈。";
+"NSUserNotificationsUsageDescription" = "狗狗日历使用通知来提醒遛狗、喂食、倒计时和重要日程。";

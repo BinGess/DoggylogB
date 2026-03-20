@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>DoggyLog</string>
+	<string>DoggyDays</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,19 +13,17 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>DoggyLog</string>
+	<string>DoggyDays</string>
 	<key>NSCalendarsUsageDescription</key>
-	<string>DoggyLog 需要读取和同步系统日历，帮助你统一管理任务与宠物提醒。</string>
+	<string>DoggyDays needs calendar access to keep your tasks and pet reminders together.</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>DoggyLog 需要完整访问系统日历，导入现有事件并同步你在应用内创建的任务。</string>
+	<string>DoggyDays needs full calendar access to import your events and sync tasks created in the app.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>DoggyLog 使用 Face ID / Touch ID 来保护你的日程与宠物相关隐私。</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>DoggyLog 使用位置权限来触发地理围栏场景，例如遛弯模式和到达宠物医院提醒。</string>
+	<string>DoggyDays uses Face ID / Touch ID to protect your schedule and pet privacy.</string>
 	<key>NSMotionUsageDescription</key>
-	<string>DoggyLog 使用运动传感器来驱动液态玻璃视差效果与宠物动态反馈。</string>
+	<string>DoggyDays uses motion sensors to drive parallax and pet motion effects.</string>
 	<key>NSUserNotificationsUsageDescription</key>
-	<string>DoggyLog 使用通知来提醒遛狗、喂食、倒计时和重要日程。</string>
+	<string>DoggyDays uses notifications for walks, feeding, countdowns, and important events.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>CFBundlePackageType</key>

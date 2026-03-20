@@ -1,5 +1,6 @@
 import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/pets/presentation/pets_screen.dart';
+import 'package:doggylog/features/settings/presentation/about_screen.dart';
 import 'package:doggylog/features/settings/presentation/widgets/language_picker_bottom_sheet.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
@@ -201,12 +202,11 @@ class SettingsScreen extends ConsumerWidget {
                       const Divider(height: 24),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: Text(l10n.developmentDebug),
-                        subtitle: Text(l10n.developmentDebugSubtitle),
+                        title: Text(l10n.about),
                         trailing: const Icon(Icons.chevron_right_rounded),
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute<void>(
-                            builder: (_) => const DevelopmentDebugScreen(),
+                            builder: (_) => const AboutScreen(),
                           ),
                         ),
                       ),
@@ -443,7 +443,12 @@ class _SystemCalendarSettingsScreenState
             }
             final grouped = <String, List<SystemCalendar>>{};
             for (final calendar in calendars) {
-              grouped.putIfAbsent(calendar.sourceTitle, () => []).add(calendar);
+              grouped
+                  .putIfAbsent(
+                    _displayCalendarSource(context, calendar.sourceTitle),
+                    () => [],
+                  )
+                  .add(calendar);
             }
             final groups = grouped.entries.toList()
               ..sort((a, b) => a.key.compareTo(b.key));
@@ -583,7 +588,7 @@ class _SystemCalendarTile extends StatelessWidget {
             ? const Icon(Icons.check_rounded, size: 12, color: Colors.white)
             : null,
       ),
-      title: Text(calendar.title),
+      title: Text(_displayCalendarTitle(context, calendar.title)),
       subtitle: calendar.allowsContentModifications
           ? null
           : Text(context.l10n.readOnlyCalendar),
@@ -628,6 +633,20 @@ class _EmptySystemCalendarState extends StatelessWidget {
       ),
     );
   }
+}
+
+String _displayCalendarTitle(BuildContext context, String title) {
+  if (title.trim().isEmpty) {
+    return context.l10n.fallbackCalendarTitle();
+  }
+  return title;
+}
+
+String _displayCalendarSource(BuildContext context, String sourceTitle) {
+  if (sourceTitle.trim().isEmpty) {
+    return context.l10n.fallbackCalendarSource();
+  }
+  return sourceTitle;
 }
 
 Color _parseColor(String colorHex) {
@@ -756,27 +775,6 @@ class DevelopmentDebugScreen extends ConsumerWidget {
                   FilledButton.tonal(
                     onPressed: controller.requestNotificationPermissions,
                     child: Text(l10n.enableNotificationPermission),
-                  ),
-                  const SizedBox(height: 14),
-                  _CapabilityRow(
-                    title: l10n.geofenceWalkingMode,
-                    subtitle: state.locationPermissionGranted
-                        ? state.activeGeofenceName == null
-                              ? l10n.geofenceInactive
-                              : l10n.geofenceActive(
-                                  state.activeGeofenceName!,
-                                  state.activeScene,
-                                )
-                        : l10n.locationPermissionDenied,
-                  ),
-                  const SizedBox(height: 8),
-                  FilledButton.tonal(
-                    onPressed: controller.enableGeofenceMonitoring,
-                    child: Text(
-                      state.locationPermissionGranted
-                          ? l10n.refreshGeofenceStatus
-                          : l10n.enableLocationPermission,
-                    ),
                   ),
                   const SizedBox(height: 14),
                   _CapabilityRow(

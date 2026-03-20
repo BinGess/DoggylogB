@@ -31,7 +31,7 @@ struct DoggyLogSummaryWidget: Widget {
     StaticConfiguration(kind: kind, provider: DoggyLogProvider()) { entry in
       DoggyLogSummaryWidgetView(entry: entry)
     }
-    .configurationDisplayName("DoggyLog")
+    .configurationDisplayName(widgetText("狗狗日历", "DoggyDays", "ワンカレ"))
     .description(widgetText("看看今天的宠物状态、下一件事和倒计时。", "See today's pet vibe, next task, and countdown.", "今日のわんこ状態、次の予定、カウントダウンを表示します。"))
     .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
   }
@@ -334,7 +334,7 @@ private struct _SummaryHeader: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 3) {
-      Text(snapshot?.pet.name ?? "DoggyLog")
+      Text(snapshot?.pet.name ?? widgetText("狗狗日历", "DoggyDays", "ワンカレ"))
         .font(DoggyWidgetTypography.font(size: 20, weight: .medium))
         .foregroundColor(theme.palette.textPrimary)
         .lineLimit(1)

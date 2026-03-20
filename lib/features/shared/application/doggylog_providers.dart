@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:doggylog/app/localization/app_localizations.dart';
+import 'package:doggylog/app/theme/app_skin_theme.dart';
+import 'package:doggylog/features/pets/data/skin_purchase_service.dart';
 import 'package:doggylog/features/shared/application/domain_event_bus.dart';
 import 'package:doggylog/features/shared/data/app_database.dart';
 import 'package:doggylog/features/shared/data/app_repository.dart';
@@ -15,6 +17,7 @@ import 'package:doggylog/platform/purchases/doggylog_purchase_service.dart';
 import 'package:doggylog/platform/snapshots/doggylog_snapshot_publisher.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -95,6 +98,15 @@ final purchaseServiceProvider = Provider<DoggylogPurchaseService>((ref) {
   return AppStorePurchaseService();
 });
 
+final skinPurchaseServiceProvider = FutureProvider<SkinPurchaseService>((
+  ref,
+) async {
+  final prefs = await ref.watch(sharedPreferencesProvider.future);
+  final service = SkinPurchaseService(InAppPurchase.instance, prefs);
+  ref.onDispose(service.dispose);
+  return service;
+});
+
 final appStateProvider = StateNotifierProvider<AppStateController, AppState>((
   ref,
 ) {
@@ -130,9 +142,15 @@ class AppStateController extends StateNotifier<AppState> {
   StreamSubscription<String>? _platformEventSub;
   StreamSubscription<MotionSample>? _sensorSub;
   StreamSubscription<String>? _widgetCompleteTaskSub;
+  StreamSubscription<PremiumSkinStoreState>? _premiumSkinStoreSub;
+  String? _pendingPremiumPetId;
+  bool _normalizingPremiumSelection = false;
 
   Future<void> _init() async {
     final repository = await _ref.read(repositoryProvider.future);
+    final skinPurchaseService = await _ref.read(
+      skinPurchaseServiceProvider.future,
+    );
     final notificationService = await _ref.read(
       notificationServiceProvider.future,
     );
@@ -151,6 +169,7 @@ class AppStateController extends StateNotifier<AppState> {
     final locationPermissionGranted = await _ref
         .read(geofenceMonitorServiceProvider)
         .isPermissionGranted();
+    final premiumSkinStore = await skinPurchaseService.initialize();
     state = state.copyWith(
       preferences: preferences,
       calendarView: preferences.selectedCalendarView,
@@ -160,6 +179,7 @@ class AppStateController extends StateNotifier<AppState> {
       calendarPermissionGranted: calendarAvailable,
       biometricAvailable: biometricAvailable,
       locationPermissionGranted: locationPermissionGranted,
+      premiumSkinStore: premiumSkinStore,
       // Keep the initial session interactive, and never lock on devices
       // that cannot actually complete biometric auth.
       appUnlocked: true,
@@ -182,6 +202,7 @@ class AppStateController extends StateNotifier<AppState> {
     _petsSub = repository.watchPets().listen((pets) {
       final nextState = state.copyWith(pets: pets);
       state = nextState;
+      unawaited(_ensureSelectedPetCanUseCurrentSkin());
       unawaited(_publishSnapshot(nextState));
     });
     _countdownSub = repository.watchCountdowns().listen((items) {
@@ -223,7 +244,16 @@ class AppStateController extends StateNotifier<AppState> {
         .listen((taskId) async {
           await toggleTaskCompletion(taskId, true);
         });
+    _premiumSkinStoreSub = skinPurchaseService.stateStream.listen((storeState) {
+      final previousOwned = state.premiumSkinStore.ownedProductIds.toSet();
+      state = state.copyWith(premiumSkinStore: storeState);
+      unawaited(_handlePremiumOwnershipChange(previousOwned, storeState));
+    });
     await _configureSensorStream(preferences.performanceTier);
+    // 启动后主动发布一次快照，避免覆盖安装后灵动岛不出现（等流首次发射后再发，减少竞态）
+    Future.delayed(const Duration(milliseconds: 800), () {
+      _publishSnapshot(state);
+    });
   }
 
   Future<void> selectDate(DateTime date) async {
@@ -572,6 +602,77 @@ class AppStateController extends StateNotifier<AppState> {
   }
 
   Future<void> selectPet(String petId) async {
+    final pet = state.pets.firstWhereOrNull((item) => item.id == petId);
+    if (pet == null) {
+      return;
+    }
+    final premiumProductId = premiumProductIdForPetBreed(pet.breed);
+    if (premiumProductId != null &&
+        !state.premiumSkinStore.owns(premiumProductId)) {
+      await buyPremiumSkinForPet(petId);
+      return;
+    }
+    await _selectPetDirectly(petId);
+  }
+
+  Future<void> buyPremiumSkinForPet(String petId) async {
+    final pet = state.pets.firstWhereOrNull((item) => item.id == petId);
+    if (pet == null) {
+      return;
+    }
+    final premiumProductId = premiumProductIdForPetBreed(pet.breed);
+    if (premiumProductId == null) {
+      await _selectPetDirectly(petId);
+      return;
+    }
+    if (state.premiumSkinStore.owns(premiumProductId)) {
+      await _selectPetDirectly(petId);
+      return;
+    }
+    final purchaseService = await _ref.read(skinPurchaseServiceProvider.future);
+    _pendingPremiumPetId = petId;
+    final result = await purchaseService.purchase(premiumProductId);
+    final l10n = AppLocalizations.current(mode: state.preferences.languageMode);
+    switch (result) {
+      case PremiumSkinPurchaseLaunchResult.launched:
+        state = state.copyWith(
+          lastSyncMessage: l10n.messagePremiumSkinPurchasePending(
+            l10n.breedLabel(pet.breed),
+          ),
+        );
+      case PremiumSkinPurchaseLaunchResult.storeUnavailable:
+        _pendingPremiumPetId = null;
+        state = state.copyWith(
+          lastSyncMessage: l10n.messagePremiumSkinStoreUnavailable,
+        );
+      case PremiumSkinPurchaseLaunchResult.missingProduct:
+        _pendingPremiumPetId = null;
+        state = state.copyWith(
+          lastSyncMessage: l10n.messagePremiumSkinProductUnavailable,
+        );
+      case PremiumSkinPurchaseLaunchResult.failed:
+        _pendingPremiumPetId = null;
+        state = state.copyWith(
+          lastSyncMessage: l10n.messagePremiumSkinPurchaseFailed,
+        );
+    }
+  }
+
+  Future<void> restorePremiumSkinPurchases() async {
+    final purchaseService = await _ref.read(skinPurchaseServiceProvider.future);
+    final restored = await purchaseService.restorePurchases();
+    state = state.copyWith(
+      lastSyncMessage: restored
+          ? AppLocalizations.current(
+              mode: state.preferences.languageMode,
+            ).messagePremiumSkinRestoreStarted
+          : AppLocalizations.current(
+              mode: state.preferences.languageMode,
+            ).messagePremiumSkinStoreUnavailable,
+    );
+  }
+
+  Future<void> _selectPetDirectly(String petId) async {
     state = state.copyWith(
       pets: [
         for (final pet in state.pets) pet.copyWith(isSelected: pet.id == petId),
@@ -713,6 +814,70 @@ class AppStateController extends StateNotifier<AppState> {
     return state.preferences.visibleSystemCalendarIds;
   }
 
+  Future<void> _handlePremiumOwnershipChange(
+    Set<String> previousOwned,
+    PremiumSkinStoreState storeState,
+  ) async {
+    final pendingPetId = _pendingPremiumPetId;
+    if (pendingPetId != null) {
+      final pet = state.pets.firstWhereOrNull(
+        (item) => item.id == pendingPetId,
+      );
+      final productId = pet == null
+          ? null
+          : premiumProductIdForPetBreed(pet.breed);
+      if (pet != null &&
+          productId != null &&
+          storeState.owns(productId) &&
+          !previousOwned.contains(productId)) {
+        _pendingPremiumPetId = null;
+        await _selectPetDirectly(pendingPetId);
+        final l10n = AppLocalizations.current(
+          mode: state.preferences.languageMode,
+        );
+        state = state.copyWith(
+          lastSyncMessage: l10n.messagePremiumSkinUnlocked(
+            l10n.breedLabel(pet.breed),
+          ),
+        );
+      }
+    }
+    await _ensureSelectedPetCanUseCurrentSkin();
+  }
+
+  Future<void> _ensureSelectedPetCanUseCurrentSkin() async {
+    if (!state.premiumSkinStore.didLoad || _normalizingPremiumSelection) {
+      return;
+    }
+    final selectedPet = state.selectedPet;
+    final selectedProductId = selectedPet == null
+        ? null
+        : premiumProductIdForPetBreed(selectedPet.breed);
+    if (selectedPet == null ||
+        selectedProductId == null ||
+        state.premiumSkinStore.owns(selectedProductId)) {
+      return;
+    }
+    final fallbackPet = state.pets.firstWhereOrNull((pet) {
+      final productId = premiumProductIdForPetBreed(pet.breed);
+      return productId == null || state.premiumSkinStore.owns(productId);
+    });
+    if (fallbackPet == null || fallbackPet.id == selectedPet.id) {
+      return;
+    }
+    _normalizingPremiumSelection = true;
+    try {
+      await _selectPetDirectly(fallbackPet.id);
+      state = state.copyWith(
+        lastSyncMessage: AppLocalizations.current(
+          mode: state.preferences.languageMode,
+        ).messagePremiumSkinRequiresPurchase,
+      );
+    } finally {
+      _normalizingPremiumSelection = false;
+    }
+  }
+
   @override
   void dispose() {
     _itemsSub?.cancel();
@@ -723,6 +888,7 @@ class AppStateController extends StateNotifier<AppState> {
     _platformEventSub?.cancel();
     _sensorSub?.cancel();
     _widgetCompleteTaskSub?.cancel();
+    _premiumSkinStoreSub?.cancel();
     try {
       unawaited(_ref.read(appPlatformProvider).stopSensors());
     } on StateError {
