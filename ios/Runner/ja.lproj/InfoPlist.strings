@@ -3,6 +3,7 @@
 "NSCalendarsUsageDescription" = "ワンカレは、タスクやペットのリマインダーをまとめて管理するためにカレンダーへのアクセスが必要です。";
 "NSCalendarsFullAccessUsageDescription" = "ワンカレは、既存の予定の取り込みとアプリ内タスクの同期のため、カレンダーへのフルアクセスが必要です。";
 "NSFaceIDUsageDescription" = "ワンカレは、予定やペットに関するプライバシーを守るために Face ID / Touch ID を使います。";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "ワンカレは、保存した場所への出入りをバックグラウンドで検知し、おさんぽモードの切り替えや通院リマインダーなどのジオフェンス機能を動かすために位置情報を使います。";
 "NSLocationWhenInUseUsageDescription" = "ワンカレは、お散歩モードや通院リマインダーなどのジオフェンス機能に位置情報を使います。";
 "NSMotionUsageDescription" = "ワンカレは、パララックスやペットの動きの演出にモーションセンサーを使います。";
 "NSUserNotificationsUsageDescription" = "ワンカレは、散歩、食事、カウントダウン、大切な予定の通知に使います。";

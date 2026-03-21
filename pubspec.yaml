@@ -46,7 +46,6 @@ dependencies:
   local_auth: ^2.3.0
   path: ^1.9.1
   path_provider: ^2.1.5
-  package_info_plus: ^8.3.1
   google_fonts: ^6.2.1
   in_app_purchase: ^3.2.2
   rive: ^0.13.20
@@ -63,6 +62,7 @@ dev_dependencies:
   drift_dev: ^2.28.2
   flutter_lints: ^6.0.0
   freezed: ^3.2.3
+  in_app_purchase_platform_interface: ^1.4.0
   json_serializable: ^6.11.1
   pigeon: ^25.5.0
   flutter_launcher_icons: ^0.14.3
@@ -80,6 +80,7 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
   assets:
+    - assets/icon.png
     - assets/images/calendar/
     - assets/shaders/liquid_glass.frag
     - assets/rive/

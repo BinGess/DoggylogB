@@ -21,6 +21,7 @@ class DoggylogPlatform {
 
   Stream<String> get platformEvents => _eventController.stream;
   Stream<MotionSample> get sensorEvents => _sensorController.stream;
+
   /// 灵动岛"完成"按钮触发的任务 ID 流
   Stream<String> get widgetCompleteTaskEvents => _widgetActionController.stream;
 
@@ -30,6 +31,28 @@ class DoggylogPlatform {
 
   Future<bool> requestCalendarAccess() async {
     return _invokeBool('requestCalendarAccess');
+  }
+
+  Future<AppVersionInfo?> loadAppVersionInfo() async {
+    try {
+      final payload = await _channel.invokeMapMethod<String, Object?>(
+        'loadAppVersionInfo',
+      );
+      if (payload == null) {
+        return null;
+      }
+      final version = payload['version'] as String?;
+      final buildNumber = payload['buildNumber'] as String?;
+      if (version == null || buildNumber == null) {
+        return null;
+      }
+      return AppVersionInfo(version: version, buildNumber: buildNumber);
+    } on MissingPluginException {
+      return null;
+    } catch (error) {
+      debugPrint('DoggylogPlatform.loadAppVersionInfo failed: $error');
+      return null;
+    }
   }
 
   Future<List<CalendarItem>> importCalendarItems() async {
@@ -135,6 +158,23 @@ class DoggylogPlatform {
     return _invokeBool('backupToCloud');
   }
 
+  Future<List<String>> loadVerifiedOwnedProductIds(
+    List<String> productIds,
+  ) async {
+    try {
+      final ids = await _channel.invokeListMethod<String>(
+        'loadVerifiedOwnedProductIds',
+        <String, Object?>{'productIds': productIds},
+      );
+      return ids ?? const <String>[];
+    } on MissingPluginException {
+      return const <String>[];
+    } catch (error) {
+      debugPrint('DoggylogPlatform.loadVerifiedOwnedProductIds failed: $error');
+      return const <String>[];
+    }
+  }
+
   Future<bool> publishWidgetSnapshot(String payloadJson) async {
     return _invokeBool(
       'publishWidgetSnapshot',
@@ -205,4 +245,11 @@ class DoggylogPlatform {
       }
     });
   }
+}
+
+class AppVersionInfo {
+  const AppVersionInfo({required this.version, required this.buildNumber});
+
+  final String version;
+  final String buildNumber;
 }

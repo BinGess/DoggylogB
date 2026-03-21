@@ -1,4 +1,5 @@
 import 'package:doggylog/app/localization/app_localizations.dart';
+import 'package:doggylog/features/home/presentation/home_shell_layout.dart';
 import 'package:doggylog/features/pets/presentation/pets_screen.dart';
 import 'package:doggylog/features/settings/presentation/about_screen.dart';
 import 'package:doggylog/features/settings/presentation/widgets/language_picker_bottom_sheet.dart';
@@ -58,12 +59,15 @@ class SettingsScreen extends ConsumerWidget {
     final controller = ref.read(appStateProvider.notifier);
     final preferences = state.preferences;
     final l10n = context.l10n;
+    final bottomInset = homeShellContentBottomInset(
+      MediaQuery.paddingOf(context).bottom,
+    );
     return Scaffold(
       body: SoftBackdrop(
         child: SafeArea(
           bottom: false,
           child: ListView(
-            padding: const EdgeInsets.only(bottom: 40),
+            padding: EdgeInsets.only(bottom: bottomInset),
             children: [
               SoftBackdropPageHeader(
                 title: l10n.settingsHeaderTitle,

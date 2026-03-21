@@ -50,8 +50,8 @@ void main() {
       ),
     );
 
-    expect(find.text('Mochi'), findsOneWidget);
-    expect(find.text('Buddy'), findsOneWidget);
+    expect(find.byKey(const Key('pet-skin-card-pet-1')), findsOneWidget);
+    expect(find.byKey(const Key('pet-skin-card-pet-2')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('pet-skin-card-pet-2')));
     await tester.pumpAndSettle();

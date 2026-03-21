@@ -521,7 +521,7 @@ class PremiumSkinStoreState {
   final String? purchasePendingProductId;
 
   bool owns(String? productId) {
-    return productId != null && ownedProductIds.contains(productId);
+    return didLoad && productId != null && ownedProductIds.contains(productId);
   }
 
   String priceLabelFor(String productId, String fallback) {

@@ -5,6 +5,9 @@ import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+typedef VerifiedOwnedProductIdsLoader =
+    Future<List<String>> Function(Set<String> productIds);
+
 enum PremiumSkinPurchaseLaunchResult {
   launched,
   storeUnavailable,
@@ -13,12 +16,23 @@ enum PremiumSkinPurchaseLaunchResult {
 }
 
 class SkinPurchaseService {
-  SkinPurchaseService(this._iap, this._prefs);
+  SkinPurchaseService(
+    this._iap,
+    this._prefs, {
+    VerifiedOwnedProductIdsLoader? loadVerifiedOwnedProductIds,
+  }) : _loadVerifiedOwnedProductIds =
+           loadVerifiedOwnedProductIds ?? _defaultVerifiedOwnedProductIdsLoader;
 
   static const _ownedProductsKey = 'ownedPremiumSkinProductIds';
+  static Future<List<String>> _defaultVerifiedOwnedProductIdsLoader(
+    Set<String> productIds,
+  ) async {
+    return const <String>[];
+  }
 
   final InAppPurchase _iap;
   final SharedPreferences _prefs;
+  final VerifiedOwnedProductIdsLoader _loadVerifiedOwnedProductIds;
   final _stateController = StreamController<PremiumSkinStoreState>.broadcast();
   final Set<String> _productIds = {
     for (final config in managedPetSkinConfigs)
@@ -40,9 +54,21 @@ class SkinPurchaseService {
       onError: (_) => _emitState(clearPendingProductId: true),
     );
 
+    final verifiedOwnedProductIds = await _loadVerifiedOwnedProductIds(
+      _productIds,
+    );
+    final sanitizedOwnedProductIds =
+        verifiedOwnedProductIds.where(_productIds.contains).toSet().toList()
+          ..sort();
+    await _prefs.setStringList(_ownedProductsKey, sanitizedOwnedProductIds);
+
     final storeAvailable = await _iap.isAvailable();
     if (!storeAvailable) {
-      _emitState(didLoad: true, storeAvailable: false);
+      _emitState(
+        didLoad: true,
+        storeAvailable: false,
+        ownedProductIds: sanitizedOwnedProductIds,
+      );
       return _state;
     }
 
@@ -56,6 +82,7 @@ class SkinPurchaseService {
     _emitState(
       didLoad: true,
       storeAvailable: true,
+      ownedProductIds: sanitizedOwnedProductIds,
       priceLabels: {
         for (final product in response.productDetails)
           product.id: product.price,

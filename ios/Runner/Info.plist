@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>DoggyDays</string>
+	<string>狗狗日历</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,13 +13,17 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>DoggyDays</string>
+	<string>狗狗日历</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>DoggyDays needs calendar access to keep your tasks and pet reminders together.</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>DoggyDays needs full calendar access to import your events and sync tasks created in the app.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>DoggyDays uses Face ID / Touch ID to protect your schedule and pet privacy.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>DoggyDays uses your location in the background to detect when you enter or leave saved places, so it can switch pet scenes and trigger reminders like walks or vet visits.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>DoggyDays uses your location while the app is open to let you set, review, and test saved places for geofence-based pet routines.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>DoggyDays uses motion sensors to drive parallax and pet motion effects.</string>
 	<key>NSUserNotificationsUsageDescription</key>

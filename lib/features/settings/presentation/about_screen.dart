@@ -1,9 +1,9 @@
 import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/shared/presentation/widgets/liquid_glass_card.dart';
 import 'package:doggylog/features/shared/presentation/widgets/soft_backdrop.dart';
+import 'package:doggylog/platform/doggylog_platform.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 const _privacyPolicyUrl =
@@ -11,23 +11,27 @@ const _privacyPolicyUrl =
 const _contactEmail = 'baibin1989@foxmail.com';
 
 class AboutScreen extends StatefulWidget {
-  const AboutScreen({super.key});
+  const AboutScreen({super.key, this.loadAppVersionInfo});
+
+  final Future<AppVersionInfo?> Function()? loadAppVersionInfo;
 
   @override
   State<AboutScreen> createState() => _AboutScreenState();
 }
 
 class _AboutScreenState extends State<AboutScreen> {
-  PackageInfo? _packageInfo;
+  AppVersionInfo? _appVersionInfo;
 
   @override
   void initState() {
     super.initState();
-    PackageInfo.fromPlatform().then((info) {
-      if (!mounted) {
+    final loadAppVersionInfo =
+        widget.loadAppVersionInfo ?? DoggylogPlatform().loadAppVersionInfo;
+    loadAppVersionInfo().then((info) {
+      if (info == null || !mounted) {
         return;
       }
-      setState(() => _packageInfo = info);
+      setState(() => _appVersionInfo = info);
     });
   }
 
@@ -35,9 +39,9 @@ class _AboutScreenState extends State<AboutScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
-    final versionLabel = _packageInfo == null
+    final versionLabel = _appVersionInfo == null
         ? l10n.aboutVersionLoading
-        : '${_packageInfo!.version} (${_packageInfo!.buildNumber})';
+        : '${_appVersionInfo!.version} (${_appVersionInfo!.buildNumber})';
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.about)),
@@ -57,6 +61,19 @@ class _AboutScreenState extends State<AboutScreen> {
                         width: 88,
                         height: 88,
                         fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 88,
+                            height: 88,
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.pets_rounded,
+                              size: 40,
+                              color: theme.colorScheme.primary,
+                            ),
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(height: 16),

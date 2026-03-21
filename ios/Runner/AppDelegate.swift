@@ -3,6 +3,9 @@ import WidgetKit
 import EventKit
 import CoreMotion
 import Foundation
+#if canImport(StoreKit)
+import StoreKit
+#endif
 import UserNotifications
 import UIKit
 #if canImport(ActivityKit)
@@ -97,6 +100,29 @@ private func localizedAppName() -> String {
           })
         case "backupToCloud":
           result(false)
+        case "loadAppVersionInfo":
+          let bundle = Bundle.main
+          let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+          let buildNumber = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+          result([
+            "version": version ?? "",
+            "buildNumber": buildNumber ?? ""
+          ])
+        case "loadVerifiedOwnedProductIds":
+          let arguments = call.arguments as? [String: Any]
+          let productIds = arguments?["productIds"] as? [String] ?? []
+          if #available(iOS 15.0, *) {
+            Task {
+              let owned = await self.loadVerifiedOwnedProductIds(
+                matching: Set(productIds)
+              )
+              DispatchQueue.main.async {
+                result(owned)
+              }
+            }
+          } else {
+            result([String]())
+          }
         case "stopSensors":
           self.motionService.stop()
           result(nil)
@@ -136,6 +162,24 @@ private func localizedAppName() -> String {
     defaults.removeObject(forKey: key)
     defaults.synchronize()
     platformChannel?.invokeMethod("completeTaskFromWidget", arguments: ["taskId": taskId])
+  }
+
+  @available(iOS 15.0, *)
+  private func loadVerifiedOwnedProductIds(matching productIds: Set<String>) async -> [String] {
+    #if canImport(StoreKit)
+    var ownedProductIds = Set<String>()
+    for await entitlement in Transaction.currentEntitlements {
+      guard case .verified(let transaction) = entitlement else {
+        continue
+      }
+      if productIds.isEmpty || productIds.contains(transaction.productID) {
+        ownedProductIds.insert(transaction.productID)
+      }
+    }
+    return ownedProductIds.sorted()
+    #else
+    return []
+    #endif
   }
 }
 

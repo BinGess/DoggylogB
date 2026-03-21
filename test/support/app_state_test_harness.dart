@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:doggylog/features/pets/data/skin_purchase_service.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
 import 'package:doggylog/features/shared/application/domain_event_bus.dart';
 import 'package:doggylog/features/shared/data/app_database.dart';
@@ -16,6 +17,8 @@ import 'package:drift/native.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -37,6 +40,7 @@ class AppStateTestHarness {
     bool notificationPermissionRequestResult = true,
     List<CalendarItem> initialCalendarItems = const [],
     Map<String, Object> sharedPreferences = const {},
+    List<Override> overrides = const [],
   }) async {
     TestWidgetsFlutterBinding.ensureInitialized();
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -57,6 +61,7 @@ class AppStateTestHarness {
     final snapshotPublisher = FakeSnapshotPublisher(repository, platform);
     final biometric = FakeBiometricAuthService();
     final geofence = FakeGeofenceMonitorService();
+    final skinPurchaseService = _HarnessSkinPurchaseService(prefs);
     final container = ProviderContainer(
       overrides: [
         repositoryProvider.overrideWith((ref) async => repository),
@@ -68,6 +73,10 @@ class AppStateTestHarness {
         biometricAuthServiceProvider.overrideWith((ref) => biometric),
         geofenceMonitorServiceProvider.overrideWith((ref) => geofence),
         appPlatformProvider.overrideWith((ref) => platform),
+        skinPurchaseServiceProvider.overrideWith(
+          (ref) async => skinPurchaseService,
+        ),
+        ...overrides,
       ],
     );
 
@@ -152,7 +161,9 @@ class FakeIosCalendarSyncService extends IosCalendarSyncService {
   Future<List<SystemCalendar>> loadSystemCalendars() async => const [];
 
   @override
-  Future<List<CalendarItem>> importItems({List<String>? selectedCalendarIds}) async {
+  Future<List<CalendarItem>> importItems({
+    List<String>? selectedCalendarIds,
+  }) async {
     return const [];
   }
 
@@ -230,4 +241,62 @@ class FakeDoggylogPlatform extends DoggylogPlatform {
 
   @override
   Future<void> stopSensors() async {}
+}
+
+class _HarnessSkinPurchaseService extends SkinPurchaseService {
+  _HarnessSkinPurchaseService(SharedPreferences prefs)
+    : super(_HarnessInAppPurchase(), prefs);
+
+  @override
+  Future<PremiumSkinStoreState> initialize() async {
+    return const PremiumSkinStoreState(didLoad: true, storeAvailable: false);
+  }
+
+  @override
+  Future<PremiumSkinPurchaseLaunchResult> purchase(String productId) async {
+    return PremiumSkinPurchaseLaunchResult.storeUnavailable;
+  }
+}
+
+class _HarnessInAppPurchase implements InAppPurchase {
+  @override
+  T getPlatformAddition<T extends InAppPurchasePlatformAddition?>() {
+    throw UnimplementedError();
+  }
+
+  @override
+  Stream<List<PurchaseDetails>> get purchaseStream =>
+      const Stream<List<PurchaseDetails>>.empty();
+
+  @override
+  Future<bool> isAvailable() async => false;
+
+  @override
+  Future<ProductDetailsResponse> queryProductDetails(
+    Set<String> identifiers,
+  ) async {
+    return ProductDetailsResponse(
+      productDetails: const <ProductDetails>[],
+      notFoundIDs: identifiers.toList(),
+    );
+  }
+
+  @override
+  Future<bool> buyNonConsumable({required PurchaseParam purchaseParam}) async =>
+      false;
+
+  @override
+  Future<bool> buyConsumable({
+    required PurchaseParam purchaseParam,
+    bool autoConsume = true,
+  }) async => false;
+
+  @override
+  Future<void> completePurchase(PurchaseDetails purchase) async {}
+
+  @override
+  Future<void> restorePurchases({String? applicationUserName}) async {}
+
+  @override
+  Future<String> countryCode() async => 'CN';
 }

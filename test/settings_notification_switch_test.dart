@@ -65,7 +65,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('通知权限已经打开，保存任务后会自动安排提醒。'), findsOneWidget);
+      expect(find.text('保存任务后会自动安排提醒。'), findsOneWidget);
     },
   );
 }

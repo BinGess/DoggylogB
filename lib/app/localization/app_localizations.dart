@@ -135,9 +135,9 @@ class AppLocalizations {
   String get biometricUnlock => _t('生物识别解锁', 'Biometric unlock', '生体認証でロック解除');
   String get restorePurchases => _t('恢复购买', 'Restore Purchases', '購入を復元');
   String get restorePurchasesSubtitle => _t(
-    '如果你之前已经买过订阅或永久版，可以在这里从 App Store 重新同步。',
-    'If you already bought a subscription or lifetime unlock, sync it again from the App Store here.',
-    '以前購入したサブスクリプションや買い切りの解除があれば、ここから App Store と再同期できます。',
+    '如果你之前已经买过永久版，可以在这里从 App Store 重新同步。',
+    'If you already bought a lifetime unlock, sync it again from the App Store here.',
+    '以前購入した買い切りの解除があれば、ここから App Store と再同期できます。',
   );
   String get fontSize => _t('字体大小', 'Text size', '文字サイズ');
   String get fontSizeSubtitle => _t(
@@ -559,7 +559,6 @@ class AppLocalizations {
       _t('$priceLabel 解锁', 'Unlock for $priceLabel', '$priceLabel で解放');
   String premiumSkinPriceChip(String priceLabel) =>
       _t('$priceLabel / 套', '$priceLabel each', '$priceLabel / つ');
-  String get restorePurchases => _t('恢复购买', 'Restore purchases', '購入を復元');
   String get premiumSkinUnavailable =>
       _t('商店暂时不可用', 'Store unavailable', 'ストアを利用できません');
   String petCompanionTitle(String name) => _t(

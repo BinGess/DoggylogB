@@ -102,7 +102,14 @@ final skinPurchaseServiceProvider = FutureProvider<SkinPurchaseService>((
   ref,
 ) async {
   final prefs = await ref.watch(sharedPreferencesProvider.future);
-  final service = SkinPurchaseService(InAppPurchase.instance, prefs);
+  final platform = ref.watch(appPlatformProvider);
+  final service = SkinPurchaseService(
+    InAppPurchase.instance,
+    prefs,
+    loadVerifiedOwnedProductIds: (productIds) {
+      return platform.loadVerifiedOwnedProductIds(productIds.toList());
+    },
+  );
   ref.onDispose(service.dispose);
   return service;
 });

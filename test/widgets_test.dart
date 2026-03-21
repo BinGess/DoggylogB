@@ -33,6 +33,7 @@ void main() {
     Locale? locale,
     ThemeData? theme,
     List<Override> overrides = const [],
+    MediaQueryData? mediaQueryData,
   }) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -49,7 +50,10 @@ void main() {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: const SettingsScreen(),
+          home: MediaQuery(
+            data: mediaQueryData ?? MediaQueryData.fromView(tester.view),
+            child: const SettingsScreen(),
+          ),
         ),
       ),
     );
@@ -521,6 +525,22 @@ void main() {
     expect(find.text('iOS 增强能力'), findsNothing);
   });
 
+  testWidgets('SettingsScreen reserves enough bottom inset for floating nav', (
+    tester,
+  ) async {
+    await pumpSettingsScreen(
+      tester,
+      mediaQueryData: const MediaQueryData(
+        padding: EdgeInsets.only(bottom: 20),
+      ),
+    );
+
+    final listView = tester.widget<ListView>(find.byType(ListView).first);
+    final padding = listView.padding! as EdgeInsets;
+
+    expect(padding.bottom, greaterThanOrEqualTo(120));
+  });
+
   testWidgets('SettingsScreen shows a dedicated restore purchases entry', (
     tester,
   ) async {
@@ -594,36 +614,33 @@ void main() {
     expect(find.text('Face ID / Touch ID'), findsNothing);
   });
 
-  testWidgets(
-    'DevelopmentDebugScreen shows debug controls',
-    (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: AppTheme.light(
-              fontScale: 1.0,
-              skinTheme: AppSkinTheme.shibaJoy,
-            ),
-            locale: const Locale('zh'),
-            supportedLocales: AppLocalizations.supportedLocales,
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            home: const DevelopmentDebugScreen(),
+  testWidgets('DevelopmentDebugScreen shows debug controls', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: AppTheme.light(
+            fontScale: 1.0,
+            skinTheme: AppSkinTheme.shibaJoy,
           ),
+          locale: const Locale('zh'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: const DevelopmentDebugScreen(),
         ),
-      );
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 120));
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 120));
 
-      expect(find.text('开发调试'), findsWidgets);
-      expect(find.text('动效强度'), findsOneWidget);
-      expect(find.text('iOS 增强能力'), findsOneWidget);
-    },
-  );
+    expect(find.text('开发调试'), findsWidgets);
+    expect(find.text('动效强度'), findsOneWidget);
+    expect(find.text('iOS 增强能力'), findsOneWidget);
+  });
 }
 
 class _FakePurchaseService implements DoggylogPurchaseService {

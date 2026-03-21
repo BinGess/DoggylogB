@@ -299,6 +299,7 @@
 			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "Runner" */;
 			buildPhases = (
 				5F10193620D4B32FE2ABCCCB /* [CP] Check Pods Manifest.lock */,
+				A1B2C3D4E5F60718293A4B5C /* [Codex] Clean iOS Native Assets */,
 				9740EEB61CF901F6004384FC /* Run Script */,
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
@@ -307,6 +308,7 @@
 				F3324F5372B318809C2645C4 /* Embed App Extensions */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				9625B30E5D3143222F5F5C57 /* [CP] Embed Pods Frameworks */,
+				B1C2D3E4F5061728394A5B6C /* [Codex] Generate Missing Framework dSYMs */,
 			);
 			buildRules = (
 			);
@@ -437,6 +439,36 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
+		};
+		A1B2C3D4E5F60718293A4B5C /* [Codex] Clean iOS Native Assets */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[Codex] Clean iOS Native Assets";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nif [ \"${PLATFORM_NAME}\" != \"iphoneos\" ]; then\n  exit 0\nfi\n\nAPP_PATH=\"${FLUTTER_APPLICATION_PATH:-${SRCROOT}/..}\"\nBUILD_NATIVE_ASSETS_DIR=\"${APP_PATH}/build/native_assets/ios\"\nFLUTTER_BUILD_STATE_DIR=\"${APP_PATH}/.dart_tool/flutter_build\"\n\nrm -rf \"${BUILD_NATIVE_ASSETS_DIR}\"\nif [ -d \"${FLUTTER_BUILD_STATE_DIR}\" ]; then\n  find \"${FLUTTER_BUILD_STATE_DIR}\" \\( -name native_assets.json -o -name install_code_assets.d \\) -delete\nfi\n";
+		};
+		B1C2D3E4F5061728394A5B6C /* [Codex] Generate Missing Framework dSYMs */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[Codex] Generate Missing Framework dSYMs";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nif [ \"${ACTION}\" != \"install\" ] && [ \"${ACTION}\" != \"archive\" ]; then\n  exit 0\nfi\n\nAPP_PATH=\"${FLUTTER_APPLICATION_PATH:-${SRCROOT}/..}\"\nNATIVE_ASSETS_DIR=\"${APP_PATH}/build/native_assets/ios\"\nFRAMEWORKS_DIR=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}/Frameworks\"\nif [ ! -d \"${NATIVE_ASSETS_DIR}\" ] || [ ! -d \"${FRAMEWORKS_DIR}\" ] || [ -z \"${DWARF_DSYM_FOLDER_PATH}\" ]; then\n  exit 0\nfi\n\nfind \"${NATIVE_ASSETS_DIR}\" -maxdepth 1 -type d -name \"*.framework\" | while read -r NATIVE_FRAMEWORK_PATH; do\n  FRAMEWORK_NAME=\"$(basename \"${NATIVE_FRAMEWORK_PATH}\" .framework)\"\n  BINARY_PATH=\"${FRAMEWORKS_DIR}/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}\"\n  DSYM_PATH=\"${DWARF_DSYM_FOLDER_PATH}/${FRAMEWORK_NAME}.framework.dSYM\"\n\n  if [ ! -f \"${BINARY_PATH}\" ] || [ -d \"${DSYM_PATH}\" ]; then\n    continue\n  fi\n\n  dsymutil \"${BINARY_PATH}\" -o \"${DSYM_PATH}\"\ndone\n";
 		};
 		5F10193620D4B32FE2ABCCCB /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

@@ -1,6 +1,7 @@
 import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/calendar/presentation/calendar_screen.dart';
 import 'package:doggylog/features/countdown/presentation/countdown_screen.dart';
+import 'package:doggylog/features/home/presentation/home_shell_layout.dart';
 import 'package:doggylog/features/settings/presentation/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,13 +25,9 @@ class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key, this.initialTabId});
 
   final String? initialTabId;
-  static const pages = [
-    CountdownScreen(),
-    CalendarScreen(),
-    SettingsScreen(),
-  ];
-  static const navRadius = 26.0;
-  static const navHeight = 64.0;
+  static const pages = [CountdownScreen(), CalendarScreen(), SettingsScreen()];
+  static const navRadius = homeShellNavRadius;
+  static const navHeight = homeShellNavHeight;
 
   @override
   ConsumerState<HomeShell> createState() => _HomeShellState();
@@ -74,7 +71,12 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       extendBody: true,
       body: IndexedStack(index: index, children: HomeShell.pages),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        padding: const EdgeInsets.fromLTRB(
+          homeShellNavHorizontalPadding,
+          0,
+          homeShellNavHorizontalPadding,
+          homeShellNavBottomPadding,
+        ),
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(HomeShell.navRadius),
@@ -171,7 +173,7 @@ class _HomeBottomTabBar extends StatelessWidget {
 
     return SizedBox(
       key: const Key('home-bottom-tab-bar'),
-      height: HomeShell.navHeight,
+      height: homeShellNavHeight,
       child: Row(
         children: [
           for (var i = 0; i < items.length; i++)

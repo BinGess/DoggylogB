@@ -16,6 +16,15 @@ class MainActivity : FlutterFragmentActivity() {
                     "updateDynamicIsland",
                     "endDynamicIsland",
                     "startSensors" -> result.success(false)
+                    "loadAppVersionInfo" -> {
+                        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+                        result.success(
+                            mapOf(
+                                "version" to (packageInfo.versionName ?: ""),
+                                "buildNumber" to packageInfo.longVersionCode.toString(),
+                            )
+                        )
+                    }
                     "stopSensors" -> result.success(null)
                     else -> result.notImplemented()
                 }
