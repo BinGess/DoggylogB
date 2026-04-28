@@ -107,25 +107,10 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
                 onChanged: (value) => setState(() => _endAt = value),
               ),
               const SizedBox(height: 16),
-              Text(
-                l10n.reminderTime,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<int>(
-                initialValue: _selectedOffset,
-                items: _reminderOptions
-                    .map(
-                      (offset) => DropdownMenuItem<int>(
-                        value: offset,
-                        child: Text(l10n.minutesBefore(offset)),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) {
-                  if (value == null) return;
-                  setState(() => _selectedOffset = value);
-                },
+              _ReminderOffsetField(
+                label: l10n.reminderTime,
+                value: l10n.minutesBefore(_selectedOffset),
+                onTap: _selectReminderOffset,
               ),
               const SizedBox(height: 20),
               Row(
@@ -172,6 +157,82 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _selectReminderOffset() async {
+    final l10n = context.l10n;
+    final selectedOffset = await showModalBottomSheet<int>(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 42,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 14),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outlineVariant.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                for (final offset in _reminderOptions)
+                  ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    title: Text(l10n.minutesBefore(offset)),
+                    trailing: offset == _selectedOffset
+                        ? const Icon(Icons.check_rounded)
+                        : null,
+                    onTap: () => Navigator.of(context).pop(offset),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    if (selectedOffset == null || !mounted) {
+      return;
+    }
+    setState(() => _selectedOffset = selectedOffset);
+  }
+}
+
+class _ReminderOffsetField extends StatelessWidget {
+  const _ReminderOffsetField({
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
+
+  final String label;
+  final String value;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          suffixIcon: const Icon(Icons.expand_more_rounded),
+        ),
+        child: Text(value),
       ),
     );
   }

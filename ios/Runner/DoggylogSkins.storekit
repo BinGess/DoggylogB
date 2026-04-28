@@ -1,0 +1,52 @@
+{
+  "identifier": "DoggylogSkins",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "3.00",
+      "familyShareable": false,
+      "internalID": "doggylog-skin-soft-wellness",
+      "localizations": [
+        {
+          "description": "永久解锁小空的健康轻灵主题皮肤。",
+          "displayName": "健康轻灵",
+          "locale": "zh_Hans"
+        },
+        {
+          "description": "Permanently unlock Skye's Soft Wellness skin.",
+          "displayName": "Soft Wellness",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "doggylog.skin.soft_wellness",
+      "referenceName": "Skye Soft Wellness Skin",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "3.00",
+      "familyShareable": false,
+      "internalID": "doggylog-skin-cloud-softness",
+      "localizations": [
+        {
+          "description": "永久解锁露娜的云朵温柔主题皮肤。",
+          "displayName": "云朵温柔",
+          "locale": "zh_Hans"
+        },
+        {
+          "description": "Permanently unlock Luna's Cloud Softness skin.",
+          "displayName": "Cloud Softness",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "doggylog.skin.cloud_softness",
+      "referenceName": "Luna Cloud Softness Skin",
+      "type": "NonConsumable"
+    }
+  ],
+  "settings": {},
+  "subscriptionGroups": [],
+  "version": {
+    "major": 2,
+    "minor": 0
+  }
+}

@@ -232,6 +232,13 @@ enum DoggyWidgetTypography {
   }
 }
 
+enum DoggyWidgetSpacing {
+  static let edgeSmall: CGFloat = 12
+  static let edgeMedium: CGFloat = 14
+  static let stackTight: CGFloat = 6
+  static let stackRegular: CGFloat = 8
+}
+
 struct DoggyWidgetCardBackground: View {
   let theme: DoggyWidgetTheme
   let cornerRadius: CGFloat
@@ -349,8 +356,8 @@ struct DoggyLogLargeCalendarView: View {
         Spacer()
       }
       .padding(.horizontal, 18)
-      .padding(.top, 16)
-      .padding(.bottom, 10)
+      .padding(.top, DoggyWidgetSpacing.edgeMedium)
+      .padding(.bottom, DoggyWidgetSpacing.stackRegular)
 
       HStack(spacing: 0) {
         ForEach(weekdayLabels, id: \.self) { label in
@@ -361,9 +368,9 @@ struct DoggyLogLargeCalendarView: View {
         }
       }
       .padding(.horizontal, 12)
-      .padding(.bottom, 8)
+      .padding(.bottom, DoggyWidgetSpacing.stackTight)
 
-      LazyVGrid(columns: columns, spacing: 4) {
+      LazyVGrid(columns: columns, spacing: 3) {
         ForEach(Array(days.enumerated()), id: \.offset) { idx, day in
           _LargeCalendarDayCell(
             day: day,
@@ -375,7 +382,7 @@ struct DoggyLogLargeCalendarView: View {
       }
       .padding(.horizontal, 12)
 
-      Spacer(minLength: 4)
+      Spacer(minLength: 2)
 
       HStack(alignment: .bottom, spacing: 0) {
         VStack(alignment: .leading, spacing: 4) {
@@ -398,11 +405,11 @@ struct DoggyLogLargeCalendarView: View {
 
         Spacer()
 
-        _DogCompanionView(theme: theme, baseScale: 0.74, yOffsetAdjustment: -4)
-          .frame(width: 52, height: 52)
+        _DogCompanionView(theme: theme, baseScale: 0.70, yOffsetAdjustment: -4)
+          .frame(width: 48, height: 48)
       }
       .padding(.horizontal, 18)
-      .padding(.bottom, 12)
+      .padding(.bottom, 10)
     }
     .doggyWidgetBackground {
       DoggyWidgetCardBackground(theme: theme, cornerRadius: 30)
@@ -441,9 +448,9 @@ struct DoggyLogMediumCalendarView: View {
           .foregroundColor(theme.palette.textPrimary)
         Spacer()
       }
-      .padding(.horizontal, 10)
-      .padding(.top, 13)
-      .padding(.bottom, 11)
+      .padding(.horizontal, DoggyWidgetSpacing.edgeSmall)
+      .padding(.top, DoggyWidgetSpacing.edgeSmall)
+      .padding(.bottom, DoggyWidgetSpacing.stackRegular)
 
       HStack(spacing: 0) {
         ForEach(weekdayLabels, id: \.self) { label in
@@ -453,8 +460,8 @@ struct DoggyLogMediumCalendarView: View {
             .frame(maxWidth: .infinity)
         }
       }
-      .padding(.horizontal, 10)
-      .padding(.bottom, 8)
+      .padding(.horizontal, DoggyWidgetSpacing.edgeSmall)
+      .padding(.bottom, DoggyWidgetSpacing.stackTight)
 
       HStack(spacing: 0) {
         ForEach(Array(weekDays.enumerated()), id: \.offset) { index, day in
@@ -491,10 +498,10 @@ struct DoggyLogMediumCalendarView: View {
           .frame(maxWidth: .infinity)
         }
       }
-      .padding(.horizontal, 10)
+      .padding(.horizontal, DoggyWidgetSpacing.edgeSmall)
       .padding(.top, 2)
 
-      Spacer(minLength: 6)
+      Spacer(minLength: 4)
 
       ZStack(alignment: .bottomLeading) {
         GeometryReader { geo in
@@ -548,9 +555,9 @@ struct DoggyLogMediumCalendarView: View {
             .position(x: dogX, y: 36)
         }
       }
-      .frame(height: 74)
-      .padding(.horizontal, 10)
-      .padding(.bottom, 10)
+      .frame(height: 70)
+      .padding(.horizontal, DoggyWidgetSpacing.edgeSmall)
+      .padding(.bottom, DoggyWidgetSpacing.stackRegular)
     }
     .doggyWidgetBackground {
       DoggyWidgetCardBackground(theme: theme, cornerRadius: 28)
@@ -566,7 +573,7 @@ private struct _LargeCalendarDayCell: View {
   let theme: DoggyWidgetTheme
 
   var body: some View {
-    VStack(spacing: 4) {
+    VStack(spacing: 3) {
       ZStack {
         if isFocus {
           RoundedRectangle(cornerRadius: 12, style: .continuous)

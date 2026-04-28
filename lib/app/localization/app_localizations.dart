@@ -555,6 +555,15 @@ class AppLocalizations {
     'Unlock this skin permanently after purchase, and restore purchases anytime.',
     '購入後はこのスキンをずっと使えます。購入の復元にも対応しています。',
   );
+  String get premiumSkinPurchaseOpeningTitle =>
+      _t('正在打开购买确认', 'Opening purchase confirmation', '購入確認を開いています');
+  String get premiumSkinPurchaseOpeningHint => _t(
+    '系统弹窗出现前请稍等一下',
+    'Please wait for the system purchase sheet.',
+    'システムの購入シートが出るまで少しお待ちください。',
+  );
+  String get premiumSkinPurchaseOpeningButton =>
+      _t('请稍等', 'Please wait', '少しお待ちください');
   String premiumSkinUnlockButton(String priceLabel) =>
       _t('$priceLabel 解锁', 'Unlock for $priceLabel', '$priceLabel で解放');
   String premiumSkinPriceChip(String priceLabel) =>

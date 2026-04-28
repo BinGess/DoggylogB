@@ -8,6 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+AppSkinTheme? activeSkinThemeForState(AppState state) {
+  final selectedPet = state.selectedPet;
+  return selectedPet == null ? null : appSkinThemeForBreed(selectedPet.breed);
+}
+
 class DoggyLogApp extends ConsumerStatefulWidget {
   const DoggyLogApp({super.key});
 
@@ -75,15 +80,15 @@ class _DoggyLogAppState extends ConsumerState<DoggyLogApp>
       }
     });
     final state = ref.watch(appStateProvider);
-    final skinTheme = appSkinThemeForBreed(
-      state.selectedPet?.breed ?? PetBreed.shiba,
-    );
+    final skinTheme = activeSkinThemeForState(state);
+    final themeSkin = skinTheme ?? AppSkinTheme.shibaJoy;
     final locale = state.preferences.languageMode == AppLanguageMode.system
         ? null
         : resolveAppLocale(state.preferences.languageMode);
     return MaterialApp.router(
-      title: AppLocalizations.current(mode: state.preferences.languageMode)
-          .appTitle,
+      title: AppLocalizations.current(
+        mode: state.preferences.languageMode,
+      ).appTitle,
       debugShowCheckedModeBanner: false,
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -96,14 +101,17 @@ class _DoggyLogAppState extends ConsumerState<DoggyLogApp>
       themeMode: ThemeMode.system,
       theme: AppTheme.light(
         fontScale: state.preferences.fontScale,
-        skinTheme: skinTheme,
+        skinTheme: themeSkin,
       ),
       darkTheme: AppTheme.dark(
         fontScale: state.preferences.fontScale,
-        skinTheme: skinTheme,
+        skinTheme: themeSkin,
       ),
       routerConfig: router,
       builder: (context, child) {
+        if (skinTheme == null) {
+          return const _InitialAppSurface();
+        }
         return Stack(
           children: [
             child ?? const SizedBox.shrink(),
@@ -161,6 +169,20 @@ class _DoggyLogAppState extends ConsumerState<DoggyLogApp>
           ],
         );
       },
+    );
+  }
+}
+
+class _InitialAppSurface extends StatelessWidget {
+  const _InitialAppSurface();
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = MediaQuery.platformBrightnessOf(context);
+    return ColoredBox(
+      color: brightness == Brightness.dark
+          ? const Color(0xFF111827)
+          : const Color(0xFFF8FAFC),
     );
   }
 }

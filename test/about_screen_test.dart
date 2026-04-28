@@ -27,7 +27,7 @@ void main() {
         ],
         home: AboutScreen(
           loadAppVersionInfo: () async => const AppVersionInfo(
-            version: '1.0.0',
+            version: '1.1.0',
             buildNumber: '3',
           ),
         ),
@@ -36,6 +36,6 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('版本号: 1.0.0 (3)'), findsOneWidget);
+    expect(find.text('版本号: 1.1 (3)'), findsOneWidget);
   });
 }

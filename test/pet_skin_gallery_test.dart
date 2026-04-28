@@ -320,4 +320,55 @@ void main() {
 
     expect(tappedPetId, 'pet-3');
   });
+
+  testWidgets('PetSkinGallery shows progress feedback while purchase opens', (
+    tester,
+  ) async {
+    final pets = [
+      PetProfile(
+        id: 'pet-1',
+        name: 'Mochi',
+        breed: PetBreed.shiba,
+        loyaltyPoints: 120,
+        selectedSkinId: 'amber-shiba',
+        unlockedSkinIds: const ['amber-shiba'],
+        createdAt: DateTime(2025),
+        isSelected: true,
+      ),
+      PetProfile(
+        id: 'pet-3',
+        name: 'Luna',
+        breed: PetBreed.husky,
+        loyaltyPoints: 180,
+        selectedSkinId: 'frost-husky',
+        unlockedSkinIds: const ['frost-husky'],
+        createdAt: DateTime(2025, 3),
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(skinTheme: AppSkinTheme.shibaJoy, fontScale: 1.0),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: PetSkinGallery(
+              pets: pets,
+              selectedPetId: 'pet-1',
+              onPetSelected: (_) {},
+              premiumSkinStore: const PremiumSkinStoreState(
+                didLoad: true,
+                storeAvailable: true,
+                purchasePendingProductId: 'doggylog.skin.soft_wellness',
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('正在打开购买确认'), findsOneWidget);
+    expect(find.text('系统弹窗出现前请稍等一下'), findsOneWidget);
+    expect(find.text('请稍等'), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsWidgets);
+  });
 }

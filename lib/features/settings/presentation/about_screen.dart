@@ -39,9 +39,16 @@ class _AboutScreenState extends State<AboutScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    String formatVersion(String version) {
+      final parts = version.split('.');
+      if (parts.length == 3 && parts[2] == '0') {
+        return '${parts[0]}.${parts[1]}';
+      }
+      return version;
+    }
     final versionLabel = _appVersionInfo == null
         ? l10n.aboutVersionLoading
-        : '${_appVersionInfo!.version} (${_appVersionInfo!.buildNumber})';
+        : '${formatVersion(_appVersionInfo!.version)} (${_appVersionInfo!.buildNumber})';
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.about)),

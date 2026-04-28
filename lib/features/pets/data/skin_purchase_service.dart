@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -57,10 +58,19 @@ class SkinPurchaseService {
     final verifiedOwnedProductIds = await _loadVerifiedOwnedProductIds(
       _productIds,
     );
-    final sanitizedOwnedProductIds =
-        verifiedOwnedProductIds.where(_productIds.contains).toSet().toList()
-          ..sort();
-    await _prefs.setStringList(_ownedProductsKey, sanitizedOwnedProductIds);
+    // Only overwrite cached IDs when the verifier returns a non-empty result.
+    // An empty result could mean verification was unavailable (e.g. iOS < 15)
+    // rather than "nothing is owned", so we preserve the cached set to avoid
+    // stripping valid purchases on every cold start.
+    final List<String> sanitizedOwnedProductIds;
+    if (verifiedOwnedProductIds.isNotEmpty) {
+      sanitizedOwnedProductIds =
+          verifiedOwnedProductIds.where(_productIds.contains).toSet().toList()
+            ..sort();
+      await _prefs.setStringList(_ownedProductsKey, sanitizedOwnedProductIds);
+    } else {
+      sanitizedOwnedProductIds = _state.ownedProductIds;
+    }
 
     final storeAvailable = await _iap.isAvailable();
     if (!storeAvailable) {
@@ -73,6 +83,11 @@ class SkinPurchaseService {
     }
 
     final response = await _iap.queryProductDetails(_productIds);
+    if (response.notFoundIDs.isNotEmpty) {
+      debugPrint(
+        'SkinPurchaseService: products not found in store: ${response.notFoundIDs}',
+      );
+    }
     _productsById
       ..clear()
       ..addEntries(
@@ -95,7 +110,8 @@ class SkinPurchaseService {
     if (!_state.storeAvailable) {
       return PremiumSkinPurchaseLaunchResult.storeUnavailable;
     }
-    final product = _productsById[productId];
+    final product =
+        _productsById[productId] ?? await _refreshProduct(productId);
     if (product == null) {
       return PremiumSkinPurchaseLaunchResult.missingProduct;
     }
@@ -108,6 +124,29 @@ class SkinPurchaseService {
       return PremiumSkinPurchaseLaunchResult.failed;
     }
     return PremiumSkinPurchaseLaunchResult.launched;
+  }
+
+  Future<ProductDetails?> _refreshProduct(String productId) async {
+    final response = await _iap.queryProductDetails({productId});
+    if (response.notFoundIDs.isNotEmpty) {
+      debugPrint(
+        'SkinPurchaseService: product still not found in store: '
+        '${response.notFoundIDs}',
+      );
+    }
+    for (final product in response.productDetails) {
+      _productsById[product.id] = product;
+    }
+    if (response.productDetails.isNotEmpty) {
+      _emitState(
+        priceLabels: {
+          ..._state.priceLabels,
+          for (final product in response.productDetails)
+            product.id: product.price,
+        },
+      );
+    }
+    return _productsById[productId];
   }
 
   Future<bool> restorePurchases() async {
@@ -137,6 +176,12 @@ class SkinPurchaseService {
           _emitState(ownedProductIds: owned, clearPendingProductId: true);
           break;
         case PurchaseStatus.error:
+          debugPrint(
+            'SkinPurchaseService: purchase error for ${purchase.productID}: '
+            'code=${purchase.error?.code} message=${purchase.error?.message}',
+          );
+          _emitState(clearPendingProductId: true);
+          break;
         case PurchaseStatus.canceled:
           _emitState(clearPendingProductId: true);
           break;

@@ -106,9 +106,8 @@ final skinPurchaseServiceProvider = FutureProvider<SkinPurchaseService>((
   final service = SkinPurchaseService(
     InAppPurchase.instance,
     prefs,
-    loadVerifiedOwnedProductIds: (productIds) {
-      return platform.loadVerifiedOwnedProductIds(productIds.toList());
-    },
+    loadVerifiedOwnedProductIds: (productIds) =>
+        platform.loadVerifiedOwnedProductIds(productIds.toList()),
   );
   ref.onDispose(service.dispose);
   return service;

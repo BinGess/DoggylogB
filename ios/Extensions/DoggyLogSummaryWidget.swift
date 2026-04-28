@@ -70,7 +70,7 @@ private struct DoggyLogSummarySmallView: View {
         theme: theme
       )
 
-      Spacer(minLength: 8)
+      Spacer(minLength: DoggyWidgetSpacing.stackTight)
 
       Text(snapshot?.today.nextTaskTitle ?? widgetText("今天还没有下一项任务", "Nothing is lined up next yet", "まだ次の予定は入っていません"))
         .font(DoggyWidgetTypography.font(size: 14, weight: .medium))
@@ -82,7 +82,7 @@ private struct DoggyLogSummarySmallView: View {
         .foregroundColor(theme.palette.textSecondary.opacity(0.72))
         .padding(.top, 5)
 
-      Spacer(minLength: 8)
+      Spacer(minLength: DoggyWidgetSpacing.stackTight)
 
       HStack(alignment: .bottom, spacing: 0) {
         _SummaryStatPill(
@@ -92,11 +92,11 @@ private struct DoggyLogSummarySmallView: View {
         )
         Spacer(minLength: 8)
         _DogCompanionView(theme: theme)
-          .frame(width: 64, height: 64)
+          .frame(width: 58, height: 58)
       }
     }
-    .padding(.horizontal, 12)
-    .padding(.vertical, 13)
+    .padding(.horizontal, DoggyWidgetSpacing.edgeSmall)
+    .padding(.vertical, DoggyWidgetSpacing.edgeSmall)
     .doggyWidgetBackground {
       DoggyWidgetCardBackground(theme: theme, cornerRadius: 28)
     }
@@ -135,10 +135,10 @@ private struct DoggyLogSummaryMediumView: View {
       }
       .padding(.top, 4)
 
-      Spacer(minLength: 11)
+      Spacer(minLength: DoggyWidgetSpacing.stackRegular)
 
-      HStack(alignment: .top, spacing: 9) {
-        VStack(alignment: .leading, spacing: 8) {
+      HStack(alignment: .top, spacing: DoggyWidgetSpacing.stackRegular) {
+        VStack(alignment: .leading, spacing: DoggyWidgetSpacing.stackTight) {
           _SummaryMetricTile(
             title: widgetText("待办", "To do", "やること"),
             value: "\(snapshot?.today.pendingCount ?? 0)",
@@ -178,19 +178,19 @@ private struct DoggyLogSummaryMediumView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
 
         _DogCompanionView(theme: theme)
-          .frame(width: 54, height: 54)
+          .frame(width: 50, height: 50)
       }
 
-      Spacer(minLength: 7)
+      Spacer(minLength: DoggyWidgetSpacing.stackTight)
 
       HStack {
         _SummaryPawRhythmStrip(activeIndex: 1, count: 5, theme: theme)
         Spacer()
       }
     }
-    .padding(.horizontal, 12)
-    .padding(.top, 16)
-    .padding(.bottom, 12)
+    .padding(.horizontal, DoggyWidgetSpacing.edgeSmall)
+    .padding(.top, DoggyWidgetSpacing.edgeMedium)
+    .padding(.bottom, DoggyWidgetSpacing.edgeSmall)
     .doggyWidgetBackground {
       DoggyWidgetCardBackground(theme: theme, cornerRadius: 30)
     }
@@ -229,9 +229,9 @@ private struct DoggyLogSummaryLargeView: View {
         }
       }
 
-      Spacer(minLength: 12)
+      Spacer(minLength: 10)
 
-      HStack(alignment: .top, spacing: 10) {
+      HStack(alignment: .top, spacing: DoggyWidgetSpacing.stackRegular) {
         _SummaryMetricTile(
           title: widgetText("待办", "To do", "やること"),
           value: "\(snapshot?.today.pendingCount ?? 0)",
@@ -265,10 +265,10 @@ private struct DoggyLogSummaryLargeView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
       }
 
-      Spacer(minLength: 12)
+      Spacer(minLength: 10)
 
-      HStack(alignment: .top, spacing: 12) {
-        VStack(alignment: .leading, spacing: 8) {
+      HStack(alignment: .top, spacing: DoggyWidgetSpacing.stackRegular) {
+        VStack(alignment: .leading, spacing: DoggyWidgetSpacing.stackTight) {
           Text(widgetText("今日节奏", "Today's rhythm", "きょうのリズム"))
             .font(DoggyWidgetTypography.font(size: 10, weight: .medium))
             .foregroundColor(theme.palette.textSecondary.opacity(0.74))
@@ -311,14 +311,14 @@ private struct DoggyLogSummaryLargeView: View {
 
         VStack(alignment: .trailing, spacing: 10) {
           _DogCompanionView(theme: theme)
-            .frame(width: 88, height: 88)
+            .frame(width: 80, height: 80)
 
           _SummaryPawRhythmStrip(activeIndex: 2, count: 6, theme: theme)
         }
       }
     }
-    .padding(.horizontal, 14)
-    .padding(.vertical, 16)
+    .padding(.horizontal, DoggyWidgetSpacing.edgeMedium)
+    .padding(.vertical, DoggyWidgetSpacing.edgeMedium)
     .doggyWidgetBackground {
       DoggyWidgetCardBackground(theme: theme, cornerRadius: 32)
     }
@@ -333,7 +333,7 @@ private struct _SummaryHeader: View {
   var topInset: CGFloat = 0
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 3) {
+    VStack(alignment: .leading, spacing: 2) {
       Text(snapshot?.pet.name ?? widgetText("狗狗日历", "DoggyDays", "ワンカレ"))
         .font(DoggyWidgetTypography.font(size: 20, weight: .medium))
         .foregroundColor(theme.palette.textPrimary)
@@ -354,7 +354,7 @@ private struct _SummaryMetricTile: View {
   let theme: DoggyWidgetTheme
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 6) {
+    VStack(alignment: .leading, spacing: 4) {
       Text(title)
         .font(DoggyWidgetTypography.font(size: 9, weight: .medium))
         .foregroundColor(theme.palette.textSecondary.opacity(0.74))
@@ -365,7 +365,7 @@ private struct _SummaryMetricTile: View {
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding(.horizontal, 9)
-    .padding(.vertical, 8)
+    .padding(.vertical, 7)
     .background(
       RoundedRectangle(cornerRadius: 14, style: .continuous)
         .fill(accent.opacity(0.14))
@@ -402,7 +402,7 @@ private struct _SummaryPawRhythmStrip: View {
   let theme: DoggyWidgetTheme
 
   var body: some View {
-    HStack(spacing: 8) {
+    HStack(spacing: DoggyWidgetSpacing.stackRegular) {
       ForEach(0..<count, id: \.self) { index in
         Image(systemName: "pawprint.fill")
           .font(.system(size: 13, weight: .regular))

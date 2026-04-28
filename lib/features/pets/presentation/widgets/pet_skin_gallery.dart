@@ -305,6 +305,17 @@ class _PetSkinCard extends StatelessWidget {
                                     height: 1.35,
                                   ),
                             ),
+                            if (isPurchasing) ...[
+                              const SizedBox(height: 8),
+                              _PurchaseOpeningStatus(
+                                spec: spec,
+                                title: context
+                                    .l10n
+                                    .premiumSkinPurchaseOpeningTitle,
+                                hint:
+                                    context.l10n.premiumSkinPurchaseOpeningHint,
+                              ),
+                            ],
                           ],
                         ],
                       ),
@@ -312,14 +323,18 @@ class _PetSkinCard extends StatelessWidget {
                     if (isPremiumLocked)
                       FilledButton.tonalIcon(
                         onPressed: isPurchasing ? null : onTap,
-                        icon: Icon(
-                          isPurchasing
-                              ? Icons.hourglass_top_rounded
-                              : Icons.lock_open_rounded,
-                        ),
+                        icon: isPurchasing
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.2,
+                                ),
+                              )
+                            : const Icon(Icons.lock_open_rounded),
                         label: Text(
                           isPurchasing
-                              ? context.l10n.premiumSkinBadge
+                              ? context.l10n.premiumSkinPurchaseOpeningButton
                               : context.l10n.premiumSkinUnlockButton(
                                   priceLabel,
                                 ),
@@ -343,6 +358,70 @@ class _PetSkinCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _PurchaseOpeningStatus extends StatelessWidget {
+  const _PurchaseOpeningStatus({
+    required this.spec,
+    required this.title,
+    required this.hint,
+  });
+
+  final AppSkinSpec spec;
+  final String title;
+  final String hint;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: spec.primaryLight.withValues(alpha: 0.18)),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.2,
+              color: spec.primaryLight,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: spec.onSurfaceVariantLight,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  hint,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: spec.onSurfaceVariantLight.withValues(alpha: 0.78),
+                    height: 1.25,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -51,7 +51,7 @@ struct DoggyLogCountdownSmallView: View {
         .lineLimit(1)
         .padding(.top, 3)
 
-      Spacer(minLength: 8)
+      Spacer(minLength: DoggyWidgetSpacing.stackTight)
 
       if let countdown {
         HStack(alignment: .firstTextBaseline, spacing: 3) {
@@ -84,7 +84,7 @@ struct DoggyLogCountdownSmallView: View {
           .padding(.top, 4)
       }
 
-      Spacer(minLength: 8)
+      Spacer(minLength: DoggyWidgetSpacing.stackTight)
 
       HStack(alignment: .bottom, spacing: 0) {
         _CountdownPawRhythmStrip(
@@ -96,11 +96,11 @@ struct DoggyLogCountdownSmallView: View {
         )
         Spacer(minLength: 6)
         _DogCompanionView(theme: theme)
-          .frame(width: 60, height: 60)
+          .frame(width: 54, height: 54)
       }
     }
-    .padding(.horizontal, 12)
-    .padding(.vertical, 13)
+    .padding(.horizontal, DoggyWidgetSpacing.edgeSmall)
+    .padding(.vertical, DoggyWidgetSpacing.edgeSmall)
     .doggyWidgetBackground {
       DoggyWidgetCardBackground(theme: theme, cornerRadius: 28)
     }
@@ -140,9 +140,9 @@ struct DoggyLogCountdownMediumView: View {
         )
       }
 
-      Spacer(minLength: 8)
+      Spacer(minLength: DoggyWidgetSpacing.stackTight)
 
-      HStack(alignment: .bottom, spacing: 10) {
+      HStack(alignment: .bottom, spacing: DoggyWidgetSpacing.stackRegular) {
         if let countdown {
           VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -168,7 +168,7 @@ struct DoggyLogCountdownMediumView: View {
               .padding(.top, 4)
 
             _CountdownProgressBar(progress: _progress(countdown: countdown), theme: theme)
-              .padding(.top, 11)
+              .padding(.top, DoggyWidgetSpacing.stackRegular)
           }
           .frame(maxWidth: .infinity, alignment: .leading)
         } else {
@@ -185,10 +185,10 @@ struct DoggyLogCountdownMediumView: View {
         }
 
         _DogCompanionView(theme: theme)
-          .frame(width: 74, height: 74)
+          .frame(width: 68, height: 68)
       }
 
-      Spacer(minLength: 8)
+      Spacer(minLength: DoggyWidgetSpacing.stackTight)
 
       HStack(alignment: .center) {
         _CountdownPawRhythmStrip(
@@ -206,9 +206,9 @@ struct DoggyLogCountdownMediumView: View {
         }
       }
     }
-    .padding(.horizontal, 12)
-    .padding(.top, 13)
-    .padding(.bottom, 12)
+    .padding(.horizontal, DoggyWidgetSpacing.edgeSmall)
+    .padding(.top, DoggyWidgetSpacing.edgeSmall)
+    .padding(.bottom, DoggyWidgetSpacing.edgeSmall)
     .doggyWidgetBackground {
       DoggyWidgetCardBackground(theme: theme, cornerRadius: 30)
     }
