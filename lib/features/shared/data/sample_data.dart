@@ -111,6 +111,30 @@ final defaultSkins = <PetBreed, List<PetSkin>>{
       unlockLevel: 3,
     ),
   ],
+  PetBreed.borderCollie: const [
+    PetSkin(
+      id: 'cocoa-collie',
+      name: SeedCopyKey.skinCollieCocoaName,
+      visualTag: 'cocoa-collie',
+      unlockLevel: 1,
+    ),
+  ],
+  PetBreed.dachshund: const [
+    PetSkin(
+      id: 'truffle-dachshund',
+      name: SeedCopyKey.skinDachshundCocoaName,
+      visualTag: 'truffle-dachshund',
+      unlockLevel: 1,
+    ),
+  ],
+  PetBreed.dalmatian: const [
+    PetSkin(
+      id: 'spotty-dalmatian',
+      name: SeedCopyKey.skinDalmatianSpotName,
+      visualTag: 'spotty-dalmatian',
+      unlockLevel: 1,
+    ),
+  ],
 };
 
 const defaultPetCompanions = <DefaultPetCompanion>[
@@ -138,6 +162,21 @@ const defaultPetCompanions = <DefaultPetCompanion>[
     name: SeedCopyKey.petLunaName,
     breed: PetBreed.samoyed,
     loyaltyPoints: 160,
+  ),
+  DefaultPetCompanion(
+    name: SeedCopyKey.petCocoaName,
+    breed: PetBreed.borderCollie,
+    loyaltyPoints: 0,
+  ),
+  DefaultPetCompanion(
+    name: SeedCopyKey.petTruffleName,
+    breed: PetBreed.dachshund,
+    loyaltyPoints: 0,
+  ),
+  DefaultPetCompanion(
+    name: SeedCopyKey.petDotName,
+    breed: PetBreed.dalmatian,
+    loyaltyPoints: 0,
   ),
 ];
 

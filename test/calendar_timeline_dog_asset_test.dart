@@ -32,5 +32,17 @@ void main() {
         pngAssetPath: 'assets/images/calendar/calendar_dog3_timeline.png',
       ),
     );
+    for (final (theme, fileName) in [
+      (AppSkinTheme.collieGarden, 'border_collie_cocoa_timeline.png'),
+      (AppSkinTheme.dachshundCocoa, 'dachshund_cocoa_timeline.png'),
+      (AppSkinTheme.dalmatianInk, 'dalmatian_spot_timeline.png'),
+    ]) {
+      final assets = calendarTimelineAssetsForTheme(theme);
+      expect(assets.pngAssetPath, 'assets/images/calendar/$fileName');
+      expect(
+        assets.gifAssetPath,
+        'assets/images/calendar/${fileName.replaceFirst('.png', '.gif')}',
+      );
+    }
   });
 }

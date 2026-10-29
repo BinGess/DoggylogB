@@ -214,11 +214,6 @@ final class DoggylogSnapshotStore {
       return false
     }
 
-    if let defaults = UserDefaults(suiteName: appGroupIdentifier) {
-      defaults.set(payloadJson, forKey: "doggylog.widget.snapshot")
-      defaults.synchronize()
-    }
-
     do {
       let directory = try storageDirectory()
       let url = directory.appendingPathComponent(snapshotFileName)
@@ -228,6 +223,10 @@ final class DoggylogSnapshotStore {
         attributes: nil
       )
       try data.write(to: url, options: .atomic)
+      if let defaults = UserDefaults(suiteName: appGroupIdentifier) {
+        defaults.set(payloadJson, forKey: "doggylog.widget.snapshot")
+        defaults.synchronize()
+      }
       reloadTimelines()
       return true
     } catch {
@@ -453,7 +452,8 @@ final class DoggylogLiveActivityBridge {
 
 struct DoggylogLiveActivityPresentation {
   static func shouldPresent(_ snapshot: DoggylogActivitySnapshot) -> Bool {
-    snapshot.countdown != nil
+    guard let countdown = snapshot.countdown else { return false }
+    return countdown.dueAt > Int(Date().timeIntervalSince1970 * 1000)
   }
 }
 

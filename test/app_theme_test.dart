@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:doggylog/app/theme/app_theme.dart';
 import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -18,6 +19,34 @@ void main() {
     );
     expect(appSkinThemeForBreed(PetBreed.beagle), AppSkinTheme.beagleBreeze);
     expect(appSkinThemeForBreed(PetBreed.husky), AppSkinTheme.huskyFrost);
+    expect(
+      appSkinThemeForBreed(PetBreed.borderCollie),
+      AppSkinTheme.collieGarden,
+    );
+    expect(
+      appSkinThemeForBreed(PetBreed.dachshund),
+      AppSkinTheme.dachshundCocoa,
+    );
+    expect(appSkinThemeForBreed(PetBreed.dalmatian), AppSkinTheme.dalmatianInk);
+  });
+
+  test('new skins each use a distinct paid product and visual palette', () {
+    final breeds = [
+      PetBreed.borderCollie,
+      PetBreed.dachshund,
+      PetBreed.dalmatian,
+    ];
+    expect(breeds.map(premiumProductIdForPetBreed).toSet(), hasLength(3));
+    for (final breed in breeds) {
+      expect(isPremiumPetSkin(breed), isTrue);
+      expect(isPetSkinVisibleInManagement(breed), isTrue);
+    }
+    expect(
+      breeds
+          .map((breed) => appSkinThemeForBreed(breed).spec.primaryLight)
+          .toSet(),
+      hasLength(3),
+    );
   });
 
   test('AppTheme uses different primary colors for different skins', () {
@@ -58,6 +87,64 @@ void main() {
       large.textTheme.titleLarge!.fontSize!,
       greaterThan(small.textTheme.titleLarge!.fontSize!),
     );
+  });
+
+  test('English skin fonts follow the theme in light and dark modes', () {
+    const en = Locale('en');
+    const zh = Locale('zh');
+    const ja = Locale('ja');
+    expect(fontFamilyForSkin(AppSkinTheme.collieGarden, en), 'Quicksand');
+    expect(fontFamilyForSkin(AppSkinTheme.dachshundCocoa, en), 'Fredoka');
+    expect(fontFamilyForSkin(AppSkinTheme.dalmatianInk, en), 'Nunito');
+    for (final theme in AppSkinTheme.values) {
+      final family = fontFamilyForSkin(theme, en);
+      expect(
+        AppTheme.light(
+          skinTheme: theme,
+          locale: en,
+        ).textTheme.bodyMedium?.fontFamily,
+        family,
+      );
+      expect(
+        AppTheme.dark(
+          skinTheme: theme,
+          locale: en,
+        ).textTheme.titleLarge?.fontFamily,
+        family,
+      );
+    }
+    expect(fontFamilyForSkin(AppSkinTheme.collieGarden, zh), 'ZCOOLXiaoWei');
+    expect(fontFamilyForSkin(AppSkinTheme.dachshundCocoa, zh), 'Xiaolai');
+    expect(fontFamilyForSkin(AppSkinTheme.dalmatianInk, zh), 'LXGWWenKai');
+    expect(
+      headingFontFamilyForSkin(AppSkinTheme.dachshundCocoa, zh),
+      'ZCOOLKuaiLe',
+    );
+    expect(headingFontFamilyForSkin(AppSkinTheme.dalmatianInk, zh), 'Xiaolai');
+    expect(fontFamilyForSkin(AppSkinTheme.collieGarden, ja), 'RoundedMplus1c');
+    expect(fontFamilyForSkin(AppSkinTheme.dachshundCocoa, ja), 'ZenMaruGothic');
+    expect(
+      headingFontFamilyForSkin(AppSkinTheme.dachshundCocoa, ja),
+      'HachiMaruPop',
+    );
+    for (final locale in [zh, ja]) {
+      for (final theme in AppSkinTheme.values) {
+        final light = AppTheme.light(skinTheme: theme, locale: locale);
+        final dark = AppTheme.dark(skinTheme: theme, locale: locale);
+        expect(
+          light.textTheme.bodyMedium?.fontFamily,
+          fontFamilyForSkin(theme, locale),
+        );
+        expect(
+          dark.textTheme.titleLarge?.fontFamily,
+          headingFontFamilyForSkin(theme, locale),
+        );
+        expect(
+          light.textTheme.titleLarge?.fontFamilyFallback,
+          contains('LXGWWenKai'),
+        );
+      }
+    }
   });
 
   test('Light themes keep card surfaces airy and low saturation', () {

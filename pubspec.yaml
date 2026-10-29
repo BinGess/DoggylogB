@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.1.0+1
+version: 1.2.0+2
 
 environment:
   sdk: ^3.10.8
@@ -91,3 +91,30 @@ flutter:
           weight: 400
         - asset: assets/fonts/LXGWWenKai-Medium.ttf
           weight: 500
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/english/Fredoka.ttf
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/english/Nunito.ttf
+    - family: Quicksand
+      fonts:
+        - asset: assets/fonts/english/Quicksand.ttf
+    - family: Xiaolai
+      fonts:
+        - asset: assets/fonts/cjk/Xiaolai-Regular.ttf
+    - family: ZCOOLKuaiLe
+      fonts:
+        - asset: assets/fonts/cjk/ZCOOLKuaiLe-Regular.ttf
+    - family: ZCOOLXiaoWei
+      fonts:
+        - asset: assets/fonts/cjk/ZCOOLXiaoWei-Regular.ttf
+    - family: ZenMaruGothic
+      fonts:
+        - asset: assets/fonts/cjk/ZenMaruGothic-Regular.ttf
+    - family: RoundedMplus1c
+      fonts:
+        - asset: assets/fonts/cjk/RoundedMplus1c-Regular.ttf
+    - family: HachiMaruPop
+      fonts:
+        - asset: assets/fonts/cjk/HachiMaruPop-Regular.ttf

@@ -32,9 +32,10 @@ class DoggylogSharedSnapshot {
   factory DoggylogSharedSnapshot.fromAppState(
     AppState state, {
     required PetMood mood,
+    DateTime? now,
   }) {
     final l10n = AppLocalizations.current();
-    final generatedAt = DateTime.now();
+    final generatedAt = now ?? DateTime.now();
     final referenceDate = state.selectedDate;
     final todayTasks =
         state.calendarItems
@@ -54,13 +55,16 @@ class DoggylogSharedSnapshot {
             )
             .toList()
           ..sort((a, b) => a.startAt.compareTo(b.startAt));
-    final pinnedCountdown = [...state.countdowns]
-      ..sort((a, b) {
-        if (a.isPinned != b.isPinned) {
-          return a.isPinned ? -1 : 1;
-        }
-        return a.dueAt.compareTo(b.dueAt);
-      });
+    final pinnedCountdown =
+        state.countdowns
+            .where((item) => !item.isCompletedAt(generatedAt))
+            .toList()
+          ..sort((a, b) {
+            if (a.isPinned != b.isPinned) {
+              return a.isPinned ? -1 : 1;
+            }
+            return a.dueAt.compareTo(b.dueAt);
+          });
     final skinTheme = appSkinThemeForBreed(
       state.selectedPet?.breed ?? PetBreed.shiba,
     );
@@ -84,7 +88,7 @@ class DoggylogSharedSnapshot {
             : l10n.localizedStoredText(state.selectedPet!.name),
         breed: l10n.breedLabel(state.selectedPet?.breed ?? PetBreed.shiba),
         mood: mood.name,
-        loyaltyLevel: state.selectedPet?.loyaltyLevel ?? 1,
+        loyaltyLevel: state.growth.level,
         sceneMode: state.activeScene.name,
         skinTheme: skinTheme.name,
       ),
@@ -94,8 +98,21 @@ class DoggylogSharedSnapshot {
               title: l10n.localizedStoredText(pinnedCountdown.first.title),
               dueAt: pinnedCountdown.first.dueAt.millisecondsSinceEpoch,
               daysRemaining:
-                  pinnedCountdown.first.dueAt.difference(referenceDate).inDays +
-                  1,
+                  (DateTime.utc(
+                                pinnedCountdown.first.dueAt.year,
+                                pinnedCountdown.first.dueAt.month,
+                                pinnedCountdown.first.dueAt.day,
+                              )
+                              .difference(
+                                DateTime.utc(
+                                  generatedAt.year,
+                                  generatedAt.month,
+                                  generatedAt.day,
+                                ),
+                              )
+                              .inDays +
+                          1)
+                      .clamp(0, 999),
               startAt: pinnedCountdown.first.createdAt.millisecondsSinceEpoch,
             ),
       recentTasks: todayTasks

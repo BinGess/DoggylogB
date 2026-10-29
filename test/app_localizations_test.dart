@@ -1,4 +1,5 @@
 import 'package:doggylog/app/localization/app_localizations.dart';
+import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -43,4 +44,36 @@ void main() {
     expect(l10n.breedLabel(PetBreed.shiba), '柴犬');
     expect(l10n.shortDate(DateTime(2026, 3, 8)), '3月8日');
   });
+
+  test(
+    'new premium skins and purchase fallback are localized in every language',
+    () {
+      final expectations = <String, List<String>>{
+        'zh': ['林间手账', '可可剧场', '黑白漫游'],
+        'en': ['Forest Journal', 'Cocoa Theater', 'Monochrome Stroll'],
+        'ja': ['森の手帳', 'ココアシアター', 'モノクロさんぽ'],
+      };
+      for (final entry in expectations.entries) {
+        final l10n = AppLocalizations.fromLocale(Locale(entry.key));
+        for (var i = 0; i < entry.value.length; i++) {
+          final name = ['林间手账', '可可剧场', '黑白漫游'][i];
+          expect(l10n.localizedSkinStyleName(name), entry.value[i]);
+          expect(
+            l10n.localizedSkinDescription(
+              [
+                AppSkinTheme.collieGarden,
+                AppSkinTheme.dachshundCocoa,
+                AppSkinTheme.dalmatianInk,
+              ][i].spec,
+            ),
+            isNotEmpty,
+          );
+        }
+        expect(
+          l10n.messagePremiumSkinRequiresPurchase,
+          isNot(contains('3 / 4')),
+        );
+      }
+    },
+  );
 }

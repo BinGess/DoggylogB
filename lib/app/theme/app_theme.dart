@@ -3,10 +3,56 @@ import 'package:flutter/material.dart';
 
 const _appFontFamily = 'LXGWWenKai';
 
+String fontFamilyForSkin(AppSkinTheme skinTheme, Locale locale) {
+  return switch (locale.languageCode) {
+    'en' => switch (skinTheme) {
+      AppSkinTheme.shibaJoy ||
+      AppSkinTheme.beagleBreeze ||
+      AppSkinTheme.dachshundCocoa => 'Fredoka',
+      AppSkinTheme.goldenBloom ||
+      AppSkinTheme.samoyedSpa ||
+      AppSkinTheme.dalmatianInk => 'Nunito',
+      AppSkinTheme.huskyFrost || AppSkinTheme.collieGarden => 'Quicksand',
+    },
+    'ja' => switch (skinTheme) {
+      AppSkinTheme.huskyFrost || AppSkinTheme.collieGarden => 'RoundedMplus1c',
+      _ => 'ZenMaruGothic',
+    },
+    _ => switch (skinTheme) {
+      AppSkinTheme.shibaJoy ||
+      AppSkinTheme.beagleBreeze ||
+      AppSkinTheme.samoyedSpa ||
+      AppSkinTheme.dachshundCocoa => 'Xiaolai',
+      AppSkinTheme.collieGarden => 'ZCOOLXiaoWei',
+      _ => _appFontFamily,
+    },
+  };
+}
+
+String headingFontFamilyForSkin(AppSkinTheme skinTheme, Locale locale) {
+  return switch (locale.languageCode) {
+    'ja' => switch (skinTheme) {
+      AppSkinTheme.shibaJoy ||
+      AppSkinTheme.beagleBreeze ||
+      AppSkinTheme.dachshundCocoa => 'HachiMaruPop',
+      _ => fontFamilyForSkin(skinTheme, locale),
+    },
+    'zh' => switch (skinTheme) {
+      AppSkinTheme.shibaJoy ||
+      AppSkinTheme.beagleBreeze ||
+      AppSkinTheme.dachshundCocoa => 'ZCOOLKuaiLe',
+      AppSkinTheme.goldenBloom || AppSkinTheme.dalmatianInk => 'Xiaolai',
+      _ => fontFamilyForSkin(skinTheme, locale),
+    },
+    _ => fontFamilyForSkin(skinTheme, locale),
+  };
+}
+
 class AppTheme {
   static ThemeData light({
     double fontScale = 1,
     AppSkinTheme skinTheme = AppSkinTheme.shibaJoy,
+    Locale locale = const Locale('zh'),
   }) {
     final skin = skinTheme.spec;
     final scheme =
@@ -25,12 +71,20 @@ class AppTheme {
           onSurfaceVariant: skin.onSurfaceVariantLight,
           outline: skin.outlineLight,
         );
-    return _buildTheme(scheme, Brightness.light, fontScale, skin);
+    return _buildTheme(
+      scheme,
+      Brightness.light,
+      fontScale,
+      skin,
+      fontFamilyForSkin(skinTheme, locale),
+      headingFontFamilyForSkin(skinTheme, locale),
+    );
   }
 
   static ThemeData dark({
     double fontScale = 1,
     AppSkinTheme skinTheme = AppSkinTheme.shibaJoy,
+    Locale locale = const Locale('zh'),
   }) {
     final skin = skinTheme.spec;
     final scheme =
@@ -49,7 +103,14 @@ class AppTheme {
           onSurfaceVariant: skin.onSurfaceVariantDark,
           outline: skin.outlineDark,
         );
-    return _buildTheme(scheme, Brightness.dark, fontScale, skin);
+    return _buildTheme(
+      scheme,
+      Brightness.dark,
+      fontScale,
+      skin,
+      fontFamilyForSkin(skinTheme, locale),
+      headingFontFamilyForSkin(skinTheme, locale),
+    );
   }
 
   static ThemeData _buildTheme(
@@ -57,19 +118,26 @@ class AppTheme {
     Brightness brightness,
     double fontScale,
     AppSkinSpec skin,
+    String fontFamily,
+    String headingFontFamily,
   ) {
     final isDark = brightness == Brightness.dark;
     final textTheme = _textTheme(
       (isDark ? Typography.whiteMountainView : Typography.blackMountainView)
-          .apply(fontFamily: _appFontFamily),
+          .apply(
+            fontFamily: fontFamily,
+            fontFamilyFallback: const [_appFontFamily],
+          ),
       scheme,
       fontScale,
+      fontFamily,
+      headingFontFamily,
     );
 
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
-      fontFamily: _appFontFamily,
+      fontFamily: fontFamily,
       colorScheme: scheme,
       scaffoldBackgroundColor: isDark
           ? skin.backgroundDark
@@ -287,10 +355,15 @@ class AppTheme {
     TextTheme base,
     ColorScheme scheme,
     double fontScale,
+    String fontFamily,
+    String headingFontFamily,
   ) {
     final scale = fontScale.clamp(1.0, 1.2);
-    final headingBase = base.apply(fontFamily: _appFontFamily);
-    final bodyBase = base.apply(fontFamily: _appFontFamily);
+    final headingBase = base.apply(
+      fontFamily: headingFontFamily,
+      fontFamilyFallback: [fontFamily, _appFontFamily],
+    );
+    final bodyBase = base.apply(fontFamily: fontFamily);
 
     return bodyBase.copyWith(
       // Display — 大标题：移除负向字距，中文不需要紧缩字距

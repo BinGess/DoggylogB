@@ -1,12 +1,120 @@
 import 'dart:async';
 
+import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/features/pets/data/skin_purchase_service.dart';
+import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  test(
+    'purchase completion, cancellation and error clear the overlay state',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final updates = StreamController<List<PurchaseDetails>>();
+      final service = SkinPurchaseService(
+        _FakeInAppPurchase(updates: updates.stream),
+        prefs,
+        loadVerifiedOwnedProductIds: (_) async => const [],
+      );
+      await service.initialize();
+      final states = <PremiumSkinStoreState>[];
+      final subscription = service.stateStream.listen(states.add);
+      const productId = 'doggylog.skin.soft_wellness';
+
+      for (final status in [
+        PurchaseStatus.purchased,
+        PurchaseStatus.canceled,
+        PurchaseStatus.error,
+      ]) {
+        await service.purchase(productId);
+        await Future<void>.delayed(Duration.zero);
+        expect(states.last.purchasePendingProductId, productId);
+        updates.add([
+          PurchaseDetails(
+            productID: productId,
+            verificationData: PurchaseVerificationData(
+              localVerificationData: '',
+              serverVerificationData: '',
+              source: 'test',
+            ),
+            transactionDate: null,
+            status: status,
+          ),
+        ]);
+        await Future<void>.delayed(Duration.zero);
+        expect(states.last.purchasePendingProductId, isNull, reason: '$status');
+      }
+
+      await subscription.cancel();
+      await service.dispose();
+      await updates.close();
+    },
+  );
+
+  test(
+    'the three new paid skins query and launch separate purchases',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final iap = _FakeInAppPurchase();
+      final service = SkinPurchaseService(
+        iap,
+        prefs,
+        loadVerifiedOwnedProductIds: (_) async => const [],
+      );
+      await service.initialize();
+      final productIds = [
+        PetBreed.borderCollie,
+        PetBreed.dachshund,
+        PetBreed.dalmatian,
+      ].map((breed) => premiumProductIdForPetBreed(breed)!).toList();
+      expect(productIds.toSet(), hasLength(3));
+
+      for (final id in productIds) {
+        expect(
+          await service.purchase(id),
+          PremiumSkinPurchaseLaunchResult.launched,
+        );
+      }
+      expect(iap.purchasedProductIds, productIds);
+      await service.dispose();
+    },
+  );
+
+  test(
+    'SkinPurchaseService clears pending state when the system purchase call throws',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final service = SkinPurchaseService(
+        _FakeInAppPurchase(throwOnPurchase: true),
+        prefs,
+        loadVerifiedOwnedProductIds: (_) async => const [],
+      );
+      await service.initialize();
+      final states = <PremiumSkinStoreState>[];
+      final subscription = service.stateStream.listen(states.add);
+
+      expect(
+        await service.purchase('doggylog.skin.soft_wellness'),
+        PremiumSkinPurchaseLaunchResult.failed,
+      );
+      await Future<void>.delayed(Duration.zero);
+      expect(
+        states.first.purchasePendingProductId,
+        'doggylog.skin.soft_wellness',
+      );
+      expect(states.last.purchasePendingProductId, isNull);
+
+      await subscription.cancel();
+      await service.dispose();
+    },
+  );
+
   test(
     'SkinPurchaseService preserves cached ownership when verification is unavailable during initialization',
     () async {
@@ -17,7 +125,7 @@ void main() {
       final service = SkinPurchaseService(
         _FakeInAppPurchase(),
         prefs,
-        loadVerifiedOwnedProductIds: (productIds) async => const [],
+        loadVerifiedOwnedProductIds: (productIds) async => null,
       );
 
       final state = await service.initialize();
@@ -59,9 +167,14 @@ void main() {
 }
 
 class _FakeInAppPurchase implements InAppPurchase {
-  _FakeInAppPurchase({Set<String> initialMissingProductIds = const {}})
-    : _initialMissingProductIds = initialMissingProductIds;
+  _FakeInAppPurchase({
+    Set<String> initialMissingProductIds = const {},
+    this.throwOnPurchase = false,
+    this.updates = const Stream<List<PurchaseDetails>>.empty(),
+  }) : _initialMissingProductIds = initialMissingProductIds;
 
+  final bool throwOnPurchase;
+  final Stream<List<PurchaseDetails>> updates;
   final Set<String> _initialMissingProductIds;
   final List<String> purchasedProductIds = [];
   int queryProductDetailsCallCount = 0;
@@ -72,8 +185,7 @@ class _FakeInAppPurchase implements InAppPurchase {
   }
 
   @override
-  Stream<List<PurchaseDetails>> get purchaseStream =>
-      const Stream<List<PurchaseDetails>>.empty();
+  Stream<List<PurchaseDetails>> get purchaseStream => updates;
 
   @override
   Future<bool> isAvailable() async => true;
@@ -106,6 +218,9 @@ class _FakeInAppPurchase implements InAppPurchase {
 
   @override
   Future<bool> buyNonConsumable({required PurchaseParam purchaseParam}) async {
+    if (throwOnPurchase) {
+      throw StateError('System purchase unavailable');
+    }
     purchasedProductIds.add(purchaseParam.productDetails.id);
     return true;
   }

@@ -18,6 +18,12 @@ class TaskCompletedEvent extends DomainEvent {
   final CalendarItem item;
 }
 
+class GrowthUpdatedEvent extends DomainEvent {
+  const GrowthUpdatedEvent(this.change, {this.showReward = false});
+  final GrowthChange change;
+  final bool showReward;
+}
+
 class PetStateChangedEvent extends DomainEvent {
   const PetStateChangedEvent(this.petId);
 

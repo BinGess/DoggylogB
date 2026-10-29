@@ -1,0 +1,155 @@
+{
+  "src": "/Users/bytedance/Documents/Code/DoggylogB/interaction-design/doggylog-growth-loop-interaction-prototype.html",
+  "url": "file:///Users/bytedance/Documents/Code/DoggylogB/interaction-design/doggylog-growth-loop-interaction-prototype.html",
+  "outdir": "/Users/bytedance/Documents/Code/DoggylogB/interaction-design/_shots",
+  "include": [
+    "lint",
+    "screenshots",
+    "structure"
+  ],
+  "shots": {
+    "desktop": {
+      "revealed": 0,
+      "eval": {
+        "executed": true,
+        "result": {
+          "passed": true,
+          "path": "日历不加成长→顶部双入口→首次完成15→当日第二项10→撤销转移加成→最后一项撤销与恢复",
+          "state": {
+            "xp": 205,
+            "level": 3,
+            "streak": 3,
+            "badges": "lv1,lv3,s3"
+          },
+          "preview": "我的页初始态"
+        }
+      },
+      "screenshot": "/Users/bytedance/Documents/Code/DoggylogB/interaction-design/_shots/doggylog-growth-loop-interaction-prototype_desktop.jpg",
+      "screenshotBytes": 90676,
+      "truncated": false,
+      "structure": {
+        "title": "DoggyLog 激励闭环 · 交互审阅版",
+        "firstH1": "把每一次完成，变成看得见的陪伴",
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "fullpage": {
+          "w": 1440,
+          "h": 1263
+        },
+        "counts": {
+          "section": 2,
+          "h1": 1,
+          "h2": 3,
+          "img": 2,
+          "canvas": 0,
+          "svg": 11,
+          "links": 0,
+          "buttons": 28
+        }
+      },
+      "consoleErrors": [],
+      "consoleWarnings": [],
+      "horizontalOverflow": [],
+      "resourceErrors": []
+    },
+    "mobile": {
+      "revealed": 0,
+      "eval": {
+        "executed": true,
+        "result": {
+          "passed": true,
+          "path": "日历不加成长→顶部双入口→首次完成15→当日第二项10→撤销转移加成→最后一项撤销与恢复",
+          "state": {
+            "xp": 205,
+            "level": 3,
+            "streak": 3,
+            "badges": "lv1,lv3,s3"
+          },
+          "preview": "我的页初始态"
+        }
+      },
+      "screenshot": "/Users/bytedance/Documents/Code/DoggylogB/interaction-design/_shots/doggylog-growth-loop-interaction-prototype_mobile.jpg",
+      "screenshotBytes": 146964,
+      "truncated": false,
+      "structure": {
+        "title": "DoggyLog 激励闭环 · 交互审阅版",
+        "firstH1": "把每一次完成，变成看得见的陪伴",
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "fullpage": {
+          "w": 390,
+          "h": 2699
+        },
+        "counts": {
+          "section": 2,
+          "h1": 1,
+          "h2": 3,
+          "img": 2,
+          "canvas": 0,
+          "svg": 11,
+          "links": 0,
+          "buttons": 28
+        }
+      },
+      "consoleErrors": [],
+      "consoleWarnings": [],
+      "horizontalOverflow": [],
+      "resourceErrors": []
+    }
+  },
+  "engine": "playwright",
+  "chromiumExec": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "elapsedSec": 8.26,
+  "schemaVersion": 2,
+  "status": "pass",
+  "engineInfo": {
+    "name": "playwright",
+    "degraded": false,
+    "degradedReasons": []
+  },
+  "input": {
+    "original": "/Users/bytedance/Documents/Code/DoggylogB/interaction-design/doggylog-growth-loop-interaction-prototype.html",
+    "resolvedPath": "/Users/bytedance/Documents/Code/DoggylogB/interaction-design/doggylog-growth-loop-interaction-prototype.html",
+    "baseUrl": "file:///Users/bytedance/Documents/Code/DoggylogB/interaction-design/doggylog-growth-loop-interaction-prototype.html",
+    "protocol": "file",
+    "cwd": "/Users/bytedance/Documents/Code/DoggylogB",
+    "mediaMode": {
+      "reducedMotion": true
+    }
+  },
+  "artifacts": {
+    "screenshots": [
+      {
+        "viewport": "desktop",
+        "path": "/Users/bytedance/Documents/Code/DoggylogB/interaction-design/_shots/doggylog-growth-loop-interaction-prototype_desktop.jpg",
+        "size": 90676,
+        "visualCoverage": {
+          "complete": true,
+          "reason": null
+        }
+      },
+      {
+        "viewport": "mobile",
+        "path": "/Users/bytedance/Documents/Code/DoggylogB/interaction-design/_shots/doggylog-growth-loop-interaction-prototype_mobile.jpg",
+        "size": 146964,
+        "visualCoverage": {
+          "complete": true,
+          "reason": null
+        }
+      }
+    ]
+  },
+  "summary": {
+    "blocker": 0,
+    "error": 0,
+    "warning": 0,
+    "info": 0
+  },
+  "findings": [],
+  "prioritizedActions": [],
+  "reportPath": "/Users/bytedance/Documents/Code/DoggylogB/interaction-design/_shots/report.json"
+}

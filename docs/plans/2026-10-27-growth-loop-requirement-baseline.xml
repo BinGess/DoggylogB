@@ -1,0 +1,189 @@
+<title>DoggyLog 激励闭环需求基线｜统一陪伴成长、徽章里程碑与奖励回滚</title>
+
+<callout emoji="✅" background-color="light-green" border-color="green">
+  <p><b>本版已确认的产品决策：</b>成长采用“统一陪伴成长”，所有外观主题共享一套经验、等级、连续完成和徽章；切换宠物外观不再导致成长进度跳变。升级回报先做“徽章与里程碑”，本期不新增免费成长外观，不改变现有付费主题权益。取消任务完成时，必须扣回对应经验、重算连续加成、等级和徽章，防止反复勾选刷分。</p>
+</callout>
+
+<h1 seq="auto">结论先行</h1>
+<p>当前代码里已经存在“完成任务 → 增加忠诚度积分 → 等级展示”的雏形，但这条链路只完成了底层加分的一小段，尚未形成产品闭环：成长值挂在不同 PetProfile 上，等级解锁规则没有实际落地，完成后的用户反馈缺失，取消完成没有回滚，且部分编辑入口会丢失宠物关联。本需求把“完成一件事”的奖励从隐藏的数字更新，改成用户可感知、账目可追溯、状态可回退的统一成长系统。</p>
+
+<h1 seq="auto">现状代码核实与断点</h1>
+<table>
+  <colgroup><col width="150"/><col width="300"/><col width="300"/></colgroup>
+  <thead><tr><th background-color="light-gray"><p><b>环节</b></p></th><th background-color="light-gray"><p><b>当前代码状态</b></p></th><th background-color="light-gray"><p><b>需求断点</b></p></th></tr></thead>
+  <tbody>
+    <tr><td><p>任务创建</p></td><td><p>完整新建页会把当前选中宠物写入 petId；旧编辑弹层保存时固定传 petId: null。</p></td><td><p>同一条任务从不同入口编辑可能丢失关联，影响后续发奖对象和心情口径。</p></td></tr>
+    <tr><td><p>完成任务</p></td><td><p>toggleCalendarItemCompletion(id, true) 且 petId 非空时调用 _grantLoyalty。</p></td><td><p>没有 petId 的任务不发奖；用户也不知道哪些任务会贡献成长。</p></td></tr>
+    <tr><td><p>经验规则</p></td><td><p>基础 10 分；按当前连续天数加 5 / 8 / 12 分；积分写入当前 PetProfile，并插入 LoyaltyLedger。</p></td><td><p>连续从“今天”开始计算，不支持当天还未完成时回看昨日；经验归属具体宠物，和“换主题”动作耦合。</p></td></tr>
+    <tr><td><p>防刷与回退</p></td><td><p>重复调用 true 会再次插入流水并加分；调用 false 只更新完成状态，不扣回经验。</p></td><td><p>同一任务可反复刷分，账目与等级不可逆，无法保证数据一致。</p></td></tr>
+    <tr><td><p>等级</p></td><td><p>loyaltyLevel = loyaltyPoints ~/ 100 + 1；首页和快照会展示等级。</p></td><td><p>等级只用于数字和 Rive 输入，缺少明确成长曲线、进度和下一等级目标。</p></td></tr>
+    <tr><td><p>皮肤解锁</p></td><td><p>PetSkin 有 unlockLevel，sample_data 配了 Lv3-5 皮肤；实际主题切换按品种和付费权益执行。</p></td><td><p>等级解锁皮肤没有消费逻辑，且容易与当前内购主题冲突。本版从 P0 中移除，不宣称可等级换装。</p></td></tr>
+    <tr><td><p>用户反馈</p></td><td><p>完成后发出 TaskCompletedEvent，但当前未看到承接该事件的通用奖励弹窗或升级反馈。</p></td><td><p>用户看不到获得多少经验、是否连续、何时升级，激励感无法形成即时强化。</p></td></tr>
+    <tr><td><p>宠物心情</p></td><td><p>deriveMood 根据逾期未完成、今日完成率返回 sad / excited / calm / lazy。</p></td><td><p>心情是被动展示，和成长奖励、下一步行动没有形成明确引导；本版保持规则，不扩大改造。</p></td></tr>
+  </tbody>
+</table>
+
+<html5-block path="@./growth-loop.html"></html5-block>
+
+<h1 seq="auto">目标与非目标</h1>
+<h2 seq="auto">目标</h2>
+<ul>
+  <li>让用户每次完成任务都能立即知道自己获得了什么，以及离下一个成长目标还差多少。</li>
+  <li>把成长归属从“当前选中的宠物档案”调整为“用户与 DoggyLog 的统一陪伴关系”，切换主题不影响成长。</li>
+  <li>建立可审计的经验流水：每笔奖励都能对应任务、动作日期、基础经验、连续加成和发生时间。</li>
+  <li>支持取消完成后的完整回退，重算连续、经验、等级、徽章，避免刷分和错误升级。</li>
+  <li>用徽章和里程碑承接等级收益，先不冲击现有付费皮肤商业模式。</li>
+</ul>
+
+<h2 seq="auto">非目标</h2>
+<ul>
+  <li>本版不做多宠物独立养成；外观宠物仍是主题/伙伴形象，不再承担独立成长账户。</li>
+  <li>本版不新增免费成长外观，不启用 PetSkin.unlockLevel 的自动解锁/换装链路。</li>
+  <li>本版不改付费主题的商品、价格、恢复购买和权益校验逻辑。</li>
+  <li>本版不把倒计时庆祝纳入经验发放，避免把所有记录行为都变成刷分入口；后续可单独设计纪念日奖励。</li>
+  <li>本版不引入服务端账号、跨设备经验同步或排行榜；经验仍在本地数据库中闭环。</li>
+</ul>
+
+<h1 seq="auto">统一成长模型</h1>
+<h2 seq="auto">核心对象</h2>
+<table>
+  <colgroup><col width="170"/><col width="330"/><col width="260"/></colgroup>
+  <thead><tr><th background-color="light-gray"><p><b>对象</b></p></th><th background-color="light-gray"><p><b>产品含义</b></p></th><th background-color="light-gray"><p><b>本期处理</b></p></th></tr></thead>
+  <tbody>
+    <tr><td><p>CompanionGrowth</p></td><td><p>用户与 App 的唯一陪伴成长账户，保存总经验、当前等级、连续完成信息和版本号。</p></td><td><p>新增或由现有宠物积分迁移得到唯一账户。</p></td></tr>
+    <tr><td><p>GrowthLedger</p></td><td><p>经验流水，记录某次任务完成带来的基础经验、连续加成、经验归属日期和回退状态。</p></td><td><p>替代只支持累加的 LoyaltyLedger 语义，需能幂等、可回退。</p></td></tr>
+    <tr><td><p>Milestone / Badge</p></td><td><p>等级或连续达成后获得的成长证明，用于首页、徽章墙和反馈弹窗。</p></td><td><p>本期做本地规则徽章和已获得状态。</p></td></tr>
+    <tr><td><p>PetProfile</p></td><td><p>外观伙伴档案，承担品种、主题、选中状态和展示名。</p></td><td><p>不再作为成长账户；loyaltyPoints 等字段迁移后进入兼容/废弃状态。</p></td></tr>
+  </tbody>
+</table>
+
+<h2 seq="auto">迁移规则</h2>
+<p>现有版本每个外观宠物都有 loyaltyPoints，直接清零会损伤老用户，直接求和又会让多个预置外观造成经验虚高。本版采用可解释的保守迁移：</p>
+<ol>
+  <li>首次升级时读取全部 PetProfile 的 loyaltyPoints。</li>
+  <li>以当前有效非删除 LoyaltyLedger 的经验合计作为优先校验值；流水缺失或不可信时，取各宠物 loyaltyPoints 的最大值作为统一成长初始经验。</li>
+  <li>将该值写入唯一 CompanionGrowth，保留原 PetProfile 字段只读，不再继续累加。</li>
+  <li>如果历史流水可按 calendarItemId 去重，则迁移有效流水；无法对应有效任务的流水只用于迁移总额，不恢复逐条明细。</li>
+  <li>迁移必须幂等：重复启动、数据库升级中断后重进，不能重复加总。</li>
+</ol>
+
+<h1 seq="auto">经验、连续与等级规则</h1>
+<h2 seq="auto">发奖对象</h2>
+<ul>
+  <li>P0 只对用户在 DoggyLog 内创建并完成的本地日程发放经验。</li>
+  <li>source = localOnly 且未删除、petId 不为空的任务，是默认可发奖任务。</li>
+  <li>为适配统一成长，新建任务仍可关联当前伙伴用于展示与心情，但经验进入统一账户，不进入该宠物档案。</li>
+  <li>从 iOS 日历/提醒事项同步来的事项默认不发经验，避免用户在系统侧批量编辑造成刷分；后续如需开放，应增加“系统任务在 App 内确认完成”的二次动作和去重规则。</li>
+  <li>无 petId 的历史任务：为避免老任务永远无激励，P0 在完成时可按“统一陪伴任务”发奖，但必须在 UI 上不暗示它属于某只具体宠物；编辑保存时不得继续清空关联。</li>
+</ul>
+
+<h2 seq="auto">基础经验与连续加成</h2>
+<table>
+  <colgroup><col width="180"/><col width="180"/><col width="360"/></colgroup>
+  <thead><tr><th background-color="light-gray"><p><b>规则项</b></p></th><th background-color="light-gray"><p><b>初始参数</b></p></th><th background-color="light-gray"><p><b>口径</b></p></th></tr></thead>
+  <tbody>
+    <tr><td><p>基础经验</p></td><td><p>10 / 个有效任务</p></td><td><p>每个任务在每个有效完成状态下最多产生一笔奖励。</p></td></tr>
+    <tr><td><p>连续 3-4 天</p></td><td><p>+5</p></td><td><p>按任务 startAt 的本地自然日统计“至少完成 1 个有效任务”的日期。</p></td></tr>
+    <tr><td><p>连续 5-6 天</p></td><td><p>+8</p></td><td><p>连续天数在完成动作发生时计算，并写入流水快照。</p></td></tr>
+    <tr><td><p>连续 7 天及以上</p></td><td><p>+12</p></td><td><p>7 天以后仍为 +12，不随天数无限叠加，避免单日奖励失控。</p></td></tr>
+    <tr><td><p>等级</p></td><td><p>每 100 经验升 1 级</p></td><td><p>等级从 1 开始：level = floor(totalXp / 100) + 1。</p></td></tr>
+  </tbody>
+</table>
+
+<h2 seq="auto">连续天数口径</h2>
+<p>连续天数服务于“鼓励明天回来”，不应因为用户上午打开 App 时今天尚未完成就立即清零。本版定义为最近一次有效完成日向前连续覆盖的自然日数量；当天有完成则包含今天，今天还没有完成但昨天有完成时，首页可展示“昨日连续 N 天，今天完成可续上”。取消完成后，必须按剩余有效流水重新计算当前连续和历史奖励。</p>
+<callout emoji="⚠️" background-color="light-yellow" border-color="orange">
+  <p><b>待研发确认：</b>连续加成本质会影响历史流水。为了账目可解释，P0 建议采用“取消后重算受影响日期之后的连续快照与总经验”，而不是只扣当前一笔固定分数。若实现成本过高，可在 P0 简化为“基础经验随任务回滚，连续加成保留首次发放结果”，但这会削弱账目一致性；用户已选择撤销扣回，因此不推荐该简化。</p>
+</callout>
+
+<h1 seq="auto">徽章与里程碑</h1>
+<h2 seq="auto">P0 徽章配置</h2>
+<table>
+  <colgroup><col width="120"/><col width="180"/><col width="160"/><col width="280"/></colgroup>
+  <thead><tr><th background-color="light-gray"><p><b>类型</b></p></th><th background-color="light-gray"><p><b>名称（暂定文案）</b></p></th><th background-color="light-gray"><p><b>达成条件</b></p></th><th background-color="light-gray"><p><b>反馈</b></p></th></tr></thead>
+  <tbody>
+    <tr><td><p>等级徽章</p></td><td><p>第一根骨头</p></td><td><p>Lv1 默认获得</p></td><td><p>用于新手成长卡，不弹强打扰。</p></td></tr>
+    <tr><td><p>等级徽章</p></td><td><p>认真陪跑员</p></td><td><p>达到 Lv3</p></td><td><p>首次达成弹窗，徽章墙点亮。</p></td></tr>
+    <tr><td><p>等级徽章</p></td><td><p>习惯搭子</p></td><td><p>达到 Lv5</p></td><td><p>首次达成弹窗，展示连续陪伴成果。</p></td></tr>
+    <tr><td><p>等级徽章</p></td><td><p>默契伙伴</p></td><td><p>达到 Lv7</p></td><td><p>首次达成弹窗，徽章墙点亮。</p></td></tr>
+    <tr><td><p>等级徽章</p></td><td><p>亲密家人</p></td><td><p>达到 Lv10</p></td><td><p>首次达成弹窗，作为第一阶段终极里程碑。</p></td></tr>
+    <tr><td><p>连续徽章</p></td><td><p>三日小坚持</p></td><td><p>连续完成 3 天</p></td><td><p>解释 +5 加成，强化连续行为。</p></td></tr>
+    <tr><td><p>连续徽章</p></td><td><p>一周陪伴</p></td><td><p>连续完成 7 天</p></td><td><p>解释 +12 加成，可作为回访 Push 素材。</p></td></tr>
+  </tbody>
+</table>
+<p>徽章名称和视觉素材属于可配置内容，P0 可先用本地文案与图标；研发实现时应避免把名称硬编码在奖励计算逻辑中。</p>
+
+<h2 seq="auto">展示位置</h2>
+<ul>
+  <li><b>首页陪伴卡片：</b>展示当前等级、经验进度条、下一等级所需经验和当前连续天数。</li>
+  <li><b>完成反馈：</b>普通完成展示轻量 Toast 或底部浮层，内容包含“+10 经验”“连续 N 天 +m”；升级或获得徽章时使用更强的庆祝弹层。</li>
+  <li><b>徽章墙：</b>P0 可放在“给小狗换装/伙伴管理”页之上或设置中的伙伴成长入口，展示已获得、未解锁和达成条件。</li>
+  <li><b>小组件/灵动岛快照：</b>继续展示等级和心情，经验进度可作为 P1；不得因成长数据库变化导致快照发布失败。</li>
+</ul>
+
+<h1 seq="auto">任务状态与奖励状态</h1>
+<table>
+  <colgroup><col width="150"/><col width="230"/><col width="230"/><col width="230"/></colgroup>
+  <thead><tr><th background-color="light-gray"><p><b>用户动作</b></p></th><th background-color="light-gray"><p><b>任务状态</b></p></th><th background-color="light-gray"><p><b>成长状态</b></p></th><th background-color="light-gray"><p><b>用户可见结果</b></p></th></tr></thead>
+  <tbody>
+    <tr><td><p>勾选未完成任务</p></td><td><p>isCompleted = true</p></td><td><p>幂等创建一笔有效奖励，更新经验、等级、徽章和连续。</p></td><td><p>展示经验增加；若升级或得徽章则展示庆祝。</p></td></tr>
+    <tr><td><p>重复点击已完成任务</p></td><td><p>保持 completed</p></td><td><p>不创建第二笔奖励。</p></td><td><p>不重复弹出奖励。</p></td></tr>
+    <tr><td><p>取消完成</p></td><td><p>isCompleted = false</p></td><td><p>作废对应奖励，重算连续、经验、等级和徽章。</p></td><td><p>展示状态恢复；原则上不做庆祝动画。</p></td></tr>
+    <tr><td><p>删除任务</p></td><td><p>isDeleted = true</p></td><td><p>P0 视为有效完成记录失效：若任务已有奖励，按取消完成处理。</p></td><td><p>若经验被扣回，需在删除确认中说明。</p></td></tr>
+    <tr><td><p>编辑任务</p></td><td><p>保留完成状态和任务 ID</p></td><td><p>奖励流水仍绑定原任务；若任务日期改变，需要重算连续归属日。</p></td><td><p>编辑历史任务时提示可能影响连续奖励。</p></td></tr>
+  </tbody>
+</table>
+
+<h1 seq="auto">异常与恢复</h1>
+<ul>
+  <li><b>并发勾选：</b>以 calendarItemId 作为唯一有效奖励键，数据库事务内先查有效流水再写入；重复请求只保留一笔。</li>
+  <li><b>写入部分失败：</b>任务状态、奖励流水和成长总额必须在同一事务内提交；任一步失败则整体回滚，UI 恢复为未完成。</li>
+  <li><b>取消后再次完成：</b>重新按当天状态计算奖励；如果原流水已作废，可重新生成有效流水，不能复用被作废的流水直接改状态。</li>
+  <li><b>系统时间变化：</b>P0 不额外防作弊，但所有日期以设备本地时间记录；跨时区和手动改时间列入 P1 风险。</li>
+  <li><b>数据库迁移失败：</b>保留原宠物积分数据，阻断成长写入并展示本地数据恢复提示，不允许出现任务完成但无成长记录的半成功状态。</li>
+  <li><b>快照/Widget 失败：</b>成长主流程成功优先，Widget 快照失败只记录错误并保留旧快照，不影响经验入账。</li>
+</ul>
+
+<h1 seq="auto">范围与迭代建议</h1>
+<table>
+  <colgroup><col width="110"/><col width="360"/><col width="280"/></colgroup>
+  <thead><tr><th background-color="light-gray"><p><b>阶段</b></p></th><th background-color="light-gray"><p><b>范围</b></p></th><th background-color="light-gray"><p><b>进入条件 / 说明</b></p></th></tr></thead>
+  <tbody>
+    <tr><td><p>P0</p></td><td><p>统一成长账户与迁移、幂等发奖、取消扣回、等级进度、基础徽章、完成/升级反馈、旧编辑入口 petId 修复。</p></td><td><p>构成最小可上线闭环；所有规则必须有测试覆盖。</p></td></tr>
+    <tr><td><p>P1</p></td><td><p>徽章墙完善、Widget 经验进度、倒计时纪念奖励、系统同步任务的二次确认发奖、跨时区/改时间风控。</p></td><td><p>P0 数据稳定且用户能理解成长规则后再做。</p></td></tr>
+    <tr><td><p>P2</p></td><td><p>免费成长外观、多宠物独立养成、账号云同步、排行榜或社交炫耀。</p></td><td><p>会影响付费体系和数据归属，需要单独评审。</p></td></tr>
+  </tbody>
+</table>
+
+<h1 seq="auto">验收标准</h1>
+<h2 seq="auto">成功场景</h2>
+<ol>
+  <li><b>Given</b> 用户有一个关联当前伙伴、未完成的本地任务，<b>when</b> 用户勾选完成，<b>then</b> 任务变为完成，成长账户增加 10 点经验，出现“+10”反馈，首页经验进度同步刷新。</li>
+  <li><b>Given</b> 用户已连续两天各完成至少一个有效任务，<b>when</b> 今天再完成一个任务，<b>then</b> 本次奖励为 15 点，流水记录连续天数为 3，连续加成原因为 3 天加成。</li>
+  <li><b>Given</b> 用户当前经验足以在本次奖励后升级，<b>when</b> 完成任务，<b>then</b> 首页等级提升，升级弹层展示新等级和下一等级进度；若同时达到徽章条件，徽章点亮。</li>
+  <li><b>Given</b> 用户切换到另一个付费或免费外观主题，<b>when</b> 返回首页，<b>then</b> 总经验、等级、连续天数和已获得徽章保持不变，只有 App 视觉主题变化。</li>
+  <li><b>Given</b> 用户从旧编辑弹层打开任务并保存，<b>when</b> 保存成功，<b>then</b> 原任务 petId 不被清空，完成后仍能进入统一成长发奖链路。</li>
+</ol>
+
+<h2 seq="auto">边界与失败场景</h2>
+<ol>
+  <li><b>Given</b> 同一任务已经完成且已有有效奖励，<b>when</b> 再次触发完成动作，<b>then</b> 不新增经验流水、不重复加分、不重复弹窗。</li>
+  <li><b>Given</b> 用户完成任务后取消完成，<b>when</b> 事务提交成功，<b>then</b> 对应奖励作废，总经验、等级、连续天数和徽章回到取消后的应有状态。</li>
+  <li><b>Given</b> 取消某个支撑连续天数的任务，<b>when</b> 重算后连续中断，<b>then</b> 后续日期中依赖该连续的加成差额被一并纠正，流水和总额保持一致。</li>
+  <li><b>Given</b> 用户删除一个已完成且已发奖的任务，<b>when</b> 确认删除，<b>then</b> 系统按取消完成规则处理奖励，并在确认文案中说明成长值会被扣回。</li>
+  <li><b>Given</b> 用户升级到新版本，<b>when</b> 首次启动且迁移完成，<b>then</b> 统一成长经验等于约定迁移值；重复启动不会二次累加。</li>
+  <li><b>Given</b> 数据库事务中任一步失败，<b>when</b> 用户勾选任务，<b>then</b> 任务仍显示未完成，经验和等级不发生部分变化，错误可重试。</li>
+</ol>
+
+<h1 seq="auto">测试与发布关注</h1>
+<ul>
+  <li>Repository 层覆盖：首次完成、重复完成、取消、删除、编辑日期、连续 3/5/7 天、跨月连续、无 petId 历史任务、同步任务不发奖。</li>
+  <li>迁移测试覆盖：无宠物、单宠物、多宠物、已有流水、无流水、重复启动、迁移中断。</li>
+  <li>状态测试覆盖：升级、降级（取消导致经验回落）、徽章获得、徽章因回退变为未达成后再次获得。</li>
+  <li>Widget/UI 测试覆盖：奖励反馈、升级弹层、首页等级进度、旧编辑入口保存 petId。</li>
+  <li>快照测试覆盖：统一成长等级仍能发布到 iOS Widget / Live Activity；缺失字段时使用安全默认值。</li>
+</ul>
+
+<callout emoji="🧪" background-color="light-gray" border-color="gray">
+  <p><b>本次验证说明：</b>当前结论来自对本地源码、数据模型、仓储逻辑、页面入口和现有测试的静态阅读。尝试运行 Flutter 聚焦测试时，本机 pub 缓存中的 meta / async / file / glob 等依赖解析异常导致 kernel 生成失败，尚未取得运行态通过结果；进入研发前需先修复依赖缓存（如 flutter pub get 或清理 pub cache 后重装），再以本页验收用例建立回归测试。</p>
+</callout>

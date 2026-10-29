@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 import 'package:collection/collection.dart';
 import 'package:doggylog/app/localization/app_localizations.dart';
@@ -140,9 +141,11 @@ class AppStateController extends StateNotifier<AppState> {
 
   final Ref _ref;
   final _uuid = const Uuid();
+  StreamSubscription<CompanionGrowth>? _growthSub;
   StreamSubscription<List<CalendarItem>>? _itemsSub;
   StreamSubscription<List<PetProfile>>? _petsSub;
   StreamSubscription<List<CountdownItem>>? _countdownSub;
+  Timer? _countdownExpiryTimer;
   StreamSubscription<List<GeofencePlace>>? _geofenceSub;
   StreamSubscription<DomainEvent>? _eventSub;
   StreamSubscription<String>? _platformEventSub;
@@ -151,6 +154,7 @@ class AppStateController extends StateNotifier<AppState> {
   StreamSubscription<PremiumSkinStoreState>? _premiumSkinStoreSub;
   String? _pendingPremiumPetId;
   bool _normalizingPremiumSelection = false;
+  Future<void> _snapshotQueue = Future<void>.value();
 
   Future<void> _init() async {
     final repository = await _ref.read(repositoryProvider.future);
@@ -160,6 +164,14 @@ class AppStateController extends StateNotifier<AppState> {
     final notificationService = await _ref.read(
       notificationServiceProvider.future,
     );
+    CompanionGrowth growth;
+    try {
+      growth = await repository.loadGrowth();
+    } catch (error, stack) {
+      debugPrint('Growth unavailable; writes remain blocked: $error\n$stack');
+      growth = const CompanionGrowth();
+      state = state.copyWith(growthUnavailable: true);
+    }
     await repository.ensureDefaultPetRoster();
     final preferences = await repository.loadPreferences();
     syncGlobalLocale(preferences.languageMode);
@@ -177,6 +189,7 @@ class AppStateController extends StateNotifier<AppState> {
         .isPermissionGranted();
     final premiumSkinStore = await skinPurchaseService.initialize();
     state = state.copyWith(
+      growth: growth,
       preferences: preferences,
       calendarView: preferences.selectedCalendarView,
       templates: repository.templates(),
@@ -199,6 +212,16 @@ class AppStateController extends StateNotifier<AppState> {
       unawaited(_performIncrementalCalendarSync());
     }
 
+    _growthSub = repository.watchGrowth().listen(
+      (growth) {
+        state = state.copyWith(growth: growth, growthUnavailable: false);
+        unawaited(_publishSnapshot(state));
+      },
+      onError: (Object error, StackTrace stack) {
+        debugPrint('Growth stream failure: $error\n$stack');
+        state = state.copyWith(growthUnavailable: true);
+      },
+    );
     _itemsSub = repository.watchCalendarItems().listen((items) {
       unawaited(_syncNotifications(items));
       final nextState = state.copyWith(calendarItems: items);
@@ -214,6 +237,7 @@ class AppStateController extends StateNotifier<AppState> {
     _countdownSub = repository.watchCountdowns().listen((items) {
       final nextState = state.copyWith(countdowns: items);
       state = nextState;
+      _scheduleCountdownExpiry();
       unawaited(_publishSnapshot(nextState));
     });
     _geofenceSub = repository.watchGeofences().listen((places) {
@@ -228,6 +252,9 @@ class AppStateController extends StateNotifier<AppState> {
       }
     });
     _eventSub = _ref.read(eventBusProvider).stream.listen((event) async {
+      if (event is GrowthUpdatedEvent) {
+        state = state.copyWith(growth: event.change.after);
+      }
       if (event is TaskChangedEvent || event is TaskCompletedEvent) {
         final suggestions = await repository.loadRecentSuggestions();
         state = state.copyWith(recentSuggestions: suggestions);
@@ -258,6 +285,7 @@ class AppStateController extends StateNotifier<AppState> {
     await _configureSensorStream(preferences.performanceTier);
     // 启动后主动发布一次快照，避免覆盖安装后灵动岛不出现（等流首次发射后再发，减少竞态）
     Future.delayed(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
       _publishSnapshot(state);
     });
   }
@@ -417,7 +445,7 @@ class AppStateController extends StateNotifier<AppState> {
       startAt: startAt,
       endAt: endAt,
       category: category,
-      petId: petId,
+      petId: id == null ? petId : existing.petId,
       reminders: reminders,
       updatedAt: DateTime.now(),
     );
@@ -444,24 +472,60 @@ class AppStateController extends StateNotifier<AppState> {
     }
   }
 
-  Future<void> toggleTaskCompletion(String id, bool value) async {
+  Future<void> toggleTaskCompletion(
+    String id,
+    bool value, {
+    int? expectedRevision,
+  }) async {
     final repository = await _ref.read(repositoryProvider.future);
-    await repository.toggleCalendarItemCompletion(id, value);
+    await repository.toggleCalendarItemCompletion(
+      id,
+      value,
+      expectedRevision: expectedRevision,
+    );
     if (value) {
-      final notifications = await _ref.read(notificationServiceProvider.future);
-      await notifications.cancelTask(id);
+      try {
+        final notifications = await _ref.read(
+          notificationServiceProvider.future,
+        );
+        await notifications.cancelTask(id);
+      } catch (error, stack) {
+        debugPrint('Post-commit notification failure: $error\n$stack');
+      }
     }
   }
 
-  Future<void> deleteTask(String id) async {
+  Future<void> retryGrowthInitialization() async {
+    try {
+      final repository = await _ref.read(repositoryProvider.future);
+      final growth = await repository.loadGrowth();
+      state = state.copyWith(growth: growth, growthUnavailable: false);
+    } catch (error) {
+      debugPrint('Growth retry failed: $error');
+      state = state.copyWith(growthUnavailable: true);
+    }
+  }
+
+  Future<void> acknowledgeGrowthBadges(List<String> ids) async {
+    final repository = await _ref.read(repositoryProvider.future);
+    await repository.acknowledgeGrowthBadges(ids);
+  }
+
+  Future<void> deleteTask(String id, {int? expectedRevision}) async {
     final repository = await _ref.read(repositoryProvider.future);
     final item = state.calendarItems.where((task) => task.id == id).firstOrNull;
+    await repository.deleteCalendarItem(id, expectedRevision: expectedRevision);
     if (item != null) {
-      final notifications = await _ref.read(notificationServiceProvider.future);
-      await notifications.cancelTask(id);
-      await _ref.read(iosCalendarSyncServiceProvider).deleteItem(item);
+      try {
+        final notifications = await _ref.read(
+          notificationServiceProvider.future,
+        );
+        await notifications.cancelTask(id);
+        await _ref.read(iosCalendarSyncServiceProvider).deleteItem(item);
+      } catch (error, stack) {
+        debugPrint('Post-commit deletion side effect failure: $error\n$stack');
+      }
     }
-    await repository.deleteCalendarItem(id);
   }
 
   Future<void> requestNotificationPermissions() async {
@@ -597,6 +661,27 @@ class AppStateController extends StateNotifier<AppState> {
     await repository.upsertCountdown(countdown);
   }
 
+  void refreshCountdowns() {
+    // The target can pass while the app is open or suspended without any DB
+    // write. Recompute the effective state and external snapshot on wake.
+    state = state.copyWith(countdowns: [...state.countdowns]);
+    _scheduleCountdownExpiry();
+    unawaited(_publishSnapshot(state));
+  }
+
+  void _scheduleCountdownExpiry() {
+    _countdownExpiryTimer?.cancel();
+    final now = DateTime.now();
+    final upcoming =
+        state.countdowns.where((item) => !item.isCompletedAt(now)).toList()
+          ..sort((a, b) => a.dueAt.compareTo(b.dueAt));
+    if (upcoming.isEmpty) return;
+    _countdownExpiryTimer = Timer(
+      upcoming.first.dueAt.difference(now) + const Duration(milliseconds: 50),
+      refreshCountdowns,
+    );
+  }
+
   Future<void> toggleCountdownCelebrated(String id, bool value) async {
     final repository = await _ref.read(repositoryProvider.future);
     await repository.toggleCountdownCelebrated(id, value);
@@ -726,9 +811,19 @@ class AppStateController extends StateNotifier<AppState> {
     await service.syncTaskReminders(items);
   }
 
-  Future<void> _publishSnapshot(AppState nextState) async {
-    final publisher = await _ref.read(snapshotPublisherProvider.future);
-    await publisher.publish(nextState);
+  Future<void> _publishSnapshot(AppState nextState) {
+    if (nextState.growthUnavailable) return Future<void>.value();
+    // Serialize publications so an older asynchronous write cannot win last.
+    return _snapshotQueue = _snapshotQueue.then((_) async {
+      try {
+        final publisher = await _ref.read(snapshotPublisherProvider.future);
+        await publisher.publish(nextState);
+      } catch (error, stack) {
+        debugPrint(
+          'Snapshot publication failed; committed data retained: $error\n$stack',
+        );
+      }
+    });
   }
 
   Future<void> _startGeofenceMonitoring(List<GeofencePlace> places) async {
@@ -886,6 +981,8 @@ class AppStateController extends StateNotifier<AppState> {
 
   @override
   void dispose() {
+    _countdownExpiryTimer?.cancel();
+    _growthSub?.cancel();
     _itemsSub?.cancel();
     _petsSub?.cancel();
     _countdownSub?.cancel();

@@ -86,10 +86,11 @@ void main() {
     final snapshot = DoggylogSharedSnapshot.fromAppState(
       state,
       mood: PetMood.calm,
+      now: now,
     );
 
     expect(snapshot.pet.name, '麻薯');
-    expect(snapshot.pet.loyaltyLevel, 3);
+    expect(snapshot.pet.loyaltyLevel, 1); // Legacy pet points are excluded.
     expect(snapshot.pet.skinTheme, 'shibaJoy');
     expect(snapshot.today.pendingCount, 1);
     expect(snapshot.today.completedCount, 1);
@@ -151,6 +152,7 @@ void main() {
       final snapshot = DoggylogSharedSnapshot.fromAppState(
         state,
         mood: PetMood.calm,
+        now: now,
       );
 
       expect(snapshot.pet.breed, 'Shiba Inu');

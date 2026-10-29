@@ -53,8 +53,10 @@ class _CountdownDetailSheetState extends ConsumerState<CountdownDetailSheet> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(appStateProvider.select((state) => state.countdowns));
     final now = DateTime.now();
     final remainingDays = _dueAt.difference(now).inHours / 24;
+    final isCompleted = _hasCelebrated || !_dueAt.isAfter(now);
     final l10n = context.l10n;
 
     return Padding(
@@ -93,7 +95,7 @@ class _CountdownDetailSheetState extends ConsumerState<CountdownDetailSheet> {
                   Expanded(
                     child: _CountdownMetaChip(
                       label: l10n.remaining,
-                      value: _hasCelebrated
+                      value: isCompleted
                           ? l10n.completed
                           : l10n.daysLabel(remainingDays.ceil().clamp(0, 999)),
                     ),
@@ -117,12 +119,14 @@ class _CountdownDetailSheetState extends ConsumerState<CountdownDetailSheet> {
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(
-                  _hasCelebrated
+                  isCompleted
                       ? l10n.completedCountdown
                       : l10n.completeCountdown,
                 ),
-                value: _hasCelebrated,
-                onChanged: (value) => setState(() => _hasCelebrated = value),
+                value: isCompleted,
+                onChanged: _dueAt.isAfter(now)
+                    ? (value) => setState(() => _hasCelebrated = value)
+                    : null,
               ),
               const SizedBox(height: 12),
               Row(

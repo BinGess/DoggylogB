@@ -586,6 +586,8 @@ void main() {
     expect(find.byKey(const Key('settings-language-tile')), findsOneWidget);
     expect(find.byKey(const Key('language-picker-sheet')), findsNothing);
 
+    await tester.ensureVisible(find.byKey(const Key('settings-language-tile')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('settings-language-tile')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));

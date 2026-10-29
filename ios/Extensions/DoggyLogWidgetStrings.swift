@@ -40,6 +40,12 @@ func widgetBreedLabel(_ value: String) -> String {
     return widgetText("哈士奇", "Husky", "ハスキー")
   case "samoyed":
     return widgetText("萨摩耶", "Samoyed", "サモエド")
+  case "bordercollie", "border collie":
+    return widgetText("边境牧羊犬", "Border Collie", "ボーダーコリー")
+  case "dachshund":
+    return widgetText("腊肠犬", "Dachshund", "ダックスフンド")
+  case "dalmatian":
+    return widgetText("大麦町犬", "Dalmatian", "ダルメシアン")
   default:
     return value
   }

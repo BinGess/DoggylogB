@@ -105,13 +105,7 @@ class CompactDateTimeField extends StatelessWidget {
       return;
     }
     onChanged(
-      DateTime(
-        value.year,
-        value.month,
-        value.day,
-        picked.hour,
-        picked.minute,
-      ),
+      DateTime(value.year, value.month, value.day, picked.hour, picked.minute),
     );
   }
 }
@@ -130,57 +124,113 @@ Future<DateTime?> showCompactDatePickerSheet(
   required DateTime firstDate,
   required DateTime lastDate,
 }) {
+  final minimumDate = DateUtils.dateOnly(firstDate);
+  final maximumDate = DateUtils.dateOnly(lastDate);
+  DateTime clampDate(DateTime date) {
+    final day = DateUtils.dateOnly(date);
+    if (day.isBefore(minimumDate)) {
+      return minimumDate;
+    }
+    if (day.isAfter(maximumDate)) {
+      return maximumDate;
+    }
+    return day;
+  }
+
+  final today = DateUtils.dateOnly(DateTime.now());
+  final canPickToday =
+      !today.isBefore(minimumDate) && !today.isAfter(maximumDate);
   return showModalBottomSheet<DateTime>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
     builder: (context) {
-      var selected = initialDate;
+      var selected = clampDate(initialDate);
       return StatefulBuilder(
         builder: (context, setState) {
+          final theme = Theme.of(context);
           return SafeArea(
-            child: FractionallySizedBox(
-              heightFactor: 0.78,
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            context.l10n.chooseDate,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const Spacer(),
-                          TextButton(
-                            onPressed: () =>
-                                Navigator.of(context).pop(DateTime.now()),
-                            child: Text(context.l10n.today),
-                          ),
-                        ],
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          context.l10n.chooseDate,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: canPickToday
+                              ? () => Navigator.of(context).pop(today)
+                              : null,
+                          child: Text(context.l10n.today),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
                       ),
-                      const SizedBox(height: 12),
-                      CalendarDatePicker(
-                        initialDate: initialDate,
-                        firstDate: firstDate,
-                        lastDate: lastDate,
-                        currentDate: DateTime.now(),
-                        onDateChanged: (value) =>
-                            setState(() => selected = value),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.34),
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton(
-                          onPressed: () => Navigator.of(context).pop(selected),
-                          child: Text(context.l10n.done),
+                      child: Text(
+                        _formatDate(
+                          selected,
+                          context.l10n.chipDatePattern(),
+                          context.l10n.localeName,
+                        ),
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.titleMedium,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 216,
+                      child: CupertinoTheme(
+                        data: CupertinoThemeData(
+                          brightness: theme.brightness,
+                          primaryColor: theme.colorScheme.primary,
+                          textTheme: CupertinoTextThemeData(
+                            dateTimePickerTextStyle: TextStyle(
+                              fontFamily: theme.textTheme.bodyLarge?.fontFamily,
+                              fontSize: 20,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        child: CupertinoDatePicker(
+                          mode: CupertinoDatePickerMode.date,
+                          dateOrder: DatePickerDateOrder.ymd,
+                          initialDateTime: selected,
+                          minimumDate: minimumDate,
+                          maximumDate: maximumDate,
+                          minimumYear: minimumDate.year,
+                          maximumYear: maximumDate.year,
+                          onDateTimeChanged: (value) =>
+                              setState(() => selected = value),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: () => Navigator.of(context).pop(selected),
+                        child: Text(context.l10n.done),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -200,13 +250,7 @@ Future<TimeOfDay?> showCompactTimePickerSheet(
     isScrollControlled: true,
     showDragHandle: true,
     builder: (context) {
-      var selected = DateTime(
-        2026,
-        1,
-        1,
-        initialTime.hour,
-        initialTime.minute,
-      );
+      var selected = DateTime(2026, 1, 1, initialTime.hour, initialTime.minute);
       return StatefulBuilder(
         builder: (context, setState) {
           return SafeArea(

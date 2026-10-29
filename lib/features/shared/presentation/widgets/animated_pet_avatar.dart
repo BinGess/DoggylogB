@@ -1,11 +1,12 @@
 import 'dart:math' as math;
 
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
+import 'package:doggylog/features/calendar/presentation/calendar_theme_assets.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
-import 'package:rive/rive.dart' hide LinearGradient;
+import 'package:rive/rive.dart' hide Image, LinearGradient;
 
 class AnimatedPetAvatar extends ConsumerStatefulWidget {
   const AnimatedPetAvatar({
@@ -79,16 +80,20 @@ class _AnimatedPetAvatarState extends ConsumerState<AnimatedPetAvatar>
       SceneMode.resting => 3,
       SceneMode.caring => 4,
     };
-    _loyaltyInput?.value =
-        ref.read(appStateProvider).selectedPet?.loyaltyLevel.toDouble() ?? 1;
+    _loyaltyInput?.value = ref.read(appStateProvider).growth.level.toDouble();
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(appStateProvider.select((s) => s.growth.level));
+    _syncRiveInputs();
     return FutureBuilder<bool>(
       future: _assetExistsFuture ??= _checkRiveAsset(),
       builder: (context, snapshot) {
-        if (snapshot.data == true) {
+        if (snapshot.data == true &&
+            widget.breed != PetBreed.borderCollie &&
+            widget.breed != PetBreed.dachshund &&
+            widget.breed != PetBreed.dalmatian) {
           return _buildRiveAvatar();
         }
         return _FallbackPetAvatar(
@@ -154,6 +159,12 @@ class _FallbackPetAvatar extends ConsumerWidget {
       PetBreed.beagle => [const Color(0xFF6366F1), const Color(0xFFA5B4FC)],
       PetBreed.husky => [const Color(0xFF4A90D9), const Color(0xFF87CEEB)],
       PetBreed.samoyed => [const Color(0xFFC96480), const Color(0xFF9B7BBF)],
+      PetBreed.borderCollie => [
+        const Color(0xFF326A51),
+        const Color(0xFF9AB98A),
+      ],
+      PetBreed.dachshund => [const Color(0xFF823F50), const Color(0xFFD0A77C)],
+      PetBreed.dalmatian => [const Color(0xFF30343B), const Color(0xFFC4493D)],
     };
     final badge = switch (mood) {
       PetMood.excited => Icons.auto_awesome_rounded,
@@ -168,6 +179,10 @@ class _FallbackPetAvatar extends ConsumerWidget {
       PetMood.sad => 1.0,
     };
     final spin = sceneMode == SceneMode.walking ? 0.04 : 0.015;
+    final hasIllustration =
+        breed == PetBreed.borderCollie ||
+        breed == PetBreed.dachshund ||
+        breed == PetBreed.dalmatian;
 
     return AnimatedBuilder(
       animation: controller,
@@ -203,11 +218,22 @@ class _FallbackPetAvatar extends ConsumerWidget {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  Icon(
-                    Icons.pets_rounded,
-                    size: size * 0.45,
-                    color: Colors.white.withValues(alpha: 0.92),
-                  ),
+                  if (hasIllustration)
+                    Padding(
+                      padding: EdgeInsets.all(size * 0.06),
+                      child: Image.asset(
+                        calendarTimelineAssetsForBreed(breed).pngAssetPath,
+                        fit: BoxFit.contain,
+                        width: size,
+                        height: size,
+                      ),
+                    )
+                  else
+                    Icon(
+                      Icons.pets_rounded,
+                      size: size * 0.45,
+                      color: Colors.white.withValues(alpha: 0.92),
+                    ),
                   Positioned(
                     right: 10,
                     bottom: 8,

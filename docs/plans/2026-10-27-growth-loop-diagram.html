@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="use-iframe" content="true">
+  <meta name="html-box-height-mode" content="auto">
+  <meta name="description" content="DoggyLog 统一陪伴成长激励闭环：用户完成任务后获得经验，连续完成产生额外加成，经验推动等级和徽章里程碑；取消完成时回滚对应奖励并重算连续记录。">
+  <title>DoggyLog 激励闭环</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 20px; background: #ffffff; color: #1f2329; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .wrap { width: 100%; max-width: 980px; margin: 0 auto; }
+    .title { font-size: 20px; font-weight: 700; margin: 0 0 6px; }
+    .subtitle { margin: 0 0 18px; color: #646a73; font-size: 14px; line-height: 1.6; }
+    .grid { display: grid; grid-template-columns: repeat(5, minmax(130px, 1fr)); gap: 10px; align-items: stretch; }
+    .card { border: 1px solid #dee3e8; border-radius: 14px; padding: 14px; background: #f8faf7; min-height: 132px; position: relative; }
+    .card.strong { background: #edf7f1; border-color: #9fd6b8; }
+    .card.warn { background: #fff8ed; border-color: #f1d3a2; }
+    .step { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 999px; background: #3dba89; color: #fff; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .card h3 { margin: 0 0 6px; font-size: 16px; line-height: 1.35; }
+    .card p { margin: 0; color: #646a73; font-size: 13px; line-height: 1.55; }
+    .arrow { text-align: center; color: #3dba89; font-size: 22px; font-weight: 700; margin: 10px 0; }
+    .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .rule { border: 1px solid #dee3e8; border-radius: 14px; padding: 14px; background: #ffffff; }
+    .rule h3 { margin: 0 0 8px; font-size: 15px; }
+    .rule ul { margin: 0; padding-left: 18px; color: #4e5969; font-size: 13px; line-height: 1.7; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .badge { border: 1px solid #9fd6b8; background: #edf7f1; color: #237a55; border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 600; }
+    .note { margin-top: 14px; border-left: 4px solid #3dba89; padding: 10px 12px; background: #f8faf7; color: #4e5969; font-size: 13px; line-height: 1.6; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } .rules { grid-template-columns: 1fr; } .arrow { transform: rotate(90deg); margin: 2px 0; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2 class="title">激励闭环从“加一次分”改为可回滚的统一成长系统</h2>
+    <p class="subtitle">成长归属 App 的陪伴关系，不再跟随当前选中的外观档案；每个有效完成动作都能立即、明确、可解释地推动等级和徽章。</p>
+    <div class="grid">
+      <div class="card"><span class="step">1</span><h3>完成有效任务</h3><p>用户在 App 或小组件中勾选本地日程；系统同步事项默认不直接发奖。</p></div>
+      <div class="card"><span class="step">2</span><h3>记录一笔经验</h3><p>基础经验 +10，并按完成时的连续天数发放 +5 / +8 / +12 加成。</p></div>
+      <div class="card strong"><span class="step">3</span><h3>更新统一成长值</h3><p>成长值与外观选择解耦；切换柴犬、哈士奇等主题不改变等级。</p></div>
+      <div class="card strong"><span class="step">4</span><h3>升级与里程碑</h3><p>每 100 点升 1 级；达到等级门槛时获得徽章，并展示下一目标进度。</p></div>
+      <div class="card warn"><span class="step">5</span><h3>即时反馈与回退</h3><p>完成时弹出经验和升级反馈；取消完成则回滚该笔奖励、重算连续与徽章。</p></div>
+    </div>
+    <div class="arrow">↓ 成长结果回流到首页陪伴卡片、组件和回访理由</div>
+    <div class="rules">
+      <div class="rule">
+        <h3>本期 P0 必须闭合</h3>
+        <ul>
+          <li>统一成长值、等级、经验流水和连续天数口径一致。</li>
+          <li>每个有效任务只产生一笔可追踪流水，重复勾选不能刷分。</li>
+          <li>取消完成必须同步扣回，并恢复到应有等级与徽章状态。</li>
+          <li>付费主题继续按内购权益处理，不被等级替代。</li>
+        </ul>
+      </div>
+      <div class="rule">
+        <h3>成长回报：徽章与里程碑</h3>
+        <div class="badge-row"><span class="badge">Lv1 第一根骨头</span><span class="badge">Lv3 认真陪跑员</span><span class="badge">Lv5 习惯搭子</span><span class="badge">Lv7 默契伙伴</span><span class="badge">Lv10 亲密家人</span></div>
+        <p style="margin:10px 0 0;color:#646a73;font-size:13px;line-height:1.6;">本期不新增免费成长外观资产，避免与现有付费主题权益混淆。</p>
+      </div>
+    </div>
+    <div class="note">时间口径沿用现有代码的任务日期（startAt 所在自然日）与设备本地时区；这是可调整的初始产品参数，研发评审时需确认跨时区与补完成的边界。</div>
+  </div>
+</body>
+</html>

@@ -37,7 +37,9 @@ struct DoggyLogCountdownSmallView: View {
   var body: some View {
     let snapshot = entry.snapshot
     let theme = DoggyWidgetTheme.resolve(snapshot: snapshot, colorScheme: colorScheme)
-    let countdown = snapshot?.countdown
+    let countdown = snapshot?.countdown.flatMap {
+      $0.dueAt > Int(Date().timeIntervalSince1970 * 1000) ? $0 : nil
+    }
     let petName = snapshot?.pet.name ?? widgetText("狗狗日历", "DoggyDays", "ワンカレ")
 
     VStack(alignment: .leading, spacing: 0) {
@@ -116,7 +118,9 @@ struct DoggyLogCountdownMediumView: View {
   var body: some View {
     let snapshot = entry.snapshot
     let theme = DoggyWidgetTheme.resolve(snapshot: snapshot, colorScheme: colorScheme)
-    let countdown = snapshot?.countdown
+    let countdown = snapshot?.countdown.flatMap {
+      $0.dueAt > Int(Date().timeIntervalSince1970 * 1000) ? $0 : nil
+    }
     let petName = snapshot?.pet.name ?? widgetText("狗狗日历", "DoggyDays", "ワンカレ")
 
     VStack(alignment: .leading, spacing: 0) {

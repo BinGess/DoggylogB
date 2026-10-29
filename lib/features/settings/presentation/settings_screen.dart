@@ -1,6 +1,6 @@
 import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/home/presentation/home_shell_layout.dart';
-import 'package:doggylog/features/pets/presentation/pets_screen.dart';
+import 'package:doggylog/features/growth/presentation/growth_screen.dart';
 import 'package:doggylog/features/settings/presentation/about_screen.dart';
 import 'package:doggylog/features/settings/presentation/widgets/language_picker_bottom_sheet.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
@@ -76,29 +76,9 @@ class SettingsScreen extends ConsumerWidget {
                 //subtitle: '管理宠物、偏好设置和设备能力。',
               ),
               const SizedBox(height: 24),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  l10n.petsSectionTitle,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: LiquidGlassCard(
-                  child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(l10n.managePetSkins),
-                    // subtitle: const Text('进入页面后切换宠物，对应整套 App 皮肤会立即切换'),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const PetsScreen(),
-                      ),
-                    ),
-                  ),
-                ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: GrowthPetCard(),
               ),
               const SizedBox(height: 16),
               Padding(

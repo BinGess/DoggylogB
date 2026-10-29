@@ -23,6 +23,9 @@ abstract final class SeedCopyKey {
   static const petBagelName = 'seed.pet.bagel.name';
   static const petSkyeName = 'seed.pet.skye.name';
   static const petLunaName = 'seed.pet.luna.name';
+  static const petCocoaName = 'seed.pet.cocoa.name';
+  static const petTruffleName = 'seed.pet.truffle.name';
+  static const petDotName = 'seed.pet.dot.name';
   static const skinAmberShibaName = 'seed.skin.amber_shiba.name';
   static const skinSunriseShibaName = 'seed.skin.sunrise_shiba.name';
   static const skinGoldenDawnName = 'seed.skin.golden_dawn.name';
@@ -33,6 +36,9 @@ abstract final class SeedCopyKey {
   static const skinAuroraHuskyName = 'seed.skin.aurora_husky.name';
   static const skinCloudWhiteName = 'seed.skin.cloud_white.name';
   static const skinRoseBloomName = 'seed.skin.rose_bloom.name';
+  static const skinCollieCocoaName = 'seed.skin.collie_cocoa.name';
+  static const skinDachshundCocoaName = 'seed.skin.dachshund_cocoa.name';
+  static const skinDalmatianSpotName = 'seed.skin.dalmatian_spot.name';
   static const templateWalk30Title = 'seed.template.walk_30.title';
   static const templateFeedTitle = 'seed.template.feed.title';
   static const templateGroomingTitle = 'seed.template.grooming.title';
@@ -630,6 +636,9 @@ class AppLocalizations {
     PetBreed.beagle => _t('比格', 'Beagle', 'ビーグル'),
     PetBreed.husky => _t('哈士奇', 'Husky', 'ハスキー'),
     PetBreed.samoyed => _t('萨摩耶', 'Samoyed', 'サモエド'),
+    PetBreed.borderCollie => _t('边境牧羊犬', 'Border Collie', 'ボーダーコリー'),
+    PetBreed.dachshund => _t('腊肠犬', 'Dachshund', 'ダックスフンド'),
+    PetBreed.dalmatian => _t('大麦町犬', 'Dalmatian', 'ダルメシアン'),
   };
 
   String performanceTierLabel(PerformanceTier tier) => switch (tier) {
@@ -718,9 +727,9 @@ class AppLocalizations {
     '購入を開始できませんでした。あとで再度お試しください。',
   );
   String get messagePremiumSkinRequiresPurchase => _t(
-    '第 3 / 第 4 套皮肤需要购买后才能使用，已经先切回可免费使用的皮肤。',
-    'Skins 3 and 4 require purchase, so the app switched back to a free skin for now.',
-    '3 つ目と 4 つ目のスキンは購入が必要なため、ひとまず無料スキンに戻しました。',
+    '这套皮肤需要购买后才能使用，已切回可免费使用的皮肤。',
+    'This skin requires a purchase. Switched back to a free skin.',
+    'このスキンは購入が必要です。無料のスキンに戻しました。',
   );
   String get messageBiometricDisabled =>
       _t('生物识别解锁已经关闭', 'Biometric unlock is off now.', '生体認証での解除をオフにしました。');
@@ -817,6 +826,9 @@ class AppLocalizations {
       'AI 对话' => _t('AI 对话', 'AI Glow', 'AI グロウ'),
       '健康轻灵' => _t('健康轻灵', 'Soft Wellness', 'やわらかウェルネス'),
       '云朵温柔' => _t('云朵温柔', 'Cloud Softness', 'くもやわらか'),
+      '林间手账' => _t('林间手账', 'Forest Journal', '森の手帳'),
+      '可可剧场' => _t('可可剧场', 'Cocoa Theater', 'ココアシアター'),
+      '黑白漫游' => _t('黑白漫游', 'Monochrome Stroll', 'モノクロさんぽ'),
       _ => value,
     };
   }
@@ -850,6 +862,21 @@ class AppLocalizations {
         '柔柔的粉白色调，很适合陪伴感和小纪念。',
         'Soft pink-white tones that feel sweet for companionship and tiny milestones.',
         'やわらかなピンクホワイトで、寄り添い感や小さな記念日に似合います。',
+      ),
+      '林间手账' => _t(
+        '苔绿与纸白相间，像在林间写下每日的小计划。',
+        'Moss green and paper white for everyday notes in the woods.',
+        '苔色と紙の白で、森の日々をつづるような雰囲気です。',
+      ),
+      '可可剧场' => _t(
+        '酒红、奶油和可可色，给日常添一点温暖的戏剧感。',
+        'Wine red, cream, and cocoa bring a cozy theatrical touch.',
+        'ワインレッドとクリーム、ココア色の温かな舞台です。',
+      ),
+      '黑白漫游' => _t(
+        '黑白留白配一抹朱红，清晰利落又有玩心。',
+        'Crisp black and white with a playful vermilion accent.',
+        '白黒の余白に朱色を添えた、すっきり楽しいスタイルです。',
       ),
       _ => spec.styleDescription,
     };
@@ -921,56 +948,40 @@ class AppLocalizations {
       SeedCopyKey.petBagelName || 'Bagel' => _t('贝果', 'Bagel', 'ベーグル'),
       SeedCopyKey.petSkyeName || 'Skye' => _t('小空', 'Skye', 'スカイ'),
       SeedCopyKey.petLunaName || 'Luna' => _t('露娜', 'Luna', 'ルナ'),
-      SeedCopyKey.skinAmberShibaName || '暖棕琥珀' => _t(
-        '暖棕琥珀',
-        'Amber Toffee',
-        'アンバートフィー',
+      SeedCopyKey.petCocoaName => _t('可可', 'Cocoa', 'ココア'),
+      SeedCopyKey.petTruffleName => _t('松露', 'Truffle', 'トリュフ'),
+      SeedCopyKey.petDotName => _t('点点', 'Dot', 'ドット'),
+      SeedCopyKey.skinCollieCocoaName => _t('可可边牧', 'Cocoa Collie', 'ココアコリー'),
+      SeedCopyKey.skinDachshundCocoaName => _t(
+        '松露腊肠',
+        'Truffle Dachshund',
+        'トリュフダックス',
       ),
-      SeedCopyKey.skinSunriseShibaName || '朝霞糖霜' => _t(
-        '朝霞糖霜',
-        'Sunrise Frost',
-        '朝焼けフロスト',
+      SeedCopyKey.skinDalmatianSpotName => _t(
+        '斑点漫游',
+        'Spotty Stroll',
+        'まだらさんぽ',
       ),
-      SeedCopyKey.skinGoldenDawnName || '暖金奶油' => _t(
-        '暖金奶油',
-        'Golden Cream',
-        'ゴールデンクリーム',
-      ),
-      SeedCopyKey.skinHoneyWaveName || '蜂蜜小卷' => _t(
-        '蜂蜜小卷',
-        'Honey Swirl',
-        'ハニースワール',
-      ),
-      SeedCopyKey.skinMilkJellyName || '奶白果冻' => _t(
-        '奶白果冻',
-        'Milk Jelly',
-        'ミルクゼリー',
-      ),
-      SeedCopyKey.skinMintJellyName || '薄荷果冻' => _t(
-        '薄荷果冻',
-        'Mint Jelly',
-        'ミントゼリー',
-      ),
-      SeedCopyKey.skinIceCrystalName || '冰晶果冻' => _t(
-        '冰晶果冻',
-        'Ice Jelly',
-        'アイスゼリー',
-      ),
-      SeedCopyKey.skinAuroraHuskyName || '极光糖霜' => _t(
-        '极光糖霜',
-        'Aurora Frost',
-        'オーロラフロスト',
-      ),
-      SeedCopyKey.skinCloudWhiteName || '云朵棉花' => _t(
-        '云朵棉花',
-        'Cloud Cotton',
-        'くものわた',
-      ),
-      SeedCopyKey.skinRoseBloomName || '玫瑰奶霜' => _t(
-        '玫瑰奶霜',
-        'Rose Cream',
-        'ローズクリーム',
-      ),
+      SeedCopyKey.skinAmberShibaName ||
+      '暖棕琥珀' => _t('暖棕琥珀', 'Amber Toffee', 'アンバートフィー'),
+      SeedCopyKey.skinSunriseShibaName ||
+      '朝霞糖霜' => _t('朝霞糖霜', 'Sunrise Frost', '朝焼けフロスト'),
+      SeedCopyKey.skinGoldenDawnName ||
+      '暖金奶油' => _t('暖金奶油', 'Golden Cream', 'ゴールデンクリーム'),
+      SeedCopyKey.skinHoneyWaveName ||
+      '蜂蜜小卷' => _t('蜂蜜小卷', 'Honey Swirl', 'ハニースワール'),
+      SeedCopyKey.skinMilkJellyName ||
+      '奶白果冻' => _t('奶白果冻', 'Milk Jelly', 'ミルクゼリー'),
+      SeedCopyKey.skinMintJellyName ||
+      '薄荷果冻' => _t('薄荷果冻', 'Mint Jelly', 'ミントゼリー'),
+      SeedCopyKey.skinIceCrystalName ||
+      '冰晶果冻' => _t('冰晶果冻', 'Ice Jelly', 'アイスゼリー'),
+      SeedCopyKey.skinAuroraHuskyName ||
+      '极光糖霜' => _t('极光糖霜', 'Aurora Frost', 'オーロラフロスト'),
+      SeedCopyKey.skinCloudWhiteName ||
+      '云朵棉花' => _t('云朵棉花', 'Cloud Cotton', 'くものわた'),
+      SeedCopyKey.skinRoseBloomName ||
+      '玫瑰奶霜' => _t('玫瑰奶霜', 'Rose Cream', 'ローズクリーム'),
       SeedCopyKey.templateWalk30Title ||
       '遛遛 30 分钟' ||
       '遛弯 30 分钟' ||

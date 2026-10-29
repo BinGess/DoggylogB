@@ -1,3 +1,4 @@
+import 'package:doggylog/features/growth/presentation/growth_actions.dart';
 import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/features/calendar/presentation/calendar_screen.dart';
 import 'package:doggylog/features/countdown/presentation/countdown_screen.dart';
@@ -69,7 +70,9 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     final scheme = theme.colorScheme;
     return Scaffold(
       extendBody: true,
-      body: IndexedStack(index: index, children: HomeShell.pages),
+      body: GrowthFeedbackHost(
+        child: IndexedStack(index: index, children: HomeShell.pages),
+      ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(
           homeShellNavHorizontalPadding,

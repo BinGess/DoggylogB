@@ -50,7 +50,17 @@ class _DoggyLogAppState extends ConsumerState<DoggyLogApp>
       controller.lockAppIfNeeded();
     }
     if (state == AppLifecycleState.resumed) {
+      controller.refreshCountdowns();
       _attemptUnlockIfNeeded(ref.read(appStateProvider));
+    }
+  }
+
+  @override
+  void didChangeLocales(List<Locale>? locales) {
+    if (mounted &&
+        ref.read(appStateProvider).preferences.languageMode ==
+            AppLanguageMode.system) {
+      setState(() {});
     }
   }
 
@@ -85,6 +95,7 @@ class _DoggyLogAppState extends ConsumerState<DoggyLogApp>
     final locale = state.preferences.languageMode == AppLanguageMode.system
         ? null
         : resolveAppLocale(state.preferences.languageMode);
+    final effectiveLocale = resolveAppLocale(state.preferences.languageMode);
     return MaterialApp.router(
       title: AppLocalizations.current(
         mode: state.preferences.languageMode,
@@ -102,10 +113,12 @@ class _DoggyLogAppState extends ConsumerState<DoggyLogApp>
       theme: AppTheme.light(
         fontScale: state.preferences.fontScale,
         skinTheme: themeSkin,
+        locale: effectiveLocale,
       ),
       darkTheme: AppTheme.dark(
         fontScale: state.preferences.fontScale,
         skinTheme: themeSkin,
+        locale: effectiveLocale,
       ),
       routerConfig: router,
       builder: (context, child) {

@@ -32,7 +32,11 @@ void main() {
     database = AppDatabase.forTesting(NativeDatabase.memory());
     repository = AppRepository(database, preferences, DomainEventBus());
     platform = _RecordingDoggylogPlatform();
-    publisher = DoggylogSnapshotPublisher(platform, repository);
+    publisher = DoggylogSnapshotPublisher(
+      platform,
+      repository,
+      now: () => DateTime(2026, 3, 8, 9),
+    );
   });
 
   tearDown(() async {

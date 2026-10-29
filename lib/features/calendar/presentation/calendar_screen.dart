@@ -1,3 +1,4 @@
+import 'package:doggylog/features/growth/presentation/growth_actions.dart';
 import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/features/calendar/presentation/calendar_theme_assets.dart';
@@ -82,9 +83,18 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     padding: const EdgeInsets.only(bottom: 14),
                     child: _AgendaItemRow(
                       item: item,
-                      onToggle: (value) =>
-                          controller.toggleTaskCompletion(item.id, value),
-                      onDelete: () => controller.deleteTask(item.id),
+                      onToggle: (value) => performGrowthAction(
+                        context,
+                        ref,
+                        item.id,
+                        completing: value,
+                      ),
+                      onDelete: () => performGrowthAction(
+                        context,
+                        ref,
+                        item.id,
+                        deleting: true,
+                      ),
                       onTap: () =>
                           showTaskEditorSheet(context, ref, item: item),
                     ),
@@ -748,6 +758,9 @@ class _PetGlyph extends StatelessWidget {
       PetBreed.goldenRetriever => const Color(0xFF0050CC),
       PetBreed.beagle => const Color(0xFF4346C0),
       PetBreed.samoyed => const Color(0xFF9A3060),
+      PetBreed.borderCollie => const Color(0xFF326A51),
+      PetBreed.dachshund => const Color(0xFF823F50),
+      PetBreed.dalmatian => const Color(0xFF30343B),
       PetBreed.shiba || null => const Color(0xFFBF2A25),
     };
     return Container(

@@ -1,6 +1,7 @@
 import 'package:doggylog/app/theme/app_skin_theme.dart';
 import 'package:doggylog/app/theme/app_theme.dart';
 import 'package:doggylog/features/pets/presentation/widgets/pet_skin_gallery.dart';
+import 'package:doggylog/features/pets/presentation/widgets/skin_purchase_overlay.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -321,54 +322,134 @@ void main() {
     expect(tappedPetId, 'pet-3');
   });
 
-  testWidgets('PetSkinGallery shows progress feedback while purchase opens', (
-    tester,
-  ) async {
-    final pets = [
-      PetProfile(
-        id: 'pet-1',
-        name: 'Mochi',
-        breed: PetBreed.shiba,
-        loyaltyPoints: 120,
-        selectedSkinId: 'amber-shiba',
-        unlockedSkinIds: const ['amber-shiba'],
-        createdAt: DateTime(2025),
-        isSelected: true,
-      ),
-      PetProfile(
-        id: 'pet-3',
-        name: 'Luna',
-        breed: PetBreed.husky,
-        loyaltyPoints: 180,
-        selectedSkinId: 'frost-husky',
-        unlockedSkinIds: const ['frost-husky'],
-        createdAt: DateTime(2025, 3),
-      ),
-    ];
+  testWidgets(
+    'PetSkinGallery keeps cards compact and disabled during purchase',
+    (tester) async {
+      final pets = [
+        PetProfile(
+          id: 'pet-1',
+          name: 'Mochi',
+          breed: PetBreed.shiba,
+          loyaltyPoints: 120,
+          selectedSkinId: 'amber-shiba',
+          unlockedSkinIds: const ['amber-shiba'],
+          createdAt: DateTime(2025),
+          isSelected: true,
+        ),
+        PetProfile(
+          id: 'pet-3',
+          name: 'Luna',
+          breed: PetBreed.husky,
+          loyaltyPoints: 180,
+          selectedSkinId: 'frost-husky',
+          unlockedSkinIds: const ['frost-husky'],
+          createdAt: DateTime(2025, 3),
+        ),
+      ];
 
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.light(skinTheme: AppSkinTheme.shibaJoy, fontScale: 1.0),
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: PetSkinGallery(
-              pets: pets,
-              selectedPetId: 'pet-1',
-              onPetSelected: (_) {},
-              premiumSkinStore: const PremiumSkinStoreState(
-                didLoad: true,
-                storeAvailable: true,
-                purchasePendingProductId: 'doggylog.skin.soft_wellness',
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(
+            skinTheme: AppSkinTheme.shibaJoy,
+            fontScale: 1.0,
+          ),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: PetSkinGallery(
+                pets: pets,
+                selectedPetId: 'pet-1',
+                onPetSelected: (_) {},
+                premiumSkinStore: const PremiumSkinStoreState(
+                  didLoad: true,
+                  storeAvailable: true,
+                  purchasePendingProductId: 'doggylog.skin.soft_wellness',
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
+      );
 
-    expect(find.text('正在打开购买确认'), findsOneWidget);
-    expect(find.text('系统弹窗出现前请稍等一下'), findsOneWidget);
-    expect(find.text('请稍等'), findsOneWidget);
-    expect(find.byType(CircularProgressIndicator), findsWidgets);
-  });
+      expect(find.text('正在打开购买确认'), findsNothing);
+      expect(find.text('系统弹窗出现前请稍等一下'), findsNothing);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.text('¥3 解锁'), findsOneWidget);
+      expect(
+        tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+        isNull,
+      );
+      for (final pet in pets) {
+        expect(
+          tester
+              .widget<InkWell>(find.byKey(Key('pet-skin-card-${pet.id}')))
+              .onTap,
+          isNull,
+        );
+      }
+    },
+  );
+
+  testWidgets(
+    'purchase overlay is centered, blocks taps and clears with state',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      var taps = 0;
+      Future<void> pumpOverlay(bool pending) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.light(
+              skinTheme: AppSkinTheme.shibaJoy,
+              fontScale: 1.0,
+            ),
+            home: SkinPurchaseOverlay(
+              isPurchasing: pending,
+              child: Scaffold(
+                appBar: AppBar(
+                  title: const Text('换装'),
+                  actions: [
+                    IconButton(
+                      key: const Key('background-action'),
+                      onPressed: () => taps++,
+                      icon: const Icon(Icons.add),
+                    ),
+                  ],
+                ),
+                body: const SizedBox.expand(),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+      }
+
+      await pumpOverlay(true);
+      final dialog = find.byKey(const Key('skin-purchase-dialog'));
+      expect(dialog, findsOneWidget);
+      expect(find.text('正在打开购买确认'), findsOneWidget);
+      expect(find.text('系统弹窗出现前请稍等一下'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(
+        tester.getCenter(dialog).dy,
+        closeTo(
+          tester.view.physicalSize.height / tester.view.devicePixelRatio / 2,
+          1,
+        ),
+      );
+      await tester.tapAt(
+        tester.getCenter(find.byKey(const Key('background-action'))),
+      );
+      await tester.pump();
+      expect(taps, 0);
+      expect(dialog, findsOneWidget);
+
+      await pumpOverlay(false);
+      expect(dialog, findsNothing);
+      expect(find.byKey(const Key('skin-purchase-barrier')), findsNothing);
+      await tester.tap(find.byKey(const Key('background-action')));
+      expect(taps, 1);
+    },
+  );
 }

@@ -1,14 +1,8 @@
 import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:doggylog/app/theme/app_skin_theme.dart';
+import 'package:doggylog/features/calendar/presentation/calendar_theme_assets.dart';
 import 'package:doggylog/features/shared/domain/models.dart';
 import 'package:flutter/material.dart';
-
-const _skinPreviewDogAssets = [
-  'assets/images/calendar/calendar_dog_timeline.png',
-  'assets/images/calendar/calendar_dog1_timeline.png',
-  'assets/images/calendar/calendar_dog2_timeline.png',
-  'assets/images/calendar/calendar_dog3_timeline.png',
-];
 
 class PetSkinGallery extends StatelessWidget {
   const PetSkinGallery({
@@ -58,8 +52,9 @@ class PetSkinGallery extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 16),
             child: _PetSkinCard(
               pet: uniquePets[index],
-              previewAsset:
-                  _skinPreviewDogAssets[index % _skinPreviewDogAssets.length],
+              previewAsset: calendarTimelineAssetsForBreed(
+                uniquePets[index].breed,
+              ).pngAssetPath,
               isSelected: uniquePets[index].id == selectedPetId,
               premiumSkinStore: premiumSkinStore,
               onTap: () => onPetSelected(uniquePets[index].id),
@@ -94,8 +89,7 @@ class _PetSkinCard extends StatelessWidget {
     final isPremiumLocked =
         premiumProductId != null && !premiumSkinStore.owns(premiumProductId);
     final isPremiumOwned = premiumSkinStore.owns(premiumProductId);
-    final isPurchasing =
-        premiumSkinStore.purchasePendingProductId == premiumProductId;
+    final isPurchasing = premiumSkinStore.purchasePendingProductId != null;
     final priceLabel = premiumProductId == null
         ? ''
         : premiumSkinStore.priceLabelFor(
@@ -112,7 +106,7 @@ class _PetSkinCard extends StatelessWidget {
       child: InkWell(
         key: Key('pet-skin-card-${pet.id}'),
         borderRadius: BorderRadius.circular(spec.cardRadius + 4),
-        onTap: onTap,
+        onTap: isPurchasing ? null : onTap,
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(spec.cardRadius + 4),
@@ -172,8 +166,8 @@ class _PetSkinCard extends StatelessWidget {
                               children: [
                                 Image.asset(
                                   previewAsset,
-                                  fit: BoxFit.cover,
-                                  alignment: Alignment.centerLeft,
+                                  fit: BoxFit.contain,
+                                  alignment: Alignment.center,
                                   filterQuality: FilterQuality.medium,
                                 ),
                                 DecoratedBox(
@@ -210,9 +204,7 @@ class _PetSkinCard extends StatelessWidget {
                           right: 16,
                           child: _PreviewOrb(
                             size: 42,
-                            color: spec.secondaryLight.withValues(
-                              alpha: 0.24,
-                            ),
+                            color: spec.secondaryLight.withValues(alpha: 0.24),
                           ),
                         ),
                       if (isPremiumOwned)
@@ -295,49 +287,15 @@ class _PetSkinCard extends StatelessWidget {
                             style: Theme.of(context).textTheme.labelMedium
                                 ?.copyWith(color: labelColor),
                           ),
-                          if (isPremiumLocked) ...[
-                            const SizedBox(height: 6),
-                            Text(
-                              context.l10n.premiumSkinPurchaseBlurb,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(
-                                    color: spec.onSurfaceVariantLight,
-                                    height: 1.35,
-                                  ),
-                            ),
-                            if (isPurchasing) ...[
-                              const SizedBox(height: 8),
-                              _PurchaseOpeningStatus(
-                                spec: spec,
-                                title: context
-                                    .l10n
-                                    .premiumSkinPurchaseOpeningTitle,
-                                hint:
-                                    context.l10n.premiumSkinPurchaseOpeningHint,
-                              ),
-                            ],
-                          ],
                         ],
                       ),
                     ),
                     if (isPremiumLocked)
                       FilledButton.tonalIcon(
                         onPressed: isPurchasing ? null : onTap,
-                        icon: isPurchasing
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.2,
-                                ),
-                              )
-                            : const Icon(Icons.lock_open_rounded),
+                        icon: const Icon(Icons.lock_open_rounded),
                         label: Text(
-                          isPurchasing
-                              ? context.l10n.premiumSkinPurchaseOpeningButton
-                              : context.l10n.premiumSkinUnlockButton(
-                                  priceLabel,
-                                ),
+                          context.l10n.premiumSkinUnlockButton(priceLabel),
                         ),
                       )
                     else
@@ -358,70 +316,6 @@ class _PetSkinCard extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _PurchaseOpeningStatus extends StatelessWidget {
-  const _PurchaseOpeningStatus({
-    required this.spec,
-    required this.title,
-    required this.hint,
-  });
-
-  final AppSkinSpec spec;
-  final String title;
-  final String hint;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: spec.primaryLight.withValues(alpha: 0.18)),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(
-              strokeWidth: 2.2,
-              color: spec.primaryLight,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: spec.onSurfaceVariantLight,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 1),
-                Text(
-                  hint,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: spec.onSurfaceVariantLight.withValues(alpha: 0.78),
-                    height: 1.25,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

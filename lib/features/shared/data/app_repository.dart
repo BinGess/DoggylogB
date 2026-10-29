@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:doggylog/app/localization/app_localizations.dart';
@@ -11,7 +12,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class AppRepository {
-  AppRepository(this._database, this._prefs, this._bus);
+  AppRepository(
+    this._database,
+    this._prefs,
+    this._bus, {
+    DateTime Function()? now,
+  }) : _now = now ?? DateTime.now;
+  final DateTime Function() _now;
+  static const _growthKey = 'companionGrowth.fresh.v2';
 
   static const _seededKey = 'seeded';
   static const _notificationPermissionPromptedKey =
@@ -284,11 +292,180 @@ class AppRepository {
         .toList();
   }
 
+  /// Uses the existing SQLite preferences table: task state and the complete
+  /// growth document commit together, without changing the native DB schema.
+  Future<CompanionGrowth> loadGrowth() => _database.transaction(_loadGrowth);
+
+  Future<CompanionGrowth> _loadGrowth() async {
+    final stored = await (_database.select(
+      _database.preferencesTable,
+    )..where((t) => t.key.equals(_growthKey))).getSingleOrNull();
+    if (stored != null) {
+      // A corrupt record must fail closed rather than silently award from zero.
+      final growth = CompanionGrowth.fromJson(
+        jsonDecode(stored.value) as Map<String, dynamic>,
+      );
+      growth.validate();
+      if (jsonDecode(stored.value)['totalXp'] != growth.totalXp) {
+        throw const FormatException('Growth total does not reconcile');
+      }
+      return growth;
+    }
+    // This release starts a new account. Legacy profiles and ledgers remain
+    // untouched; existing completed tasks are never backfilled.
+    const growth = CompanionGrowth();
+    await _saveGrowth(growth);
+    return growth;
+  }
+
+  Future<void> _saveGrowth(CompanionGrowth growth) async {
+    growth.validate();
+    await _database
+        .into(_database.preferencesTable)
+        .insert(
+          PreferencesTableCompanion.insert(
+            key: _growthKey,
+            value: jsonEncode(growth.toJson()),
+          ),
+          mode: InsertMode.insertOrReplace,
+        );
+  }
+
+  Future<void> _checkGrowthRevision(int? expected) async {
+    if (expected != null && (await _loadGrowth()).revision != expected) {
+      throw const GrowthPreviewChanged();
+    }
+  }
+
+  Future<void> acknowledgeGrowthBadges(List<String> ids) =>
+      _database.transaction(() async {
+        final growth = await _loadGrowth();
+        await _saveGrowth(
+          growth.copyWith(
+            seenBadgeIds: {...growth.seenBadgeIds, ...ids}.toList(),
+          ),
+        );
+      });
+
+  Stream<CompanionGrowth> watchGrowth() =>
+      (_database.select(_database.preferencesTable)
+            ..where((t) => t.key.equals(_growthKey)))
+          .watch()
+          .where((rows) => rows.isNotEmpty)
+          .map((rows) {
+            final json = jsonDecode(rows.single.value) as Map<String, dynamic>;
+            final growth = CompanionGrowth.fromJson(json);
+            growth.validate();
+            if (json['totalXp'] != growth.totalXp) {
+              throw const FormatException('Growth total does not reconcile');
+            }
+            return growth;
+          });
+
+  Future<GrowthChange> previewGrowthRemoval(
+    String id, {
+    bool deleting = false,
+  }) => _database.transaction(() async {
+    final growth = await _loadGrowth();
+    final after = growth
+        .copyWith(
+          entries: growth.entries
+              .map(
+                (e) => e.taskId == id && e.active
+                    ? e.copyWith(
+                        active: false,
+                        revokedAt: _now(),
+                        reason: deleting ? 'delete' : 'undo',
+                      )
+                    : e,
+              )
+              .toList(),
+        )
+        .recalculate();
+    return GrowthChange(before: growth, after: after);
+  });
+
   Future<void> upsertCalendarItem(CalendarItem item) async {
+    final change = await _database.transaction(() => _storeCalendarItem(item));
+    _notifyCalendarChange(item, change);
+  }
+
+  void _notifyCalendarChange(CalendarItem item, GrowthChange change) {
+    _bus.fire(TaskChangedEvent(item));
+    _bus.fire(GrowthUpdatedEvent(change, showReward: change.delta > 0));
+  }
+
+  Future<GrowthChange> _storeCalendarItem(CalendarItem item) async {
+    final current = await (_database.select(
+      _database.calendarEntriesTable,
+    )..where((t) => t.id.equals(item.id))).getSingleOrNull();
+    final before = await _loadGrowth();
+    var entries = before.entries
+        .map(
+          (e) => e.taskId == item.id && e.active
+              ? e.copyWith(
+                  active:
+                      e.active &&
+                      item.isCompleted &&
+                      !item.isDeleted &&
+                      item.source == SyncSource.localOnly,
+                  revokedAt: e.active && (!item.isCompleted || item.isDeleted)
+                      ? _now()
+                      : null,
+                  reason: item.isDeleted
+                      ? 'delete'
+                      : !item.isCompleted
+                      ? 'undo'
+                      : e.reason,
+                )
+              : e,
+        )
+        .toList();
+    final completing =
+        item.isCompleted &&
+        !item.isDeleted &&
+        current != null &&
+        !current.isCompleted;
+    if (completing &&
+        item.source == SyncSource.localOnly &&
+        !entries.any((e) => e.taskId == item.id && e.active)) {
+      final now = _now();
+      entries.add(
+        GrowthLedgerEntry(
+          id: _uuid.v4(),
+          taskId: item.id,
+          title: item.title,
+          completedAt: now,
+          dateKey: growthDateKey(now),
+        ),
+      );
+    }
+    var after = before.copyWith(entries: entries).recalculate();
+    final fresh = after.badgeIds
+        .where(
+          (id) =>
+              !before.badgeIds.contains(id) &&
+              !before.seenBadgeIds.contains(id),
+        )
+        .toList();
+    after = after.withAudit(
+      before,
+      taskId: item.id,
+      title: item.title,
+      reason: item.isDeleted
+          ? 'delete'
+          : !item.isCompleted
+          ? 'undo'
+          : 'complete',
+      now: _now(),
+      id: _uuid.v4(),
+    );
+    after = after.copyWith(revision: before.revision + 1);
     await _database
         .into(_database.calendarEntriesTable)
         .insertOnConflictUpdate(item.toCompanion());
-    _bus.fire(TaskChangedEvent(item));
+    await _saveGrowth(after);
+    return GrowthChange(before: before, after: after, newBadgeIds: fresh);
   }
 
   Future<void> mergeImportedCalendarItems(List<CalendarItem> items) async {
@@ -372,35 +549,52 @@ class AppRepository {
     }
   }
 
-  Future<void> deleteCalendarItem(String id) async {
-    final current = await (_database.select(
-      _database.calendarEntriesTable,
-    )..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
-    if (current == null) {
-      return;
-    }
-    final updated = current.toDomain().copyWith(
-      isDeleted: true,
-      updatedAt: DateTime.now(),
-    );
-    await upsertCalendarItem(updated);
+  Future<void> deleteCalendarItem(String id, {int? expectedRevision}) async {
+    await _database
+        .transaction(() async {
+          await _checkGrowthRevision(expectedRevision);
+          final current = await (_database.select(
+            _database.calendarEntriesTable,
+          )..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
+          if (current == null) {
+            return null;
+          }
+          final updated = current.toDomain().copyWith(
+            isDeleted: true,
+            updatedAt: DateTime.now(),
+          );
+          final change = await _storeCalendarItem(updated);
+          return (updated, change);
+        })
+        .then((result) {
+          if (result != null) {
+            _notifyCalendarChange(result.$1, result.$2);
+          }
+        });
   }
 
-  Future<void> toggleCalendarItemCompletion(String id, bool value) async {
-    final current = await (_database.select(
-      _database.calendarEntriesTable,
-    )..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
-    if (current == null) {
-      return;
-    }
-    final item = current.toDomain().copyWith(
-      isCompleted: value,
-      updatedAt: DateTime.now(),
-    );
-    await upsertCalendarItem(item);
-    if (value && item.petId != null) {
-      await _grantLoyalty(item.petId!, item);
-      _bus.fire(TaskCompletedEvent(item));
+  Future<void> toggleCalendarItemCompletion(
+    String id,
+    bool value, {
+    int? expectedRevision,
+  }) async {
+    CalendarItem? item;
+    final change = await _database.transaction(() async {
+      await _checkGrowthRevision(expectedRevision);
+      final current = await (_database.select(
+        _database.calendarEntriesTable,
+      )..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
+      if (current == null ||
+          current.isDeleted ||
+          current.isCompleted == value) {
+        return null;
+      }
+      item = current.toDomain().copyWith(isCompleted: value, updatedAt: _now());
+      return _storeCalendarItem(item!);
+    });
+    if (item != null && change != null) {
+      _notifyCalendarChange(item!, change);
+      if (value) _bus.fire(TaskCompletedEvent(item!));
     }
   }
 
@@ -486,76 +680,6 @@ class AppRepository {
           ),
         )
         .toList(growable: false);
-  }
-
-  int _calculateStreak(List<CalendarItem> items) {
-    if (items.isEmpty) return 0;
-    final completedDays =
-        items
-            .where((item) => item.isCompleted)
-            .map(
-              (item) => DateTime(
-                item.startAt.year,
-                item.startAt.month,
-                item.startAt.day,
-              ),
-            )
-            .toSet()
-            .toList()
-          ..sort((a, b) => b.compareTo(a));
-    if (completedDays.isEmpty) return 0;
-    var streak = 0;
-    var cursor = DateTime.now();
-    cursor = DateTime(cursor.year, cursor.month, cursor.day);
-    while (completedDays.contains(cursor)) {
-      streak += 1;
-      cursor = cursor.subtract(const Duration(days: 1));
-    }
-    return streak;
-  }
-
-  Future<void> _grantLoyalty(String petId, CalendarItem item) async {
-    final rows =
-        await (_database.select(_database.calendarEntriesTable)..where(
-              (tbl) => tbl.petId.equals(petId) & tbl.isCompleted.equals(true),
-            ))
-            .get();
-    final completedItems = rows.map((row) => row.toDomain()).toList();
-    final streak = _calculateStreak(completedItems);
-    final bonus = switch (streak) {
-      >= 7 => 12,
-      >= 5 => 8,
-      >= 3 => 5,
-      _ => 0,
-    };
-    final awarded = 10 + bonus;
-    await _database.transaction(() async {
-      final currentPet = await (_database.select(
-        _database.petProfilesTable,
-      )..where((tbl) => tbl.id.equals(petId))).getSingleOrNull();
-      if (currentPet == null) {
-        return;
-      }
-      await (_database.update(
-        _database.petProfilesTable,
-      )..where((tbl) => tbl.id.equals(petId))).write(
-        PetProfilesTableCompanion(
-          loyaltyPoints: Value(currentPet.loyaltyPoints + awarded),
-        ),
-      );
-      await _database
-          .into(_database.loyaltyLedgersTable)
-          .insert(
-            LoyaltyLedger(
-              id: _uuid.v4(),
-              petId: petId,
-              calendarItemId: item.id,
-              points: awarded,
-              createdAt: DateTime.now(),
-              reason: streak >= 3 ? 'streak_bonus' : 'task_complete',
-            ).toCompanion(),
-          );
-    });
   }
 
   PetMood deriveMood(PetProfile pet, List<CalendarItem> items) {

@@ -60,6 +60,9 @@ final class RunnerTests: XCTestCase {
       "calendar_dog1_timeline",
       "calendar_dog2_timeline",
       "calendar_dog3_timeline",
+      "border_collie_cocoa_timeline",
+      "dachshund_cocoa_timeline",
+      "dalmatian_spot_timeline",
     ]
 
     for imageFileName in imageFileNames {
@@ -115,7 +118,7 @@ final class RunnerTests: XCTestCase {
       ),
       countdown: DoggylogActivityCountdown(
         title: "Mochi 生日",
-        dueAt: 1,
+        dueAt: Int(Date().addingTimeInterval(86400).timeIntervalSince1970 * 1000),
         daysRemaining: 28
       ),
       recentTasks: []
@@ -123,6 +126,14 @@ final class RunnerTests: XCTestCase {
 
     XCTAssertFalse(DoggylogLiveActivityPresentation.shouldPresent(snapshotWithoutCountdown))
     XCTAssertTrue(DoggylogLiveActivityPresentation.shouldPresent(snapshotWithCountdown))
+    let expiredSnapshot = DoggylogActivitySnapshot(
+      generatedAt: 1,
+      today: snapshotWithCountdown.today,
+      pet: snapshotWithCountdown.pet,
+      countdown: DoggylogActivityCountdown(title: "已过期", dueAt: 1, daysRemaining: -1),
+      recentTasks: []
+    )
+    XCTAssertFalse(DoggylogLiveActivityPresentation.shouldPresent(expiredSnapshot))
   }
 
   func testLiveActivitySelectionPrefersStoredActivityIdAndMarksDuplicates() {

@@ -41,6 +41,19 @@ const _calendarThemeAssetsGroup4 = CalendarThemeAssets(
   pngAssetPath: 'assets/images/calendar/calendar_dog3_timeline.png',
 );
 
+const _collieAssets = CalendarThemeAssets(
+  gifAssetPath: 'assets/images/calendar/border_collie_cocoa_timeline.gif',
+  pngAssetPath: 'assets/images/calendar/border_collie_cocoa_timeline.png',
+);
+const _dachshundAssets = CalendarThemeAssets(
+  gifAssetPath: 'assets/images/calendar/dachshund_cocoa_timeline.gif',
+  pngAssetPath: 'assets/images/calendar/dachshund_cocoa_timeline.png',
+);
+const _dalmatianAssets = CalendarThemeAssets(
+  gifAssetPath: 'assets/images/calendar/dalmatian_spot_timeline.gif',
+  pngAssetPath: 'assets/images/calendar/dalmatian_spot_timeline.png',
+);
+
 CalendarThemeAssets calendarTimelineAssetsForTheme(AppSkinTheme theme) {
   return switch (theme) {
     AppSkinTheme.shibaJoy => _calendarThemeAssetsGroup1,
@@ -48,6 +61,9 @@ CalendarThemeAssets calendarTimelineAssetsForTheme(AppSkinTheme theme) {
     AppSkinTheme.huskyFrost => _calendarThemeAssetsGroup3,
     AppSkinTheme.samoyedSpa => _calendarThemeAssetsGroup4,
     AppSkinTheme.goldenBloom => _calendarThemeAssetsGroup1,
+    AppSkinTheme.collieGarden => _collieAssets,
+    AppSkinTheme.dachshundCocoa => _dachshundAssets,
+    AppSkinTheme.dalmatianInk => _dalmatianAssets,
   };
 }
 

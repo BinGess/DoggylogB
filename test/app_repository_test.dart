@@ -62,47 +62,51 @@ void main() {
     expect(mood, PetMood.sad);
   });
 
-  test('toggleCalendarItemCompletion grants loyalty points', () async {
-    final now = DateTime.now();
-    await database
-        .into(database.petProfilesTable)
-        .insert(
-          PetProfile(
-            id: 'pet-1',
-            name: 'Mochi',
-            breed: PetBreed.shiba,
-            loyaltyPoints: 0,
-            selectedSkinId: 'amber-shiba',
-            unlockedSkinIds: const ['amber-shiba'],
-            createdAt: now,
-            isSelected: true,
-          ).toCompanion(),
-        );
-    await database
-        .into(database.calendarEntriesTable)
-        .insert(
-          CalendarItem(
-            id: 'task-1',
-            title: 'walk',
-            description: '',
-            startAt: now,
-            endAt: now.add(const Duration(minutes: 30)),
-            category: CalendarCategory.pet,
-            petId: 'pet-1',
-            reminders: const [],
-            source: SyncSource.localOnly,
-            createdAt: now,
-            updatedAt: now,
-          ).toCompanion(),
-        );
+  test(
+    'toggleCalendarItemCompletion grants unified growth, not per-pet points',
+    () async {
+      final now = DateTime.now();
+      await database
+          .into(database.petProfilesTable)
+          .insert(
+            PetProfile(
+              id: 'pet-1',
+              name: 'Mochi',
+              breed: PetBreed.shiba,
+              loyaltyPoints: 0,
+              selectedSkinId: 'amber-shiba',
+              unlockedSkinIds: const ['amber-shiba'],
+              createdAt: now,
+              isSelected: true,
+            ).toCompanion(),
+          );
+      await database
+          .into(database.calendarEntriesTable)
+          .insert(
+            CalendarItem(
+              id: 'task-1',
+              title: 'walk',
+              description: '',
+              startAt: now,
+              endAt: now.add(const Duration(minutes: 30)),
+              category: CalendarCategory.pet,
+              petId: 'pet-1',
+              reminders: const [],
+              source: SyncSource.localOnly,
+              createdAt: now,
+              updatedAt: now,
+            ).toCompanion(),
+          );
 
-    await repository.toggleCalendarItemCompletion('task-1', true);
-    final petRow = await (database.select(
-      database.petProfilesTable,
-    )..where((tbl) => tbl.id.equals('pet-1'))).getSingle();
+      await repository.toggleCalendarItemCompletion('task-1', true);
+      final petRow = await (database.select(
+        database.petProfilesTable,
+      )..where((tbl) => tbl.id.equals('pet-1'))).getSingle();
 
-    expect(petRow.loyaltyPoints, greaterThanOrEqualTo(10));
-  });
+      expect(petRow.loyaltyPoints, 0);
+      expect((await repository.loadGrowth()).totalXp, 10);
+    },
+  );
 
   test(
     'reconcileCalendarDelta marks missing system events as deleted',
@@ -298,6 +302,36 @@ void main() {
     }
     expect(pets.where((pet) => pet.isSelected), hasLength(1));
   });
+
+  test(
+    'existing pet roster gains the three new skins without changing selection',
+    () async {
+      await repository.seedIfNeeded();
+      final original = await database.select(database.petProfilesTable).get();
+      final selectedId = original.singleWhere((pet) => pet.isSelected).id;
+      const newBreeds = {
+        PetBreed.borderCollie,
+        PetBreed.dachshund,
+        PetBreed.dalmatian,
+      };
+      await (database.delete(database.petProfilesTable)..where(
+            (table) => table.breed.isIn(newBreeds.map((breed) => breed.name)),
+          ))
+          .go();
+
+      await repository.ensureDefaultPetRoster();
+      await repository.ensureDefaultPetRoster();
+
+      final updated = await database.select(database.petProfilesTable).get();
+      expect(updated.singleWhere((pet) => pet.isSelected).id, selectedId);
+      for (final breed in newBreeds) {
+        final profile = updated.singleWhere((pet) => pet.breed == breed.name);
+        expect(profile.loyaltyPoints, 0);
+        expect(profile.selectedSkinId, isNotEmpty);
+      }
+      expect(updated, hasLength(original.length));
+    },
+  );
 
   test(
     'seedIfNeeded stores locale-agnostic copy keys for seeded content',

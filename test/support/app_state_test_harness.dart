@@ -41,13 +41,15 @@ class AppStateTestHarness {
     List<CalendarItem> initialCalendarItems = const [],
     Map<String, Object> sharedPreferences = const {},
     List<Override> overrides = const [],
+    DateTime Function()? now,
   }) async {
     TestWidgetsFlutterBinding.ensureInitialized();
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     SharedPreferences.setMockInitialValues(sharedPreferences);
     final prefs = await SharedPreferences.getInstance();
     final database = AppDatabase.forTesting(NativeDatabase.memory());
-    final repository = AppRepository(database, prefs, DomainEventBus());
+    final bus = DomainEventBus();
+    final repository = AppRepository(database, prefs, bus, now: now);
     for (final item in initialCalendarItems) {
       await repository.upsertCalendarItem(item);
     }
@@ -64,6 +66,10 @@ class AppStateTestHarness {
     final skinPurchaseService = _HarnessSkinPurchaseService(prefs);
     final container = ProviderContainer(
       overrides: [
+        eventBusProvider.overrideWith((ref) {
+          ref.onDispose(bus.dispose);
+          return bus;
+        }),
         repositoryProvider.overrideWith((ref) async => repository),
         notificationServiceProvider.overrideWith((ref) async => notifications),
         iosCalendarSyncServiceProvider.overrideWith((ref) => iosCalendar),

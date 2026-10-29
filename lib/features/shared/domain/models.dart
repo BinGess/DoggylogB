@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:doggylog/features/shared/domain/companion_growth.dart';
+export 'package:doggylog/features/shared/domain/companion_growth.dart';
 
 enum CalendarCategory {
   daily('bone'),
@@ -12,7 +14,16 @@ enum CalendarCategory {
 
 enum CalendarViewMode { month, week, day, list }
 
-enum PetBreed { shiba, goldenRetriever, beagle, husky, samoyed }
+enum PetBreed {
+  shiba,
+  goldenRetriever,
+  beagle,
+  husky,
+  samoyed,
+  borderCollie,
+  dachshund,
+  dalmatian,
+}
 
 enum PetMood { excited, calm, lazy, sad }
 
@@ -280,6 +291,10 @@ class CountdownItem {
   final String? petId;
   final bool isPinned;
   final bool hasCelebrated;
+
+  /// Reaching the target time completes the countdown even when it was not
+  /// manually marked done. Moving the target back into the future reopens it.
+  bool isCompletedAt(DateTime now) => hasCelebrated || !dueAt.isAfter(now);
 
   CountdownItem copyWith({
     String? id,
@@ -571,6 +586,8 @@ class AppState {
     this.activeScene = SceneMode.home,
     this.fetchingBall = false,
     this.premiumSkinStore = const PremiumSkinStoreState(),
+    this.growth = const CompanionGrowth(),
+    this.growthUnavailable = false,
   });
 
   final UserPreference preferences;
@@ -594,6 +611,8 @@ class AppState {
   final SceneMode activeScene;
   final bool fetchingBall;
   final PremiumSkinStoreState premiumSkinStore;
+  final CompanionGrowth growth;
+  final bool growthUnavailable;
 
   PetProfile? get selectedPet {
     for (final pet in pets) {
@@ -626,6 +645,8 @@ class AppState {
     SceneMode? activeScene,
     bool? fetchingBall,
     PremiumSkinStoreState? premiumSkinStore,
+    CompanionGrowth? growth,
+    bool? growthUnavailable,
   }) {
     return AppState(
       preferences: preferences ?? this.preferences,
@@ -652,6 +673,8 @@ class AppState {
       activeScene: activeScene ?? this.activeScene,
       fetchingBall: fetchingBall ?? this.fetchingBall,
       premiumSkinStore: premiumSkinStore ?? this.premiumSkinStore,
+      growth: growth ?? this.growth,
+      growthUnavailable: growthUnavailable ?? this.growthUnavailable,
     );
   }
 }

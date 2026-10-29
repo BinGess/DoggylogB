@@ -34,6 +34,9 @@ enum DoggyWidgetSkinTheme: String {
   case beagleBreeze
   case huskyFrost
   case samoyedSpa
+  case collieGarden
+  case dachshundCocoa
+  case dalmatianInk
 
   static func resolve(from snapshot: DoggyLogSharedSnapshot?) -> DoggyWidgetSkinTheme {
     DoggyWidgetSkinTheme(rawValue: snapshot?.pet.skinTheme ?? "") ?? .shibaJoy
@@ -49,6 +52,12 @@ enum DoggyWidgetSkinTheme: String {
       return "calendar_dog2_timeline"
     case .samoyedSpa:
       return "calendar_dog3_timeline"
+    case .collieGarden:
+      return "border_collie_cocoa_timeline"
+    case .dachshundCocoa:
+      return "dachshund_cocoa_timeline"
+    case .dalmatianInk:
+      return "dalmatian_spot_timeline"
     }
   }
 
@@ -62,6 +71,8 @@ enum DoggyWidgetSkinTheme: String {
       return 0.94
     case .samoyedSpa:
       return 0.92
+    case .collieGarden, .dachshundCocoa, .dalmatianInk:
+      return 0.94
     }
   }
 
@@ -75,6 +86,8 @@ enum DoggyWidgetSkinTheme: String {
       return 1
     case .samoyedSpa:
       return -2
+    case .collieGarden, .dachshundCocoa, .dalmatianInk:
+      return 0
     }
   }
 
@@ -199,6 +212,54 @@ enum DoggyWidgetSkinTheme: String {
         focusFill: Color(hex: 0xF0A0B4, opacity: 0.22),
         quietSymbol: Color(hex: 0xFFE0E8, opacity: 0.10),
         borderWidth: 1.0
+      )
+    case (.collieGarden, .light):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0xFFFFFF), Color(hex: 0xFCFDFB), Color(hex: 0xF8FAF7)],
+        cardBorder: Color(hex: 0xB9C9B4), textPrimary: Color(hex: 0x23382B),
+        textSecondary: Color(hex: 0x42664D), accentPrimary: Color(hex: 0x326A51),
+        accentSecondary: Color(hex: 0x9A633B), focusFill: Color(hex: 0x326A51, opacity: 0.14),
+        quietSymbol: Color(hex: 0x23382B, opacity: 0.08), borderWidth: 1.2
+      )
+    case (.collieGarden, .dark):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0x213328), Color(hex: 0x1A2A20), Color(hex: 0x283D2D)],
+        cardBorder: Color(hex: 0x405D49), textPrimary: Color(hex: 0xE4F0E1),
+        textSecondary: Color(hex: 0xACD0B2), accentPrimary: Color(hex: 0x9ED6AC),
+        accentSecondary: Color(hex: 0xD6A77C), focusFill: Color(hex: 0x9ED6AC, opacity: 0.20),
+        quietSymbol: Color(hex: 0xE4F0E1, opacity: 0.10), borderWidth: 1.2
+      )
+    case (.dachshundCocoa, .light):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0xFFFFFF), Color(hex: 0xFFFCFA), Color(hex: 0xFCF8F6)],
+        cardBorder: Color(hex: 0xDCC1B8), textPrimary: Color(hex: 0x402A33),
+        textSecondary: Color(hex: 0x80505A), accentPrimary: Color(hex: 0x823F50),
+        accentSecondary: Color(hex: 0x71538B), focusFill: Color(hex: 0x823F50, opacity: 0.14),
+        quietSymbol: Color(hex: 0x402A33, opacity: 0.08), borderWidth: 1.2
+      )
+    case (.dachshundCocoa, .dark):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0x35222B), Color(hex: 0x2A1A23), Color(hex: 0x402934)],
+        cardBorder: Color(hex: 0x684351), textPrimary: Color(hex: 0xF7E7E4),
+        textSecondary: Color(hex: 0xE9B9C0), accentPrimary: Color(hex: 0xE4A4AE),
+        accentSecondary: Color(hex: 0xCAA5E1), focusFill: Color(hex: 0xE4A4AE, opacity: 0.20),
+        quietSymbol: Color(hex: 0xF7E7E4, opacity: 0.10), borderWidth: 1.2
+      )
+    case (.dalmatianInk, .light):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0xFFFFFF), Color(hex: 0xFDFDFD), Color(hex: 0xFAFAF9)],
+        cardBorder: Color(hex: 0xC9CCCF), textPrimary: Color(hex: 0x202329),
+        textSecondary: Color(hex: 0x4C535A), accentPrimary: Color(hex: 0x30343B),
+        accentSecondary: Color(hex: 0xC4493D), focusFill: Color(hex: 0x30343B, opacity: 0.12),
+        quietSymbol: Color(hex: 0x202329, opacity: 0.08), borderWidth: 1.0
+      )
+    case (.dalmatianInk, .dark):
+      return DoggyWidgetPalette(
+        cardColors: [Color(hex: 0x2A2C30), Color(hex: 0x232529), Color(hex: 0x34363A)],
+        cardBorder: Color(hex: 0x484B50), textPrimary: Color(hex: 0xF2F2F0),
+        textSecondary: Color(hex: 0xC5C8CA), accentPrimary: Color(hex: 0xE2E4E7),
+        accentSecondary: Color(hex: 0xFF9185), focusFill: Color(hex: 0xE2E4E7, opacity: 0.20),
+        quietSymbol: Color(hex: 0xF2F2F0, opacity: 0.10), borderWidth: 1.0
       )
     @unknown default:
       return DoggyWidgetSkinTheme.shibaJoy.palette(for: .light)

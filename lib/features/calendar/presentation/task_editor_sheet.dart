@@ -1,3 +1,4 @@
+import 'package:doggylog/features/growth/presentation/growth_actions.dart';
 import 'package:doggylog/app/localization/app_localizations.dart';
 import 'package:collection/collection.dart';
 import 'package:doggylog/features/shared/application/doggylog_providers.dart';
@@ -118,10 +119,13 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
                   if (widget.item != null) ...[
                     OutlinedButton(
                       onPressed: () async {
-                        await ref
-                            .read(appStateProvider.notifier)
-                            .deleteTask(widget.item!.id);
-                        if (!context.mounted) return;
+                        final deleted = await performGrowthAction(
+                          context,
+                          ref,
+                          widget.item!.id,
+                          deleting: true,
+                        );
+                        if (!deleted || !context.mounted) return;
                         Navigator.of(context).pop();
                       },
                       child: Text(l10n.delete),
@@ -139,11 +143,11 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
                             .saveTask(
                               id: widget.item?.id,
                               title: _titleController.text.trim(),
-                              description: '',
+                              description: widget.item?.description ?? '',
                               startAt: _startAt,
                               endAt: _endAt,
                               category: _category,
-                              petId: null,
+                              petId: widget.item?.petId,
                               reminders: reminders,
                             );
                         if (!context.mounted) return;

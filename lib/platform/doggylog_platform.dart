@@ -158,7 +158,7 @@ class DoggylogPlatform {
     return _invokeBool('backupToCloud');
   }
 
-  Future<List<String>> loadVerifiedOwnedProductIds(
+  Future<List<String>?> loadVerifiedOwnedProductIds(
     List<String> productIds,
   ) async {
     try {
@@ -166,12 +166,12 @@ class DoggylogPlatform {
         'loadVerifiedOwnedProductIds',
         <String, Object?>{'productIds': productIds},
       );
-      return ids ?? const <String>[];
+      return ids;
     } on MissingPluginException {
-      return const <String>[];
+      return null;
     } catch (error) {
       debugPrint('DoggylogPlatform.loadVerifiedOwnedProductIds failed: $error');
-      return const <String>[];
+      return null;
     }
   }
 

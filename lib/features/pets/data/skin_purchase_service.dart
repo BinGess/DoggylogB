@@ -7,7 +7,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 typedef VerifiedOwnedProductIdsLoader =
-    Future<List<String>> Function(Set<String> productIds);
+    Future<List<String>?> Function(Set<String> productIds);
 
 enum PremiumSkinPurchaseLaunchResult {
   launched,
@@ -25,7 +25,7 @@ class SkinPurchaseService {
            loadVerifiedOwnedProductIds ?? _defaultVerifiedOwnedProductIdsLoader;
 
   static const _ownedProductsKey = 'ownedPremiumSkinProductIds';
-  static Future<List<String>> _defaultVerifiedOwnedProductIdsLoader(
+  static Future<List<String>?> _defaultVerifiedOwnedProductIdsLoader(
     Set<String> productIds,
   ) async {
     return const <String>[];
@@ -58,12 +58,10 @@ class SkinPurchaseService {
     final verifiedOwnedProductIds = await _loadVerifiedOwnedProductIds(
       _productIds,
     );
-    // Only overwrite cached IDs when the verifier returns a non-empty result.
-    // An empty result could mean verification was unavailable (e.g. iOS < 15)
-    // rather than "nothing is owned", so we preserve the cached set to avoid
-    // stripping valid purchases on every cold start.
+    // null means verification was unavailable; [] is a successful check with
+    // no current entitlements and must clear stale cached ownership.
     final List<String> sanitizedOwnedProductIds;
-    if (verifiedOwnedProductIds.isNotEmpty) {
+    if (verifiedOwnedProductIds != null) {
       sanitizedOwnedProductIds =
           verifiedOwnedProductIds.where(_productIds.contains).toSet().toList()
             ..sort();
@@ -116,14 +114,20 @@ class SkinPurchaseService {
       return PremiumSkinPurchaseLaunchResult.missingProduct;
     }
     _emitState(purchasePendingProductId: productId);
-    final launched = await _iap.buyNonConsumable(
-      purchaseParam: PurchaseParam(productDetails: product),
-    );
-    if (!launched) {
+    try {
+      final launched = await _iap.buyNonConsumable(
+        purchaseParam: PurchaseParam(productDetails: product),
+      );
+      if (!launched) {
+        _emitState(clearPendingProductId: true);
+        return PremiumSkinPurchaseLaunchResult.failed;
+      }
+      return PremiumSkinPurchaseLaunchResult.launched;
+    } catch (error) {
+      debugPrint('SkinPurchaseService: purchase launch failed: $error');
       _emitState(clearPendingProductId: true);
       return PremiumSkinPurchaseLaunchResult.failed;
     }
-    return PremiumSkinPurchaseLaunchResult.launched;
   }
 
   Future<ProductDetails?> _refreshProduct(String productId) async {
@@ -154,6 +158,7 @@ class SkinPurchaseService {
       return false;
     }
     await _iap.restorePurchases();
+    await _refreshVerifiedOwnership();
     return true;
   }
 
@@ -170,10 +175,8 @@ class SkinPurchaseService {
           break;
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
-          final owned = {..._state.ownedProductIds, purchase.productID}.toList()
-            ..sort();
-          await _prefs.setStringList(_ownedProductsKey, owned);
-          _emitState(ownedProductIds: owned, clearPendingProductId: true);
+          await _refreshVerifiedOwnership();
+          _emitState(clearPendingProductId: true);
           break;
         case PurchaseStatus.error:
           debugPrint(
@@ -193,9 +196,25 @@ class SkinPurchaseService {
   }
 
   List<String> _readOwnedProductIds() {
-    return List<String>.from(
-      _prefs.getStringList(_ownedProductsKey) ?? const [],
-    );
+    return (_prefs.getStringList(_ownedProductsKey) ?? const <String>[])
+        .where(_productIds.contains)
+        .toSet()
+        .toList()
+      ..sort();
+  }
+
+  Future<void> _refreshVerifiedOwnership() async {
+    try {
+      final result = await _loadVerifiedOwnedProductIds(_productIds);
+      if (result == null) return;
+      final owned = result.where(_productIds.contains).toSet().toList()..sort();
+      await _prefs.setStringList(_ownedProductsKey, owned);
+      _emitState(ownedProductIds: owned);
+    } catch (error) {
+      debugPrint(
+        'SkinPurchaseService: entitlement verification failed: $error',
+      );
+    }
   }
 
   void _emitState({

@@ -17,12 +17,26 @@ class CountdownScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(appStateProvider);
     final controller = ref.read(appStateProvider.notifier);
-    final countdowns = state.countdowns;
     final now = DateTime.now();
-    final nearest = countdowns.isEmpty
-        ? null
-        : ([...countdowns]..sort((a, b) => a.dueAt.compareTo(b.dueAt)));
-    final activeCount = countdowns.where((item) => !item.hasCelebrated).length;
+    final countdowns = [...state.countdowns]
+      ..sort((a, b) {
+        final aCompleted = a.isCompletedAt(now);
+        final bCompleted = b.isCompletedAt(now);
+        if (aCompleted != bCompleted) {
+          return aCompleted ? 1 : -1;
+        }
+        final distanceOrder = a.dueAt
+            .difference(now)
+            .inMicroseconds
+            .abs()
+            .compareTo(b.dueAt.difference(now).inMicroseconds.abs());
+        return distanceOrder != 0 ? distanceOrder : a.id.compareTo(b.id);
+      });
+    final upcoming = countdowns
+        .where((item) => !item.isCompletedAt(now))
+        .toList();
+    final nearest = upcoming.isEmpty ? null : upcoming;
+    final activeCount = upcoming.length;
     final l10n = context.l10n;
     return Scaffold(
       body: SoftBackdrop(
@@ -86,10 +100,12 @@ class CountdownScreen extends ConsumerWidget {
                                 value: nearest == null
                                     ? '--'
                                     : l10n.daysLabel(
-                                        nearest.first.dueAt
-                                                .difference(now)
-                                                .inDays +
-                                            1,
+                                        (nearest.first.dueAt
+                                                    .difference(now)
+                                                    .inHours /
+                                                24)
+                                            .ceil()
+                                            .clamp(0, 999),
                                       ),
                               ),
                             ),
@@ -141,15 +157,18 @@ class CountdownTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = item.progress(now);
+    final isCompleted = item.isCompletedAt(now);
+    final isExpired = !item.dueAt.isAfter(now);
 
     return Dismissible(
       key: ValueKey(item.id),
+      direction: isExpired
+          ? DismissDirection.endToStart
+          : DismissDirection.horizontal,
       background: _swipeAction(
         context,
-        icon: item.hasCelebrated ? Icons.undo_rounded : Icons.check_rounded,
-        label: item.hasCelebrated
-            ? context.l10n.restore
-            : context.l10n.complete,
+        icon: isCompleted ? Icons.undo_rounded : Icons.check_rounded,
+        label: isCompleted ? context.l10n.restore : context.l10n.complete,
         color: Theme.of(context).colorScheme.primary,
         alignment: Alignment.centerLeft,
       ),
@@ -162,7 +181,7 @@ class CountdownTile extends StatelessWidget {
       ),
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
-          onToggleCelebrated(!item.hasCelebrated);
+          onToggleCelebrated(!isCompleted);
           return false;
         }
         onDelete();
@@ -179,10 +198,10 @@ class CountdownTile extends StatelessWidget {
                   child: Text(
                     context.l10n.localizedStoredText(item.title),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      decoration: item.hasCelebrated
+                      decoration: isCompleted
                           ? TextDecoration.lineThrough
                           : TextDecoration.none,
-                      color: item.hasCelebrated
+                      color: isCompleted
                           ? Theme.of(
                               context,
                             ).colorScheme.onSurface.withValues(alpha: 0.48)
@@ -194,7 +213,7 @@ class CountdownTile extends StatelessWidget {
                   const Icon(Icons.push_pin_rounded, size: 18),
                   const SizedBox(width: 8),
                 ],
-                _StatusBadge(item: item),
+                _StatusBadge(isCompleted: isCompleted),
               ],
             ),
             const SizedBox(height: 6),
@@ -206,7 +225,7 @@ class CountdownTile extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(999),
               child: LinearProgressIndicator(
-                value: item.hasCelebrated ? 1 : progress,
+                value: isCompleted ? 1 : progress,
                 minHeight: 8,
               ),
             ),
@@ -219,7 +238,7 @@ class CountdownTile extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  item.hasCelebrated
+                  isCompleted
                       ? '100%'
                       : '${(progress * 100).toStringAsFixed(0)}%',
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -274,34 +293,29 @@ class CountdownTile extends StatelessWidget {
     DateTime now,
   ) {
     final l10n = context.l10n;
-    if (item.hasCelebrated) {
+    if (item.isCompletedAt(now)) {
       return l10n.completed;
     }
-    final hours = item.dueAt.difference(now).inHours;
-    if (hours < 0) {
-      return l10n.overdueHoursLabel(hours.abs().ceil());
-    }
+    final hours = item.dueAt.difference(now).inMinutes / 60;
     final days = (hours / 24).ceil();
     return l10n.remainingDaysLabel(days);
   }
 }
 
 class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.item});
+  const _StatusBadge({required this.isCompleted});
 
-  final CountdownItem item;
+  final bool isCompleted;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final color = item.hasCelebrated ? const Color(0xFF2B9348) : scheme.primary;
-    final label = item.hasCelebrated
-        ? context.l10n.completed
-        : context.l10n.detail;
+    final color = isCompleted ? const Color(0xFF2B9348) : scheme.primary;
+    final label = isCompleted ? context.l10n.completed : context.l10n.detail;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: item.hasCelebrated ? 0.12 : 0.08),
+        color: color.withValues(alpha: isCompleted ? 0.12 : 0.08),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: color.withValues(alpha: 0.14)),
       ),
